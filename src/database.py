@@ -96,6 +96,14 @@ def init_db() -> None:
         conn.commit()
 
 
+# Ensure tables are ready on module load
+try:
+    init_db()
+except Exception:
+    pass
+
+
+
 def save_telemetry_snapshot(
     report: TelemetryReportRequest,
     evaluation: EvaluationResult,

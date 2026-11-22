@@ -60,7 +60,7 @@ async def sync_courtroom_to_airtable(
                     patch_res = await client.patch(
                         f"{url}/{record_id}",
                         headers=headers,
-                        json={"fields": fields_payload}
+                        json={"fields": fields_payload, "typecast": True}
                     )
                     return patch_res.status_code == 200
 
@@ -68,7 +68,7 @@ async def sync_courtroom_to_airtable(
             create_res = await client.post(
                 url,
                 headers=headers,
-                json={"fields": fields_payload}
+                json={"fields": fields_payload, "typecast": True}
             )
             return create_res.status_code in (200, 201)
 
@@ -110,13 +110,21 @@ async def sync_all_active_courtrooms() -> Dict[str, Any]:
                     records = find_res.json().get("records", [])
                     if records:
                         rec_id = records[0]["id"]
-                        upd_res = await client.patch(f"{url}/{rec_id}", headers=headers, json={"fields": fields_payload})
+                        upd_res = await client.patch(
+                            f"{url}/{rec_id}",
+                            headers=headers,
+                            json={"fields": fields_payload, "typecast": True}
+                        )
                         if upd_res.status_code == 200:
                             synced_count += 1
                         continue
 
                 # Create if not found
-                add_res = await client.post(url, headers=headers, json={"fields": fields_payload})
+                add_res = await client.post(
+                    url,
+                    headers=headers,
+                    json={"fields": fields_payload, "typecast": True}
+                )
                 if add_res.status_code in (200, 201):
                     synced_count += 1
                 else:
