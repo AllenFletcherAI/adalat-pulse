@@ -52,6 +52,16 @@
 - **100% Emoji Eradication:** Zero emojis across code, UI, alerts, and documentation.
 - **Strict 100dvh Single-Viewport Fit:** Complete executive command cockpit strictly fits within `100dvh` with zero window-level vertical scrollbars.
 - **Automated Verification:** 30 out of 30 unit and integration tests passing in `tests/`.
+- **Zero-Slop Minimalist Overhaul & Non-Functional Asset Purge (ADR-020):**
+  - **Zero Passive Spoonfeeding:** Purged the non-functional Readiness Stepper bar (`READINESS GATE: ...`), the 24h Uplink Drift fake narrative bar, the Presiding Bench static strip, and all "STAGE 1", "STAGE 2", etc. textbook headers. Every element remaining on screen is active and reactive.
+  - **Condensed 38px Single-Row Navbar:** Streamlined navigation bar into a strict 38px row with `whitespace-nowrap flex-shrink-0` and `overflow-hidden`: `Adalat Pulse v1.0` | `43 Benches` | `4 Monitored` | `75.0%` | `1 P0` | `Airtable` (interactive sync) | `Find... [Ctrl+K]` | `Reset` | `IST Clock`. Eliminated redundant right-side sync button and eliminated all multi-line wrapping.
+  - **Acoustic Stack Streamlining:** Stripped the `ACOUSTIC STACK:` label; placed hardware select on left and action buttons (`Calibrate [Space]`, `Reset`) on right. Removed HTML text overlay spans from canvases and deleted calibration text prompts in `clearAudioCanvases()`, letting the visualizers speak for themselves. Increased canvas height to 44px. Styled `<kbd>` for high contrast in light mode.
+  - **Clean Bench & Profile Inputs:** Compacted Courtroom Bench combobox, Uplink Baseline select, and Language Model select into a single row with concise labels, eliminating chevron clipping.
+  - **Quality Gates Calibration:** Removed `Physical Deterministic Measurements` text; maintained 4 clean reactive metric bars with high-contrast threshold indicators.
+  - **Execution Action:** Set primary action button to `Verify Courtroom [↵ Enter]` with victory hover state `Authorize Proceeding`. Verdict banner features an active `Offline Buffer` button.
+  - **Fleet Deployment Table:** Updated grid layout to `38px 1fr 50px 64px 18px` so `STANDBY` fits without truncation; stripped the repeated word "units" 11 times; changed badge to `P0`.
+  - **Incident Feed:** Compacted header to `Incident Feed` with `ALL` and `P0` filters; stripped "LIVE", "ROUTING LOG", and "Automated P0 Dispatch".
+  - **System Status Bar:** Converted passive footer note into active telemetry indicators (`[● Slack: Online] • [● Linear: Online] • 1.5s Heartbeat`).
 - **Operational Data Reconciliation & Hardware Hardening (ADR-019):**
   - **Reconciled Fleet Math & State:** Unified metrics across top navigation bar (`Fleet: 43 Reg (11 States)`, `Live: 4 Monitored`, `Health: 75.0%`, `Incidents: 1 Active P0`), 11-State Deployment table, and Incident log. Unmonitored states display `STANDBY` rather than a false 100%. Rajasthan displays its verified `CRITICAL (0%)` status with a `P0 ALERT` badge.
   - **Authentic Courtroom Hardware Stacks:** Replaced consumer webcam mocks with genuine judicial hardware profiles (`Shure MX393 Judicial Boundary Mic`, `Judicial DSP Line-Out (Biamp Tesira)`, `Court Master Gooseneck (Sennheiser ME36)`, and flagged fallback `Consumer Webcam` with an explicit hardware warning). Enforced Koyal Indic ASR downsampling standard (`Clock: 48,000 Hz → 16,000 Hz PCM`).
