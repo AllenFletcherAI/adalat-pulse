@@ -335,9 +335,12 @@ async function startMicrophoneTest() {
 
         isMicActive = true;
         document.getElementById('mic-indicator-dot').className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
-        document.getElementById('mic-status-badge').textContent = "CALIBRATING";
-        document.getElementById('mic-status-badge').className = "px-1.5 py-0.2 rounded text-[10px] font-mono bg-amber-500/20 text-amber-400 border border-amber-500/30 font-semibold";
-        document.getElementById('mic-btn-label').textContent = "Stop & Certify";
+        const micBadge = document.getElementById('mic-status-badge');
+        if (micBadge) {
+            micBadge.textContent = "CALIBRATING";
+            micBadge.className = "px-1.5 py-0.2 rounded text-[10px] font-mono bg-amber-500/20 text-amber-400 border border-amber-500/30 font-semibold";
+        }
+        document.getElementById('mic-btn-label').textContent = "Calibrating...";
 
         drawRealTimeAudioVisualizers();
 
@@ -361,9 +364,12 @@ function startSyntheticAcousticTest() {
     document.getElementById('live-snr-db').textContent = "31.8 dB";
     document.getElementById('mic-device-name').textContent = "Device: Hardware Audio Loopback (Calibrated)";
     document.getElementById('mic-indicator-dot').className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
-    document.getElementById('mic-status-badge').textContent = "CALIBRATING";
-    document.getElementById('mic-status-badge').className = "px-1.5 py-0.2 rounded text-[10px] font-mono bg-amber-500/20 text-amber-400 border border-amber-500/30 font-semibold";
-    document.getElementById('mic-btn-label').textContent = "Stop & Certify";
+    const micBadge = document.getElementById('mic-status-badge');
+    if (micBadge) {
+        micBadge.textContent = "CALIBRATING";
+        micBadge.className = "px-1.5 py-0.2 rounded text-[10px] font-mono bg-amber-500/20 text-amber-400 border border-amber-500/30 font-semibold";
+    }
+    document.getElementById('mic-btn-label').textContent = "Calibrating...";
 
     drawSyntheticAudioVisualizers();
 
@@ -460,9 +466,12 @@ function stopMicrophoneTest() {
     }
 
     document.getElementById('mic-indicator-dot').className = "w-2 h-2 rounded-full bg-slate-500";
-    document.getElementById('mic-status-badge').textContent = "STANDBY";
-    document.getElementById('mic-status-badge').className = "px-1.5 py-0.2 rounded text-[10px] font-mono bg-[var(--bg-canvas)] text-[var(--text-muted)] border border-[var(--border-alpha)]";
-    document.getElementById('mic-btn-label').textContent = "Start Mic Test";
+    const micBadge = document.getElementById('mic-status-badge');
+    if (micBadge) {
+        micBadge.textContent = "STANDBY";
+        micBadge.className = "px-1.5 py-0.2 rounded text-[10px] font-mono bg-[var(--bg-canvas)] text-[var(--text-muted)] border border-[var(--border-alpha)]";
+    }
+    document.getElementById('mic-btn-label').textContent = "Calibrate";
 
     clearAudioCanvases();
 }
@@ -538,13 +547,6 @@ function clearAudioCanvases() {
         ctx.moveTo(0, waveCanvas.height / 2);
         ctx.lineTo(waveCanvas.width, waveCanvas.height / 2);
         ctx.stroke();
-
-        // Centered prompt text
-        ctx.font = '9px IBM Plex Mono, monospace';
-        ctx.fillStyle = isLight ? 'rgba(100, 116, 139, 0.8)' : 'rgba(148, 163, 184, 0.5)';
-        ctx.textAlign = 'center';
-        ctx.fillText('[ Press Space or Click "Start Mic Test" to Calibrate ]', waveCanvas.width / 2, (waveCanvas.height / 2) - 4);
-        ctx.textAlign = 'start';
     }
 }
 
@@ -1388,7 +1390,7 @@ async function pollFleetOverview() {
         localStorage.setItem('adalat_fleet_cache', JSON.stringify(data));
 
         const totalCourtroomsEl = document.getElementById('stat-total-courtrooms');
-        if (totalCourtroomsEl) totalCourtroomsEl.textContent = '43 Reg (11 States)';
+        if (totalCourtroomsEl) totalCourtroomsEl.textContent = '43 Benches';
 
         const monitoredCountEl = document.getElementById('stat-monitored-count') || document.getElementById('stat-optimal-sessions');
         if (monitoredCountEl) monitoredCountEl.textContent = `${data.total_active_courtrooms || 4} Monitored`;
@@ -1407,7 +1409,7 @@ async function pollFleetOverview() {
         const incCountEl = document.getElementById('stat-incidents-count');
         if (incCountEl) {
             const incCount = data.recent_critical_incidents || 1;
-            incCountEl.textContent = `${incCount} Active P0`;
+            incCountEl.textContent = `${incCount} P0`;
             incCountEl.className = "font-mono font-semibold status-critical-text text-xs";
         }
 
@@ -1439,7 +1441,7 @@ function render11StatesDeployment(regions) {
             healthText = "0.0%";
             healthClass = "status-critical-text font-bold text-xs tabular-nums";
             dotClass = "bg-rose-500";
-            statusBadge = `<span class="text-[8px] font-mono badge-critical px-1 rounded ml-1 font-semibold">P0 ALERT</span>`;
+            statusBadge = `<span class="text-[8px] font-mono badge-critical px-1 rounded ml-1 font-semibold">P0</span>`;
         } else if (reg && reg.degraded_count > 0) {
             healthText = `${reg.healthy_pct || 50.0}%`;
             healthClass = "status-degraded-text font-semibold text-xs tabular-nums";
@@ -1472,7 +1474,7 @@ function render11StatesDeployment(regions) {
                     ${isCurrentTarget ? '<span class="text-[8px] font-mono badge-optimal px-1 rounded ml-1 font-semibold">ACTIVE</span>' : ''}
                     ${statusBadge}
                 </div>
-                <div class="text-right text-[var(--text-muted)] text-[11px] tabular-nums">${unitCount} units</div>
+                <div class="text-right text-[var(--text-muted)] text-[11px] tabular-nums">${unitCount}</div>
                 <div class="text-right ${healthClass}">${healthText}</div>
                 <div class="text-center text-[10px] text-[var(--text-muted)] toggle-arrow">▾</div>
             </div>
@@ -2020,33 +2022,33 @@ function initHardwareProfileSelector() {
         const val = hwSelect.value;
         if (val === 'SHURE_MX393') {
             if (tierBadge) {
-                tierBadge.textContent = 'SHURE BENCHMARK';
+                tierBadge.textContent = 'BENCHMARK';
                 tierBadge.className = 'px-1.5 py-0.2 rounded text-[9px] font-mono font-semibold badge-optimal flex-none';
             }
-            micDeviceLabel = 'Hardware: Shure MX393 Judicial Boundary Mic (16 kHz Mono PCM)';
+            micDeviceLabel = 'Hardware: Shure MX393 Boundary Mic';
             if (devLabel) devLabel.textContent = micDeviceLabel;
         } else if (val === 'BIAMP_DSP') {
             if (tierBadge) {
                 tierBadge.textContent = 'DSP DIRECT';
                 tierBadge.className = 'px-1.5 py-0.2 rounded text-[9px] font-mono font-semibold badge-optimal flex-none';
             }
-            micDeviceLabel = 'Hardware: Judicial DSP Line-Out (Biamp Tesira Courtroom Feed)';
+            micDeviceLabel = 'Hardware: Judicial DSP Line-Out (Biamp)';
             if (devLabel) devLabel.textContent = micDeviceLabel;
         } else if (val === 'SENNHEISER_ME36') {
             if (tierBadge) {
                 tierBadge.textContent = 'VOICE TUNED';
                 tierBadge.className = 'px-1.5 py-0.2 rounded text-[9px] font-mono font-semibold badge-optimal flex-none';
             }
-            micDeviceLabel = 'Hardware: Court Master Gooseneck (Sennheiser ME36 Directional)';
+            micDeviceLabel = 'Hardware: Goose-neck (Sennheiser ME36)';
             if (devLabel) devLabel.textContent = micDeviceLabel;
         } else if (val === 'CONSUMER_WEBCAM') {
             if (tierBadge) {
-                tierBadge.textContent = 'UNRECOMMENDED';
-                tierBadge.className = 'px-1.5 py-0.2 rounded text-[9px] font-mono font-semibold badge-critical flex-none';
+                tierBadge.textContent = 'FALLBACK';
+                tierBadge.className = 'px-1.5 py-0.2 rounded text-[9px] font-mono font-semibold badge-degraded flex-none';
             }
-            micDeviceLabel = 'Hardware: Consumer Webcam / Laptop Mic (Uncalibrated Fallback)';
+            micDeviceLabel = 'Hardware: Consumer USB Webcam';
             if (devLabel) devLabel.textContent = micDeviceLabel;
-            showUndoToast('Hardware Warning: Consumer uncalibrated microphone detected. Shure MX393 boundary mic benchmark recommended for Koyal Indic ASR.', null, 5000);
+            showUndoToast('Hardware Warning: Uncalibrated consumer microphone detected. Benchmark Shure MX393 recommended.', null, 5000);
         }
     });
 }
