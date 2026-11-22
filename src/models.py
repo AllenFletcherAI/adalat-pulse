@@ -198,4 +198,5 @@ class FleetStatusOverview(BaseModel):
     verdict_breakdown: Dict[str, int]
     regions: List[RegionalStats]
     recent_critical_incidents: int
+    courtrooms: List[CourtroomStatusSummary] = Field(default_factory=list)
     last_updated: str

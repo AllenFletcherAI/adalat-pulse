@@ -209,12 +209,29 @@ async def get_fleet_courtroom_status():
 
     incidents = get_recent_incidents(10)
 
+    courtroom_summaries = [
+        CourtroomStatusSummary(
+            courtroom_id=row["courtroom_id"],
+            state=StateCode(row["state"]),
+            bench_name=row["bench_name"],
+            verdict=Verdict(row["verdict"]),
+            latency_ms=float(row["latency_ms"]),
+            packet_loss_pct=float(row["packet_loss_pct"]),
+            snr_db=float(row["snr_db"]),
+            can_start_session=bool(row["can_start_session"]),
+            last_ping=str(row["last_ping"]),
+            incident_id=row.get("incident_id"),
+        )
+        for row in latest_rows
+    ]
+
     return FleetStatusOverview(
         total_active_courtrooms=total_active,
         fleet_health_pct=fleet_health,
         verdict_breakdown=verdict_counts,
         regions=regions,
         recent_critical_incidents=len(incidents),
+        courtrooms=courtroom_summaries,
         last_updated=datetime.now(timezone.utc).isoformat(),
     )
 

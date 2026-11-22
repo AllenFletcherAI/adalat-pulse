@@ -201,3 +201,21 @@
 * **Why:** Judicial software deployed for the Supreme Court, High Courts, and 6,000+ judges must command institutional trust and aesthetic sobriety. Master-level micro-interactions eliminate layout shifts and cognitive friction during live court trials.
 * **Rejected Alternative:** Generic utility styling and standard browser font fallbacks. Rejected because uncalibrated typography and bouncy transitions distract courtroom technicians.
 * **When to Reconsider:** Never. Universal typographic and ergonomic principles endure.
+
+
+---
+
+## ADR-013: Live WebSocket Telemetry Streaming and Multi-State Judicial Interactive Architecture
+* **Date:** November 2026
+* **Decision:** Replace all simulated timer loops and static UI mockups with 100% authentic, real-time live network probing and comprehensive deep-dive drill-downs:
+  1. *Real WebSocket Probe Client:* The 5-second pre-flight diagnostic now opens an active WebSocket connection to `ws://${location.host}/ws/probe`, streaming 50 real-time ping frames over 5 seconds. It calculates live RTT, RFC 3550 statistical network jitter ($J_i = J_{i-1} + \frac{|D(i-1, i)| - J_{i-1}}{16}$), and unacknowledged packet loss, streaming measured numbers live into UI inputs.
+  2. *Real Web Audio API Hardware Sampling:* Samples actual hardware sample rate (`audioContext.sampleRate`, 44.1kHz/48kHz), computes root-mean-square (RMS) acoustic noise floor, and calculates room Signal-to-Noise Ratio (SNR) in dB live via an active VU meter.
+  3. *Zero-Clipping Typographic Structure:* Removed experimental `text-box-trim` property that previously clipped font ascenders and capital letters (*L*, *W*, *S*, *d*, *h*). Scaled input heights to 40px with comfortable padding and flex-aligned unit badges (`ms`, `%`, `dB`, `Hz`).
+  4. *True Dual-Theme Engine:* Abstracted canvas, panel, border, and text tokens into semantic CSS variables (`--bg-canvas`, `--bg-surface`, `--bg-sub`, `--border-alpha`, `--text-primary`), fully supporting instant toggling between dark mode (`#090B0E`) and high-contrast courtroom light mode (`#F8FAFC`).
+  5. *Multi-State Judicial Explorer:* Implemented interactive state cards across all 11 Indian partner jurisdictions (`KL`, `KA`, `AP`, `MH`, `DL`, `TN`, `UP`, `WB`, `GJ`, `RJ`, `MP`), opening a State Courtroom Explorer displaying principal seat, judicial benches, live health status, and a one-click "Test Bench" launcher.
+  6. *Live Incident Routing Inspector:* Clicking any P0 incident in the routing feed opens an Incident Inspector modal displaying the real Linear ticket ID (`ALL-7`), Slack Block Kit delivery status (`#all-adalat-pulse-alerts`), breached quality gates, and raw telemetry snapshot.
+  7. *Interactive Fleet Overview:* Clicking header KPI chips (`Active`, `Fleet`, `Optimal`, `Incidents`) opens a global fleet telemetry matrix enabling direct inspection and benchmarking of any courtroom bench.
+  8. *Clean Institutional Branding:* Updated product brand to **Adalat Pulse** (no hyphen, no "Pre-Flight Gateway" suffix, no kiddish scales icon); introduced a precision telemetry pulse waveform SVG.
+* **Why:** In production courtrooms, technicians and CTO office leadership require real network packet receipts, true hardware measurements, and immediate interactive drill-downs. Mocks erode trust and fail to detect actual network and audio degradation before court sessions begin.
+* **Rejected Alternative:** Client-side mock timer intervals and static display cards. Rejected because simulation hides actual packet drops, audio clipping, and ISP route degradation.
+* **When to Reconsider:** Never. Live deterministic telemetry is the core engineering mandate of Adalat Pulse.

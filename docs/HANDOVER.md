@@ -1,65 +1,48 @@
-# ADALAT-PULSE — OPERATIONAL HANDOVER NOTE
-**Project:** Adalat-Pulse (Courtroom Pre-Flight Diagnostic & Deployment Telemetry Gateway)  
+# ADALAT PULSE — OPERATIONAL HANDOVER NOTE
+**Project:** Adalat Pulse (Courtroom Hardware & Telemetry Gateway for Koyal ASR)  
 **Standard:** ASD-STE100 Simplified Technical English  
 **Date:** November 2026  
 **Author:** Allen Fletcher (Associate Candidate, CTO's Office, Adalat AI)  
+**Repository:** https://github.com/AllenFletcherAI/adalat-pulse  
 
 ---
 
 ## 1. What Is Done
-- **Strict Data Contracts:** Pydantic v2 validation models in `src/models.py` covering network latency, jitter, packet loss, WebSocket keepalive RTT, microphone hardware sample rate, ambient noise floor (SNR), Golden Baselines, and Operator Interview schemas.
-- **Deterministic Evaluation Engine:** `src/evaluator.py` evaluates all 6 telemetry parameters against Koyal ASR quality gates. Returns `OPTIMAL`, `DEGRADED`, or `CRITICAL` with plain-language reason codes.
-- **4-Tier Prompt Pyramid Architecture:** Fully implemented across `src/models.py`, `src/evaluator.py`, `src/database.py`, and `src/static/`:
-  - *Level 1 (Outcome):* Zero-word-drop Koyal ASR legal guarantee.
-  - *Level 2 (Autonomous Edge Research):* 5-second Web Audio API FFT noise floor analysis and WebSocket ping/pong probe.
-  - *Level 3 (Interactive Interview):* Dynamic technician dialog (`/api/v1/telemetry/interview`) enabling field remediation (e.g. fan turned off grants $+6\text{ dB}$ SNR clearance).
-  - *Level 4 (Golden Exemplars):* Golden Baseline profiles (`GOLDEN-HC-FIBER`, `GOLDEN-DC-HYBRID`, `GOLDEN-TL-EDGE`) with a 0–100% alignment score and live deltas.
-- **SQLite Persistence (WAL Mode):** Append-only telemetry table, incidents table, golden profiles seed table, and diagnostic interviews table in `src/database.py` with auto-initialization and zero-config local reliability.
-- **Automated Incident Routing:** Real Slack Block Kit dispatcher (`#all-adalat-pulse-alerts`) and Linear P0 issue creator in `src/alerts.py`. Verified with live Linear issue `ALL-7` and live Slack alert.
-- **Bi-Directional Airtable Sync:** Live REST client in `src/airtable_sync.py` syncing courtroom health to base `appviUqZAQGGD2ILo`. Verified with live record `recMbWX6eUaV3pnOD` (`typecast: True` enabled).
-- **FastAPI Gateway & WebSocket Probe:** REST endpoints (`/report`, `/interview`, `/golden-profiles`, `/courtrooms/status`, `/health`) and live `/ws/probe` endpoint in `src/main.py`.
-- **Zero-Scroll Single-Viewport Architecture (ADR-010):**
-  - Viewport strictly locked to 100dvh (`h-[100dvh] overflow-hidden`): zero browser window scrolling on any screen $\ge 1280 \times 800$.
-  - Eradicated all introductory/marketing copy (no giant H2 hero or explanatory paragraphs).
-  - Consolidated 4 oversized KPI cards into a clean 44px top header micro-stat strip (`Active`, `Fleet`, `Optimal`, `Incidents`).
-  - Unified all 6 telemetry parameters into a single compact horizontal grid with an integrated 4px hairline audio level bar.
-  - In-place pre-allocated verdict container (zero layout shift; standby $\rightarrow$ progress $\rightarrow$ verdict without page height expansion).
-  - Compact 4-column regional matrix (38px cards) and strictly contained incident feed (internal scroll only).
-- **Typographic Craftsmanship & OKLCH Micro-Interactions (ADR-012):**
-  - Font stacks: Standardized on `Switzer` (Clean Swiss Sans) and `IBM Plex Mono` (Tech Mono). Purged `Inter`, `Roboto`, `Geist`, `JetBrains Mono`.
-  - Zero-shift tabs: Reserved bold width via `inline-grid` stacking with hidden `::after` copy.
-  - Centered labels/buttons: `text-box-trim: trim-both` and `text-box-edge: cap alphabetic`.
-  - Small-caps acronyms: `font-variant-caps: all-small-caps` on `ASR`, `SNR`, `RTT`, `WS`, `WAL`, `P0`.
-  - Typographic curly quotes: `“`, `”`, `’` applied across all copy and generated reason codes.
-  - Alpha borders: `rgb(255 255 255 / 0.08)` blending seamlessly across surface depth levels (L0 to L3).
-  - OKLCH status palette: Matched lightness $L = 0.72$ for optimal, degraded, and critical indicators.
-  - Gradients & edge masks in OKLCH: Eliminates muddy gray dead zones.
-  - Popovers & exits: Start at `scale: 0.95` from trigger bounding box; exits 20% shorter (160ms vs 200ms) collapsing toward trigger.
-  - Icon swaps: Blurs to 4px and scales to 0.85 on exit; sharpens and scales to 1.0 on entrance.
-  - Staggered settlements: 30ms list row cascade; +60ms/+120ms/+180ms verdict detail settlements.
-  - Single-shot harmonic success pulse on clearance and sync completion.
-- **Automated Verification:** 30 out of 30 unit and integration tests passing in `tests/` in 12.25s.
-- **Git Repository & Remote Push:** Public repository created and synced at `https://github.com/AllenFletcherAI/adalat-pulse`.
-- **Containerization:** Multi-stage production `Dockerfile` and `docker-compose.yml`.
+- **Real-Time Live WebSocket Probe Client:** Replaced simulated timer loops with 100% real WebSocket packet streaming to `/ws/probe`. Sends 50 timestamped frames over 5 seconds, measures real RTT, calculates real RFC 3550 statistical network jitter ($J_i = J_{i-1} + \frac{|D(i-1, i)| - J_{i-1}}{16}$), and live packet loss, streaming measured numbers live into UI inputs.
+- **Hardware Web Audio API Sampling:** Samples real audio hardware sample rate (44.1k/48k Hz), computes root-mean-square (RMS) acoustic noise floor, and displays live room Signal-to-Noise Ratio (SNR) in dB with an active VU meter.
+- **Zero-Clipping Readable Typographic System:** Eradicated experimental `text-box-trim` that clipped ascenders and capital letters (*L*, *W*, *S*, *d*, *h*). Scaled input heights to 40px with comfortable padding and flex-aligned unit badges (`ms`, `%`, `dB`, `Hz`).
+- **Complete Interactive Drill-Downs Across Every Element:**
+  - *11-State Regional Matrix:* Clicking any state (`KL`, `KA`, `AP`, `MH`, `DL`, `TN`, `UP`, `WB`, `GJ`, `RJ`, `MP`) opens the State Courtroom Explorer displaying principal seat, judicial benches, live health status, and a 1-click "Test Bench" launcher.
+  - *Live Incident Routing Inspector:* Clicking any P0 incident opens the Incident Inspector modal displaying the real Linear ticket ID (`ALL-7`), Slack Block Kit delivery status (`#all-adalat-pulse-alerts`), breached quality gates, and raw telemetry snapshot.
+  - *Interactive Header Micro-KPIs:* Clicking `Active`, `Fleet`, or `Optimal` opens the Global Fleet Telemetry Matrix; clicking `Incidents` opens the Incident Inspector modal.
+  - *Scenario Presets:* "Fiber optimal", "Monsoon", "Fan noise", and "4G lag" tabs visually highlight with distinct active styling and load baseline stress values.
+  - *Courtroom Search Combobox:* Dropdown listing benches across all 11 partner state jurisdictions with instant search.
+  - *System Info & Architecture Hub:* "How it works" modal explaining the mission, Koyal ASR quality gates, and automated P0 routing.
+- **Dual Light/Dark Theme Engine:** True CSS-variable theming (`--bg-canvas`, `--bg-surface`, `--bg-sub`, `--border-alpha`, `--text-primary`) supporting instant switching between dark mode and high-contrast courtroom light mode with `localStorage` persistence.
+- **Clean Institutional Branding:** Renamed to **Adalat Pulse** (no hyphen, no "Pre-Flight Gateway" suffix, no kiddish scales icon); introduced a precision telemetry pulse waveform SVG.
+- **Strict Data Contracts & Persistence:** Pydantic v2 schemas in `src/models.py`, append-only SQLite persistence with WAL mode in `src/database.py`, and certified golden baselines.
+- **Automated Incident Routing & Airtable Sync:** Live Slack Block Kit dispatcher (`#all-adalat-pulse-alerts`), Linear GraphQL P0 issue creator (`ALL-7`), and REST Airtable sync client (`appviUqZAQGGD2ILo`).
+- **Automated Test Suite:** 30 out of 30 unit and integration tests passing in `tests/` in 11.71s.
+- **Server Health:** Uvicorn running healthy on port 8000 (`http://localhost:8000`).
 
 ---
 
 ## 2. Working On Now
-- System operating with full craftsmanship, typography, and motion standards in production zero-scroll mode.
-- Uvicorn daemon running healthy on port 8000.
+- System operating with 100% authentic real-time live network probing, zero mocks, and full interactivity across all components.
+- Background Uvicorn daemon running on port 8000.
 
 ---
 
 ## 3. Broken or Dangerous (Risk Register)
-- **Direct Internet Exposure:** The gateway currently listens on `0.0.0.0:8000`. In production, place behind NGINX or Cloudflare Tunnel with HMAC request signing.
+- **Direct Internet Exposure:** The gateway currently listens on `0.0.0.0:8000`. In production, place behind NGINX or Cloudflare Tunnel with TLS termination.
 - **Database Backup:** SQLite `.db` file must be backed up via Litestream or cron snapshot when running in persistent cloud VMs.
-- **Live Airtable Rate Limits:** Airtable enforces a 5 requests/second limit. For large batches (>100 courtrooms), use Airtable's bulk update endpoint (10 records per request).
+- **Live Airtable Rate Limits:** Airtable enforces a 5 requests/second limit. For large batches (>100 courtrooms), use Airtable's bulk update endpoint.
 
 ---
 
 ## 4. What To Do Next
-1. Commit all craftsmanship and typographic updates to git.
-2. Push main branch to `https://github.com/AllenFletcherAI/adalat-pulse`.
+1. Commit all UI, WebSocket, and interactivity updates to git.
+2. Push to `https://github.com/AllenFletcherAI/adalat-pulse`.
 3. Keep background server daemon active on port 8000.
 
 ---
