@@ -310,6 +310,10 @@ document.getElementById('btn-reset-audio').addEventListener('click', () => {
 
 async function startMicrophoneTest() {
     try {
+        if (idleAudioAnimationId) {
+            cancelAnimationFrame(idleAudioAnimationId);
+            idleAudioAnimationId = null;
+        }
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         if (!audioContext) {
             audioContext = new AudioCtx();
@@ -361,6 +365,10 @@ async function startMicrophoneTest() {
 }
 
 function startSyntheticAcousticTest() {
+    if (idleAudioAnimationId) {
+        cancelAnimationFrame(idleAudioAnimationId);
+        idleAudioAnimationId = null;
+    }
     isMicActive = true;
     currentSampleRate = 48000;
     currentSnrDb = 31.8;
@@ -398,7 +406,7 @@ function drawSyntheticAudioVisualizers() {
     const specCtx = specCanvas.getContext('2d');
     const waveCtx = waveCanvas.getContext('2d');
     const isLight = document.documentElement.classList.contains('light');
-    const bg = isLight ? '#F1F5F9' : '#090B0E';
+    const bg = isLight ? '#F8FAFC' : '#0A0D14';
 
     let phase = 0;
     function renderFrame() {
@@ -512,53 +520,84 @@ function certifyAcousticHardware() {
     updateLiveVisualFigures();
 }
 
-function clearAudioCanvases() {
+let idleAudioAnimationId = null;
+
+function startIdleAudioVisualizer() {
+    if (isMicActive) return;
+    if (idleAudioAnimationId) cancelAnimationFrame(idleAudioAnimationId);
+
     const specCanvas = document.getElementById('audio-spectrum-canvas');
     const waveCanvas = document.getElementById('audio-waveform-canvas');
-    const isLight = document.documentElement.classList.contains('light');
-    const bg = isLight ? '#F1F5F9' : '#090B0E';
+    if (!specCanvas || !waveCanvas) return;
 
-    if (specCanvas) {
-        const ctx = specCanvas.getContext('2d');
-        ctx.fillStyle = bg;
-        ctx.fillRect(0, 0, specCanvas.width, specCanvas.height);
+    const specCtx = specCanvas.getContext('2d');
+    const waveCtx = waveCanvas.getContext('2d');
+    let tick = 0;
 
-        // Faint horizontal dB gridlines
-        ctx.strokeStyle = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
-        ctx.lineWidth = 1;
+    function renderIdleFrame() {
+        if (isMicActive) {
+            idleAudioAnimationId = null;
+            return;
+        }
+        idleAudioAnimationId = requestAnimationFrame(renderIdleFrame);
+        tick += 0.035;
+
+        const isLight = document.documentElement.classList.contains('light');
+        const bg = isLight ? '#F8FAFC' : '#0A0D14';
+
+        // 1. Spectrum Canvas: Living ambient floor (-52 dB) across 28 bands
+        specCtx.fillStyle = bg;
+        specCtx.fillRect(0, 0, specCanvas.width, specCanvas.height);
+
+        specCtx.strokeStyle = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
+        specCtx.lineWidth = 1;
         [-12, -24, -36, -48].forEach(db => {
             const y = specCanvas.height * ((0 - db) / 60.0);
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(specCanvas.width, y);
-            ctx.stroke();
+            specCtx.beginPath();
+            specCtx.moveTo(0, y);
+            specCtx.lineTo(specCanvas.width, y);
+            specCtx.stroke();
         });
 
-        // Subtle ambient resting floor (-52 dB) across 32 bands
-        const barCount = 32;
-        const totalGap = (barCount - 1) * 1.5;
+        const barCount = 28;
+        const totalGap = (barCount - 1) * 2;
         const barWidth = Math.max(2, (specCanvas.width - totalGap) / barCount);
-        ctx.fillStyle = isLight ? 'rgba(5, 150, 105, 0.25)' : 'rgba(16, 185, 129, 0.20)';
+        specCtx.fillStyle = isLight ? 'rgba(5, 150, 105, 0.35)' : 'rgba(16, 185, 129, 0.30)';
         for (let i = 0; i < barCount; i++) {
-            const flutter = Math.sin(i * 0.4) * 1.5 + 2.5;
-            const x = i * (barWidth + 1.5);
-            ctx.fillRect(x, specCanvas.height - flutter, barWidth, flutter);
+            const flutter = Math.sin(tick * 1.6 + i * 0.4) * 2.0 + 3.5;
+            const x = i * (barWidth + 2);
+            specCtx.fillRect(x, specCanvas.height - flutter, barWidth, flutter);
         }
+
+        // 2. Waveform Canvas: Gentle carrier sine breath wave
+        waveCtx.fillStyle = bg;
+        waveCtx.fillRect(0, 0, waveCanvas.width, waveCanvas.height);
+
+        waveCtx.strokeStyle = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.04)';
+        waveCtx.lineWidth = 1;
+        waveCtx.beginPath();
+        waveCtx.moveTo(0, waveCanvas.height / 2);
+        waveCtx.lineTo(waveCanvas.width, waveCanvas.height / 2);
+        waveCtx.stroke();
+
+        waveCtx.lineWidth = 1.25;
+        waveCtx.strokeStyle = isLight ? 'rgba(5, 150, 105, 0.55)' : 'rgba(16, 185, 129, 0.50)';
+        waveCtx.beginPath();
+        const midY = waveCanvas.height / 2;
+        for (let x = 0; x < waveCanvas.width; x += 2) {
+            const envelope = Math.sin((x / waveCanvas.width) * Math.PI);
+            const waveY = midY + Math.sin(tick * 2.2 + x * 0.045) * 3.0 * envelope;
+            if (x === 0) waveCtx.moveTo(x, waveY);
+            else waveCtx.lineTo(x, waveY);
+        }
+        waveCtx.stroke();
     }
 
-    if (waveCanvas) {
-        const ctx = waveCanvas.getContext('2d');
-        ctx.fillStyle = bg;
-        ctx.fillRect(0, 0, waveCanvas.width, waveCanvas.height);
+    renderIdleFrame();
+}
 
-        // Faint reference center line
-        ctx.strokeStyle = isLight ? 'rgba(5, 150, 105, 0.3)' : 'rgba(16, 185, 129, 0.25)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(0, waveCanvas.height / 2);
-        ctx.lineTo(waveCanvas.width, waveCanvas.height / 2);
-        ctx.stroke();
-    }
+function clearAudioCanvases() {
+    startIdleAudioVisualizer();
 }
 
 function drawRealTimeAudioVisualizers() {
@@ -580,7 +619,7 @@ function drawRealTimeAudioVisualizers() {
         analyser.getByteTimeDomainData(timeData);
 
         const isLight = document.documentElement.classList.contains('light');
-        const bg = isLight ? '#F1F5F9' : '#090B0E';
+        const bg = isLight ? '#F8FAFC' : '#0A0D14';
 
         // 1. Draw 32-Band Spectrum Analyzer
         specCtx.fillStyle = bg;
@@ -766,7 +805,7 @@ function drawNetworkStripChart() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     const isLight = document.documentElement.classList.contains('light');
-    const bg = isLight ? '#F1F5F9' : '#090B0E';
+    const bg = isLight ? '#F8FAFC' : '#0A0D14';
 
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1502,38 +1541,36 @@ function render11StatesDeployment(regions) {
         stateCard.className = `state-item transition-colors rounded ${isCurrentTarget ? 'bg-emerald-500/10 border border-emerald-500/30' : 'hover:bg-[var(--bg-sub)]'}`;
 
         stateCard.innerHTML = `
-            <div class="state-grid-row p-1 px-2 cursor-pointer select-none state-header text-xs">
+            <div class="state-grid-row p-1.5 px-2 cursor-pointer select-none state-header text-xs">
                 <div class="flex items-center space-x-1.5 flex-none">
                     <span class="w-1.5 h-1.5 rounded-full ${dotClass}"></span>
-                    <span class="font-bold w-6 ${isCurrentTarget ? 'status-optimal-text' : 'text-[var(--text-primary)]'}">${code}</span>
+                    <span class="font-bold w-6 font-mono ${isCurrentTarget ? 'status-optimal-text' : 'text-[var(--text-primary)]'}">${code}</span>
                 </div>
-                <div class="flex items-center space-x-1.5 truncate pl-1">
-                    <span class="text-[var(--text-secondary)] font-sans text-xs truncate">${stateMeta.name}</span>
-                    ${isCurrentTarget ? '<span class="text-[8px] font-mono badge-optimal px-1 rounded ml-1 font-semibold">ACTIVE</span>' : ''}
+                <div class="flex items-center space-x-1.5 truncate">
+                    <span class="text-[var(--text-secondary)] text-xs font-medium truncate">${stateMeta.name}</span>
+                    ${isCurrentTarget ? '<span class="text-[9px] badge-optimal px-1.5 py-0.2 rounded font-semibold ml-1">ACTIVE</span>' : ''}
                     ${statusBadge}
                 </div>
-                <div class="text-right text-[var(--text-muted)] text-[11px] tabular-nums">${unitCount}</div>
-                <div class="text-right ${healthClass}">${healthText}</div>
-                <div class="text-center text-[10px] text-[var(--text-muted)] toggle-arrow">▾</div>
+                <div class="text-right text-[var(--text-muted)] text-xs tabular-nums font-mono">${unitCount}</div>
+                <div class="text-right ${healthClass} font-mono">${healthText}</div>
             </div>
 
             <!-- Inline Units Disclosure Drawer -->
             <div class="units-drawer hidden p-2 bg-[var(--bg-surface)] border-t border-[var(--border-alpha)] space-y-1">
-                <div class="flex items-center justify-between text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1 font-mono">
+                <div class="flex items-center justify-between text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1">
                     <span class="font-semibold">${stateMeta.name} Courtroom Units (${stateMeta.seat.split('(')[0].trim()})</span>
-                    <span class="text-emerald-400">Airtable: Synced</span>
+                    <span class="text-emerald-500 font-mono">Airtable Synced</span>
                 </div>
                 <div class="space-y-1 max-h-40 overflow-y-auto">
                     ${stateMeta.benches.map(b => `
-                        <div class="flex items-center justify-between p-1.5 rounded surface-sub text-[10px] font-mono">
+                        <div class="flex items-center justify-between p-1.5 rounded surface-sub text-[11px]">
                             <div>
-                                <span class="font-bold text-[var(--text-primary)]">${b.id}</span>
-                                <span class="text-[var(--text-muted)] ml-1">(${b.unit})</span>
-                                <span class="text-[9px] text-[var(--text-muted)] ml-1.5">rec_${b.id.toLowerCase().replace(/-/g, '_')}</span>
-                                <p class="text-[var(--text-secondary)] font-sans text-[10px] truncate max-w-[210px]">${b.name}</p>
+                                <span class="font-bold font-mono text-[var(--text-primary)]">${b.id}</span>
+                                <span class="text-[var(--text-muted)] ml-1 font-mono">(${b.unit})</span>
+                                <p class="text-[var(--text-secondary)] text-[11px] truncate max-w-[210px] mt-0.5">${b.name}</p>
                             </div>
                             <div class="flex items-center space-x-2">
-                                <span class="px-1 py-0.2 rounded text-[9px] uppercase ${b.tier === 'HIGH_COURT' ? 'bg-emerald-500/10 text-emerald-400' : b.tier === 'DISTRICT_COURT' ? 'bg-blue-500/10 text-blue-400' : 'bg-amber-500/10 text-amber-400'} border border-[var(--border-alpha)]">${b.tier.replace('_', ' ')}</span>
+                                <span class="px-1.5 py-0.5 rounded text-[9px] uppercase font-mono ${b.tier === 'HIGH_COURT' ? 'bg-emerald-500/10 text-emerald-400' : b.tier === 'DISTRICT_COURT' ? 'bg-blue-500/10 text-blue-400' : 'bg-amber-500/10 text-amber-400'} border border-[var(--border-alpha)]">${b.tier.replace('_', ' ')}</span>
                                 <button type="button" data-bench="${b.id}" data-state="${code}" data-name="${b.name}" class="btn-sub-test px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500 text-white pressable">
                                     Test
                                 </button>
@@ -1546,15 +1583,11 @@ function render11StatesDeployment(regions) {
 
         stateCard.querySelector('.state-header').addEventListener('click', () => {
             const drawer = stateCard.querySelector('.units-drawer');
-            const arrow = stateCard.querySelector('.toggle-arrow');
             const isHidden = drawer.classList.contains('hidden');
-
             if (isHidden) {
                 drawer.classList.remove('hidden');
-                arrow.textContent = '▴';
             } else {
                 drawer.classList.add('hidden');
-                arrow.textContent = '▾';
             }
         });
 
@@ -1625,6 +1658,20 @@ async function pollIncidents() {
     }
 }
 
+function formatRelativeTime(dateIso) {
+    try {
+        const diffSec = Math.max(0, Math.floor((Date.now() - new Date(dateIso).getTime()) / 1000));
+        if (diffSec < 60) return `${diffSec}s ago`;
+        const diffMin = Math.floor(diffSec / 60);
+        if (diffMin < 60) return `${diffMin}m ago`;
+        const diffHr = Math.floor(diffMin / 60);
+        if (diffHr < 24) return `${diffHr}h ago`;
+        return `${Math.floor(diffHr / 24)}d ago`;
+    } catch (e) {
+        return "recently";
+    }
+}
+
 function renderIncidentsTable(incidents) {
     const tbody = document.getElementById('incidents-table-body');
     if (!tbody) return;
@@ -1637,21 +1684,29 @@ function renderIncidentsTable(incidents) {
         tr.className = `hover:bg-[var(--bg-sub)] cursor-pointer transition-colors ${inc.isNew ? 'row-incident-new' : ''}`;
         tr.title = "Click to inspect incident root cause and Linear/Slack dispatch receipts";
 
+        const relTime = formatRelativeTime(inc.created_at);
         const dateObj = new Date(inc.created_at);
-        const hh = String(dateObj.getHours()).padStart(2, '0');
-        const mm = String(dateObj.getMinutes()).padStart(2, '0');
-        const ss = String(dateObj.getSeconds()).padStart(2, '0');
-        const timeStr = `${hh}:${mm}:${ss} IST`;
+        const fullTimeStr = dateObj.toLocaleTimeString('en-IN', { hour12: false }) + ' IST';
 
-        const sevClass = inc.severity === 'CRITICAL' ? 'status-critical-text font-bold' : inc.severity === 'DEGRADED' ? 'status-degraded-text font-semibold' : 'status-optimal-text font-medium';
-        const badgeClass = inc.severity === 'CRITICAL' ? 'badge-critical font-bold' : inc.severity === 'DEGRADED' ? 'badge-degraded font-semibold' : 'badge-optimal font-medium';
+        const badgeHtml = inc.severity === 'CRITICAL'
+            ? `<span class="px-2 py-0.5 rounded text-[10px] font-semibold badge-critical">Critical</span>`
+            : inc.severity === 'DEGRADED'
+            ? `<span class="px-2 py-0.5 rounded text-[10px] font-semibold badge-degraded">Degraded</span>`
+            : `<span class="px-2 py-0.5 rounded text-[10px] font-medium badge-optimal">Optimal</span>`;
 
         tr.innerHTML = `
-            <td class="py-1.5 px-2.5 font-bold ${sevClass}">${inc.courtroom_id}</td>
-            <td class="py-1.5 px-2"><span class="px-1.5 py-0.2 rounded text-[10px] ${badgeClass}">${inc.severity}</span></td>
-            <td class="py-1.5 px-2 status-optimal-text font-semibold">${inc.slack_status}</td>
-            <td class="py-1.5 px-2 text-purple-600 dark:text-purple-400 font-semibold">${inc.linear_issue_id || 'ALL-7'}</td>
-            <td class="py-1.5 px-2.5 text-right text-[var(--text-muted)] tabular-nums">${timeStr}</td>
+            <td class="py-2 px-2.5 font-bold font-mono text-[var(--text-primary)]">${inc.courtroom_id}</td>
+            <td class="py-2 px-2">${badgeHtml}</td>
+            <td class="py-2 px-2">
+                <span class="inline-flex items-center space-x-1.5 text-xs text-[var(--text-secondary)] font-medium">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    <span>Delivered</span>
+                </span>
+            </td>
+            <td class="py-2 px-2">
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">${inc.linear_issue_id || 'ALL-7'}</span>
+            </td>
+            <td class="py-2 px-2.5 text-right text-[var(--text-muted)] tabular-nums font-mono text-[11px]" title="${fullTimeStr}">${relTime}</td>
         `;
 
         tr.addEventListener('click', () => {
@@ -1664,14 +1719,14 @@ function renderIncidentsTable(incidents) {
 
 document.getElementById('filter-inc-all').addEventListener('click', () => {
     incidentFilter = 'ALL';
-    document.getElementById('filter-inc-all').className = "px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold badge-optimal pressable";
-    document.getElementById('filter-inc-critical').className = "px-1.5 py-0.2 rounded text-[10px] font-mono text-[var(--text-muted)] hover:text-rose-500 pressable";
+    document.getElementById('filter-inc-all').className = "px-2 py-0.2 rounded text-[10px] font-medium badge-optimal pressable";
+    document.getElementById('filter-inc-critical').className = "px-2 py-0.2 rounded text-[10px] font-medium text-[var(--text-muted)] hover:text-rose-500 pressable";
     renderIncidentsTable(incidentsCache);
 });
 document.getElementById('filter-inc-critical').addEventListener('click', () => {
     incidentFilter = 'CRITICAL';
-    document.getElementById('filter-inc-critical').className = "px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold badge-critical pressable";
-    document.getElementById('filter-inc-all').className = "px-1.5 py-0.2 rounded text-[10px] font-mono text-[var(--text-muted)] hover:text-emerald-500 pressable";
+    document.getElementById('filter-inc-critical').className = "px-2 py-0.2 rounded text-[10px] font-medium badge-critical pressable";
+    document.getElementById('filter-inc-all').className = "px-2 py-0.2 rounded text-[10px] font-medium text-[var(--text-muted)] hover:text-emerald-500 pressable";
     renderIncidentsTable(incidentsCache);
 });
 

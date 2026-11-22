@@ -8,6 +8,14 @@
 ---
 
 ## 1. What Is Done
+- **High-Craft 2026 SaaS Modernization & Anti-Slop Visual Overhaul (ADR-022):**
+  - **Typography Transformation:** Stripped universal `font-mono` from headers, tables, form labels, and buttons. Restored clean Swiss sans-serif (`Switzer`) as the primary UI typography with strict 3-tier weight hierarchy. Reserved `font-mono` strictly for numeric metrics, hardware IDs, and timestamps.
+  - **Eradicated the Border Prison:** Eliminated nested 1px bordered boxes on the left workstation; created a single, seamless, tonally layered cockpit card with hairline dividers (`border-white/[0.07]` in dark mode, `#E2E8F0` with subtle elevation in light mode).
+  - **Living Studio Audio Scope:** Eliminated dead empty black/grey voids with an ambient resting noise floor (`-52 dB`) and gentle carrier sine breath wave running continuously in idle.
+  - **Datadog-Grade Metric Health Cards:** Replaced crude horizontal sliders and misplaced tick lines with 4 compact, high-density metric tiles (Latency, Packet Loss, Jitter, WS RTT) featuring clean numeric readouts, micro-bars, target limits, and passing badges.
+  - **Refined Action Toolbar:** Replaced the full-width e-commerce checkout green banner with a docked toolbar pairing a courtroom readiness status indicator on the left with a contained 36px action button on the right.
+  - **Clean Fleet & Incident Tables:** Removed dead `▾` chevrons from every single state row. Replaced ANSI rainbow text in the incident log with neutral bench IDs, desaturated status badges, and human-readable relative timestamps (`12m ago`).
+  - **WCAG AA Light Theme Calibration:** Pure white cards on slate-50 (`#F8FAFC`) with deep slate-900 typography, eliminating washed-out pastel invisibility.
 - **Total Purge of Static, Dummy & Non-Reactive Assets (ADR-021):**
   - **Circled Artifacts Removed:**
     1. `v1.0` badge adjacent to brand title purged.
