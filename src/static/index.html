@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Adalat-Pulse | Courtroom Pre-Flight Diagnostic & Telemetry Gateway</title>
-    <!-- Inter Variable & Display Font for Tall X-Height & Clarity -->
+    <title>Adalat-Pulse | Courtroom Pre-Flight Diagnostic & Deployment Telemetry Gateway</title>
+    
+    <!-- Enterprise Fonts: Inter Variable & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600;650;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -21,12 +22,12 @@
                         mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
                     },
                     colors: {
-                        brand: {
-                            50: '#f0fdf4',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                            900: '#14532d',
+                        obsidian: {
+                            950: '#060709',
+                            900: '#0B0C10',
+                            850: '#111319',
+                            800: '#171A22',
+                            700: '#232734',
                         }
                     }
                 }
@@ -34,501 +35,532 @@
         }
     </script>
     <style>
-        /* 1. Global Kerning, Ligatures, and X-Height Alignment */
         :root {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+            font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "cv02" 1, "cv05" 1;
             text-rendering: optimizeLegibility;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
 
-            /* 11. Perceptually Uniform OKLCH Palette */
+            /* Perceptually uniform OKLCH Palette */
             --ok-optimal: oklch(0.68 0.18 152);
             --ok-degraded: oklch(0.76 0.16 78);
             --ok-critical: oklch(0.63 0.22 26);
             --ok-golden: oklch(0.70 0.19 305);
-            --ok-surface: oklch(0.14 0.02 260);
-            --ok-panel: oklch(0.18 0.025 260);
-            --ok-border: oklch(0.28 0.02 260);
         }
 
-        /* 3. Tabular Numbers (tnum) for Jitter-Free Telemetry */
+        body {
+            background-color: #07080B;
+            color: #E2E8F0;
+        }
+
+        /* Obsidian Glass Panels with Specular 1px Top Highlight */
+        .obsidian-panel {
+            background: linear-gradient(180deg, rgba(17, 20, 28, 0.75) 0%, rgba(11, 13, 19, 0.85) 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            border-left: 1px solid rgba(255, 255, 255, 0.04);
+            border-right: 1px solid rgba(255, 255, 255, 0.04);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.6);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02), 0 4px 20px -2px rgba(0, 0, 0, 0.6), 0 12px 32px -4px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(16px);
+        }
+
+        .obsidian-subpanel {
+            background: rgba(8, 10, 15, 0.65);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-left: 1px solid rgba(255, 255, 255, 0.025);
+            border-right: 1px solid rgba(255, 255, 255, 0.025);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+        }
+
+        /* Tabular Mono for Numbers */
         .tabular-nums, .font-mono {
             font-variant-numeric: tabular-nums;
             font-feature-settings: "tnum" 1;
         }
 
-        /* 12. Widow & Balance Control */
-        .text-balance {
-            text-wrap: balance;
-        }
-        .text-pretty {
-            text-wrap: pretty;
-        }
+        .text-balance { text-wrap: balance; }
+        .text-pretty { text-wrap: pretty; }
 
-        /* 13. Safe Area Insets for Field Tablets and Kiosks */
-        .safe-area-pad {
-            padding-top: max(1rem, env(safe-area-inset-top));
-            padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
-            padding-left: max(1rem, env(safe-area-inset-left));
-            padding-right: max(1rem, env(safe-area-inset-right));
-        }
-
-        /* 8. Zero CLS Shimmer Skeleton */
+        /* Shimmer Skeleton for Zero-CLS */
         @keyframes shimmer {
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
         }
         .skeleton-shimmer {
-            background: linear-gradient(90deg, rgba(30, 41, 59, 0.4) 25%, rgba(51, 65, 85, 0.4) 50%, rgba(30, 41, 59, 0.4) 75%);
+            background: linear-gradient(90deg, rgba(23, 26, 34, 0.5) 25%, rgba(35, 39, 52, 0.5) 50%, rgba(23, 26, 34, 0.5) 75%);
             background-size: 200% 100%;
             animation: shimmer 1.5s infinite;
         }
 
-        /* 14. Staggered Waterfall Animation */
-        @keyframes fadeSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .stagger-item {
-            animation: fadeSlideUp 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
-            animation-delay: calc(var(--stagger-index, 0) * 35ms);
-        }
-
-        /* 10. Origin-Aware Modal Animation Base */
-        #interview-modal-dialog {
-            transform-origin: center center;
-            transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1), opacity 240ms ease-out;
-        }
-
-        /* 20. Shared Element Transition API Support */
-        ::view-transition-old(root),
-        ::view-transition-new(root) {
-            animation-duration: 220ms;
-            animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        /* 16. Tactile Affordance Micro-States */
+        /* Tactile Press State */
         .pressable {
-            transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+            transition: transform 100ms ease, box-shadow 100ms ease, border-color 100ms ease;
             touch-action: manipulation;
         }
         .pressable:active {
             transform: scale(0.985) translateY(1px);
         }
 
-        /* 7. Optical Center Offsets */
-        .optical-center-modal {
-            margin-top: -5vh;
+        /* Primary Action Button Refined Glow */
+        .btn-primary-glow {
+            background: linear-gradient(180deg, #10B981 0%, #059669 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.28);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 0 16px rgba(16, 185, 129, 0.22);
+        }
+        .btn-primary-glow:hover {
+            background: linear-gradient(180deg, #34D399 0%, #059669 100%);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 0 22px rgba(16, 185, 129, 0.35);
+        }
+
+        /* Staggered Items Animation */
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .stagger-item {
+            animation: fadeSlideUp 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+            animation-delay: calc(var(--stagger-index, 0) * 30ms);
+        }
+
+        /* Safe Area Padding */
+        .safe-area-pad {
+            padding-top: max(0.75rem, env(safe-area-inset-top));
+            padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+            padding-left: max(1rem, env(safe-area-inset-left));
+            padding-right: max(1rem, env(safe-area-inset-right));
+        }
+
+        /* Optical Center for Dialogs */
+        .optical-center-dialog {
+            margin-top: -6vh;
+        }
+
+        /* View Transitions */
+        ::view-transition-old(root), ::view-transition-new(root) {
+            animation-duration: 200ms;
+            animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-emerald-500 selection:text-slate-950 safe-area-pad">
+<body class="selection:bg-emerald-500/30 selection:text-emerald-300 min-h-screen safe-area-pad flex flex-col justify-between">
 
-    <!-- Top Navigation Bar -->
-    <header class="border-b border-slate-800/80 bg-slate-900/70 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-lg shadow-inner">
-                    ⚖️
+    <!-- Top Navigation Strip: Linear / Vercel Style Breadcrumbs & Metadata -->
+    <header class="border-b border-white/[0.06] bg-[#0A0C11]/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+            <div class="flex items-center space-x-3.5">
+                <!-- Dual Scales SVG Logo -->
+                <div class="h-8 w-8 rounded-lg bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shadow-inner">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                        <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                        <path d="M7 21h10"/>
+                        <path d="M12 3v18"/>
+                        <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>
+                    </svg>
                 </div>
-                <div>
-                    <div class="flex items-center space-x-2">
-                        <h1 class="text-lg font-bold tracking-tight text-white font-feature-settings-kern">Adalat-Pulse</h1>
-                        <span class="px-2 py-0.5 text-[11px] font-semibold tracking-wider uppercase rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">CTO Ops Hub</span>
-                        <span class="px-2 py-0.5 text-[11px] font-semibold tracking-wider uppercase rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">Prompt Pyramid</span>
-                    </div>
-                    <p class="text-xs text-slate-400 leading-normal">Courtroom Pre-Flight Diagnostic & Deployment Telemetry Gateway</p>
+                <!-- Clean Enterprise Breadcrumbs -->
+                <div class="flex items-center space-x-2 text-xs">
+                    <span class="font-semibold text-white tracking-tight">Adalat AI</span>
+                    <span class="text-slate-600">/</span>
+                    <span class="text-slate-400">CTO's Office</span>
+                    <span class="text-slate-600">/</span>
+                    <span class="text-slate-200 font-medium font-mono text-[11px] tracking-wide bg-white/[0.04] px-2 py-0.5 rounded border border-white/[0.06]">Pulse Gateway v1.0</span>
                 </div>
             </div>
+
+            <!-- Header Right: System Pulse & Live Sync Trigger -->
             <div class="flex items-center space-x-4">
-                <div class="hidden md:flex items-center space-x-2 text-xs text-slate-400">
-                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                    <span id="gateway-status" class="font-mono text-emerald-400 tabular-nums font-medium tracking-wide">GATEWAY ONLINE (WAL)</span>
-                    <span>•</span>
-                    <span id="live-ist-clock" class="font-mono text-slate-300 tabular-nums">--:--:-- IST</span>
+                <div class="hidden sm:flex items-center space-x-2 text-xs text-slate-400">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span id="gateway-status" class="font-mono text-emerald-400 text-[11px] tracking-wider uppercase">Online (WAL)</span>
+                    <span class="text-slate-700">•</span>
+                    <span id="live-ist-clock" class="font-mono text-slate-300 tabular-nums text-[11px]">--:--:-- IST</span>
                 </div>
-                <!-- 10. Touch Target Guaranteed Min 44x44px -->
-                <button id="btn-sync-airtable" class="min-h-[44px] px-4 py-2 rounded-lg text-xs font-semibold tracking-wide bg-emerald-600 hover:bg-emerald-500 text-white transition-all flex items-center space-x-2 shadow-sm pressable focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
-                    <span>🔄</span>
+
+                <!-- Sync Airtable Button with Vector Icon -->
+                <button id="btn-sync-airtable" class="min-h-[36px] px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] transition-all flex items-center space-x-2 pressable focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-400">
+                    <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                        <path d="M3 3v5h5"/>
+                        <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+                        <path d="M16 21h5v-5"/>
+                    </svg>
                     <span>Sync Airtable</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Level 1: Outcome Guarantee Banner (Line Length Constrained, Leading Relaxed, Widow Balanced) -->
-    <div class="bg-gradient-to-r from-emerald-950/70 via-slate-900 to-slate-950 border-b border-emerald-500/20 py-2.5 px-4">
-        <div class="max-w-7xl mx-auto flex items-center justify-between text-xs text-slate-300">
-            <div class="flex items-center space-x-2 max-w-[65ch]">
-                <span class="text-emerald-400 font-bold tracking-wider uppercase text-[11px]">🎯 OPERATIONAL OUTCOME:</span>
-                <span class="text-balance leading-relaxed">Zero-Word-Drop Koyal Indic ASR Guarantee for Live Courtroom Hearings</span>
+    <!-- Main Mission Control Shell -->
+    <main class="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5">
+
+        <!-- KPI Metric Strip (High Density, 4 Compact Cards with SVG Vectors) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <!-- Metric 1: Courtrooms -->
+            <div class="obsidian-panel rounded-xl p-3.5 flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Active Courtrooms</p>
+                    <div class="flex items-baseline space-x-2 mt-0.5">
+                        <h3 id="stat-total-courtrooms" class="text-xl font-bold text-white tabular-nums font-mono">--</h3>
+                        <span class="text-[10px] text-slate-500 font-mono">11 states</span>
+                    </div>
+                </div>
+                <div class="h-9 w-9 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-slate-400">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 21h18"/><path d="M3 7h18"/><path d="M4 11v6"/><path d="M8 11v6"/><path d="M12 11v6"/><path d="M16 11v6"/><path d="M20 11v6"/><path d="m12 3 9 4H3l9-4Z"/>
+                    </svg>
+                </div>
             </div>
-            <div class="hidden sm:flex items-center space-x-3 text-[11px] text-slate-400 tracking-wide uppercase">
-                <span>Tier 1: High Courts</span>
-                <span>•</span>
-                <span>Tier 2: District Benches</span>
-                <span>•</span>
-                <span>Tier 3: Rural Taluka Edge</span>
+
+            <!-- Metric 2: ASR Readiness -->
+            <div class="obsidian-panel rounded-xl p-3.5 flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Fleet ASR Readiness</p>
+                    <div class="flex items-baseline space-x-2 mt-0.5">
+                        <h3 id="stat-fleet-health" class="text-xl font-bold text-emerald-400 tabular-nums font-mono">--%</h3>
+                        <span class="text-[10px] text-emerald-500/80 font-mono">≥16kHz / &lt;2% loss</span>
+                    </div>
+                </div>
+                <div class="h-9 w-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Metric 3: Optimal Sessions -->
+            <div class="obsidian-panel rounded-xl p-3.5 flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Optimal Sessions</p>
+                    <div class="flex items-baseline space-x-2 mt-0.5">
+                        <h3 id="stat-optimal-sessions" class="text-xl font-bold text-white tabular-nums font-mono">--</h3>
+                        <span class="text-[10px] text-emerald-400 font-mono">Cleared for trial</span>
+                    </div>
+                </div>
+                <div class="h-9 w-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Metric 4: Incident Feed -->
+            <div class="obsidian-panel rounded-xl p-3.5 flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Incidents Handled</p>
+                    <div class="flex items-baseline space-x-2 mt-0.5">
+                        <h3 id="stat-incidents-count" class="text-xl font-bold text-rose-400 tabular-nums font-mono">--</h3>
+                        <span class="text-[10px] text-slate-500 font-mono">Slack/Linear routed</span>
+                    </div>
+                </div>
+                <div class="h-9 w-9 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/>
+                    </svg>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Main Container -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <!-- 2-Pane Command Console Grid (Left: 7 cols, Right: 5 cols) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
-        <!-- Top Fleet Metric Ribbon (Tabular Numbers & Loose Tracking on Micro-Labels) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-4 shadow-sm">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Total Courtrooms Active</p>
-                        <h3 id="stat-total-courtrooms" class="text-2xl font-bold text-white mt-1 tabular-nums font-mono">--</h3>
-                    </div>
-                    <span class="p-2.5 rounded-lg bg-slate-800 text-slate-300 text-sm">🏛️</span>
-                </div>
-                <p class="text-xs text-slate-500 mt-2 leading-normal">Across 11 Partner States</p>
-            </div>
-
-            <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-4 shadow-sm">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Fleet ASR Readiness</p>
-                        <h3 id="stat-fleet-health" class="text-2xl font-bold text-emerald-400 mt-1 tabular-nums font-mono">--%</h3>
-                    </div>
-                    <span class="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-sm">🎙️</span>
-                </div>
-                <p class="text-xs text-slate-500 mt-2 leading-normal">Meeting 16kHz &amp; &lt;2.0% loss</p>
-            </div>
-
-            <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-4 shadow-sm">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Optimal Sessions</p>
-                        <h3 id="stat-optimal-sessions" class="text-2xl font-bold text-white mt-1 tabular-nums font-mono">--</h3>
-                    </div>
-                    <span class="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-sm">🟢</span>
-                </div>
-                <p class="text-xs text-slate-500 mt-2 leading-normal">Ready for live transcription</p>
-            </div>
-
-            <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-4 shadow-sm">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Incidents Handled</p>
-                        <h3 id="stat-incidents-count" class="text-2xl font-bold text-rose-400 mt-1 tabular-nums font-mono">--</h3>
-                    </div>
-                    <span class="p-2.5 rounded-lg bg-rose-500/10 text-rose-400 text-sm">🚨</span>
-                </div>
-                <p class="text-xs text-slate-500 mt-2 leading-normal">Routed to Slack &amp; Linear</p>
-            </div>
-        </div>
-
-        <!-- 2-Column Operational Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-            <!-- Left Column: Pre-Flight Diagnostic Console (7 cols) -->
-            <div class="lg:col-span-7 space-y-6">
-                <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-6 shadow-sm">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
-                        <div>
-                            <h2 class="text-base font-semibold text-white tracking-tight flex items-center space-x-2">
-                                <span>⚡</span>
-                                <span>Courtroom Pre-Flight Diagnostic Console</span>
-                            </h2>
-                            <p class="text-xs text-slate-400 leading-normal max-w-[60ch]">5-Second Hardware &amp; Network Quality Gate with Prompt Pyramid Architecture</p>
+            <!-- LEFT PANE: Pre-Flight Diagnostic Command Center (7 cols) -->
+            <div class="lg:col-span-7 space-y-4">
+                <div class="obsidian-panel rounded-xl p-5 space-y-4">
+                    
+                    <!-- Console Header & Operational Guarantee Integration -->
+                    <div class="flex items-center justify-between border-b border-white/[0.06] pb-3.5">
+                        <div class="space-y-0.5">
+                            <div class="flex items-center space-x-2">
+                                <h2 class="text-sm font-semibold text-white tracking-tight">Courtroom Pre-Flight Diagnostic Console</h2>
+                                <span class="px-2 py-0.5 text-[10px] font-mono uppercase rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">Prompt Pyramid</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 flex items-center space-x-1.5">
+                                <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                                <span>Zero-Word-Drop Koyal Indic ASR Guarantee for Live Hearings</span>
+                            </p>
                         </div>
-                        <span id="diagnostic-badge" class="px-3 py-1 text-xs font-mono font-medium rounded-full bg-slate-800 text-slate-300 tabular-nums">
+                        <span id="diagnostic-badge" class="px-2.5 py-1 text-[11px] font-mono font-medium rounded-full bg-white/[0.04] text-slate-300 border border-white/[0.06] tabular-nums">
                             IDLE
                         </span>
                     </div>
 
-                    <!-- Level 4: Golden Standard Benchmark Selector -->
-                    <div class="bg-slate-950 border border-slate-800 rounded-lg p-3.5 mb-4">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs font-semibold text-purple-400 uppercase tracking-wider flex items-center space-x-1.5">
-                                <span>🏆</span>
-                                <span>Level 4 Exemplar: Golden Standard Benchmark</span>
-                            </span>
-                            <span id="golden-align-tag" class="text-xs font-mono text-emerald-400 font-bold tabular-nums">100% Target</span>
-                        </div>
-                        <select id="select-golden-profile" class="w-full min-h-[44px] bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-purple-500 focus-visible:ring-2 focus-visible:ring-purple-400">
-                            <option value="GOLDEN-HC-FIBER" selected>High Court Dedicated Leased Line (Target: 35ms, 0% Loss, 28 dB SNR)</option>
-                            <option value="GOLDEN-DC-HYBRID">District Court Dual-ISP Hybrid (Target: 70ms, 0.2% Loss, 22 dB SNR)</option>
-                            <option value="GOLDEN-TL-EDGE">Rural Taluka Edge 4G Dongle (Target: 110ms, 0.5% Loss, 18 dB SNR)</option>
-                        </select>
-                    </div>
-
-                    <!-- 17. Combo Box Courtroom Search & Selection System -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                        <div class="relative">
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">State Jurisdiction</label>
-                            <select id="input-state" class="w-full min-h-[44px] bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 focus-visible:ring-2 focus-visible:ring-emerald-400">
-                                <option value="KL">Kerala (KL)</option>
-                                <option value="KA">Karnataka (KA)</option>
-                                <option value="AP">Andhra Pradesh (AP)</option>
-                                <option value="MH">Maharashtra (MH)</option>
-                                <option value="DL" selected>Delhi (DL)</option>
-                                <option value="TN">Tamil Nadu (TN)</option>
-                                <option value="UP">Uttar Pradesh (UP)</option>
-                                <option value="WB">West Bengal (WB)</option>
-                                <option value="GJ">Gujarat (GJ)</option>
-                                <option value="RJ">Rajasthan (RJ)</option>
-                                <option value="MP">Madhya Pradesh (MP)</option>
-                            </select>
-                        </div>
-                        <div class="relative">
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">
-                                Search / Courtroom ID
-                            </label>
-                            <!-- Searchable Accessible Combobox Input -->
+                    <!-- Row 1: Bench Selection & Level 4 Golden Profile Target -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Courtroom Combobox / Search -->
+                        <div class="relative space-y-1">
+                            <label class="block text-[11px] font-medium uppercase tracking-wider text-slate-400">Courtroom Bench</label>
                             <div class="relative">
-                                <input id="input-courtroom-id" type="text" value="DL-HC-CRT04" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="courtroom-combo-list" class="w-full min-h-[44px] bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 focus-visible:ring-2 focus-visible:ring-emerald-400 font-mono tracking-wide" placeholder="Type bench or ID (e.g. DL-HC-04)">
-                                <button id="btn-combo-toggle" type="button" aria-label="Toggle courtrooms list" class="absolute right-2 top-2 min-h-[32px] min-w-[32px] flex items-center justify-center text-slate-400 hover:text-white">
-                                    ▾
+                                <input id="input-courtroom-id" type="text" value="DL-HC-CRT04" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="courtroom-combo-list" class="w-full h-9 bg-black/40 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/80 font-mono tracking-wide" placeholder="Type bench or ID...">
+                                <button id="btn-combo-toggle" type="button" aria-label="Toggle list" class="absolute right-2 top-2 h-5 w-5 flex items-center justify-center text-slate-400 hover:text-white">
+                                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                                 </button>
                             </div>
-                            <!-- Dropdown List for Combobox -->
-                            <div id="courtroom-combo-list" role="listbox" class="hidden absolute left-0 right-0 top-full mt-1 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl max-h-48 overflow-y-auto z-40 divide-y divide-slate-800">
+                            <!-- Searchable Dropdown Listbox -->
+                            <div id="courtroom-combo-list" role="listbox" class="hidden absolute left-0 right-0 top-full mt-1 bg-[#0F1118] border border-white/10 rounded-lg shadow-2xl max-h-48 overflow-y-auto z-40 divide-y divide-white/[0.04]">
                                 <!-- Populated dynamically by app.js -->
                             </div>
                         </div>
+
+                        <!-- Level 4: Golden Exemplar Benchmark -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center">
+                                <label class="text-[11px] font-medium uppercase tracking-wider text-purple-400 flex items-center space-x-1">
+                                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+                                    <span>Golden Standard</span>
+                                </label>
+                                <span id="golden-align-tag" class="text-[10px] font-mono text-emerald-400 tabular-nums">100% Target</span>
+                            </div>
+                            <select id="select-golden-profile" class="w-full h-9 bg-black/40 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-purple-500/80 font-sans">
+                                <option value="GOLDEN-HC-FIBER" selected>High Court Dedicated Leased Line (35ms, 0% Loss, 28 dB)</option>
+                                <option value="GOLDEN-DC-HYBRID">District Court Dual-ISP Hybrid (70ms, 0.2% Loss, 22 dB)</option>
+                                <option value="GOLDEN-TL-EDGE">Rural Taluka Edge 4G Dongle (110ms, 0.5% Loss, 18 dB)</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">Bench / Court Name</label>
-                        <input id="input-bench-name" type="text" value="Delhi High Court Bench 04 (Civil Division)" class="w-full min-h-[44px] bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 focus-visible:ring-2 focus-visible:ring-emerald-400">
-                    </div>
+                    <!-- Hidden inputs for state and bench details kept for API compliance -->
+                    <input id="input-state" type="hidden" value="DL">
+                    <input id="input-bench-name" type="hidden" value="Delhi High Court Bench 04 (Civil Division)">
 
-                    <!-- Live Hardware / Network Testing Controls -->
-                    <div class="space-y-4 border border-slate-800/80 rounded-lg p-4 bg-slate-950/50 mb-5">
+                    <!-- Row 2: Inset Unit Input Cluster (Network Telemetry) -->
+                    <div class="obsidian-subpanel rounded-xl p-3.5 space-y-3">
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Level 2: Autonomous Environmental Survey</span>
-                            <div class="flex items-center space-x-2">
-                                <button type="button" id="mode-live" class="min-h-[44px] px-3 py-1.5 text-xs rounded-lg font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 pressable">
-                                    🎙️ Real Mic FFT &amp; WebSocket Probe
-                                </button>
-                            </div>
+                            <span class="text-[11px] font-semibold text-slate-300 uppercase tracking-wider flex items-center space-x-1.5">
+                                <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+                                <span>Network Diagnostics (Koyal Quality Gates)</span>
+                            </span>
+                            <span class="text-[10px] font-mono text-slate-500">WebSocket /ws/probe</span>
                         </div>
 
-                        <!-- Live Mic Reading -->
-                        <div class="bg-slate-900 border border-slate-800 rounded-lg p-3.5 space-y-2">
-                            <div class="flex justify-between items-center text-xs">
-                                <span class="text-slate-400">Microphone Input:</span>
-                                <span id="mic-status-label" class="font-mono text-slate-300 truncate max-w-[200px]">Default System Audio</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3 text-xs font-mono tabular-nums">
-                                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-                                    <span class="text-slate-500">Sample Rate:</span>
-                                    <span id="live-sample-rate" class="text-white ml-1 font-semibold">-- Hz</span>
-                                </div>
-                                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-                                    <span class="text-slate-500">Ambient Noise (SNR):</span>
-                                    <span id="live-snr-db" class="text-white ml-1 font-semibold">-- dB</span>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                            <!-- Latency -->
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-mono uppercase text-slate-400">Latency</label>
+                                <div class="relative flex items-center">
+                                    <input id="in-latency" type="number" step="0.1" value="42.0" class="w-full h-8 bg-black/50 border border-white/10 rounded-md pl-2.5 pr-8 text-xs text-white font-mono tabular-nums focus:outline-none focus:border-emerald-500">
+                                    <span class="absolute right-2 text-[10px] font-mono text-slate-500">ms</span>
                                 </div>
                             </div>
-                            <!-- Audio visualizer level bar -->
-                            <div class="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-slate-800">
-                                <div id="audio-level-bar" class="h-full bg-emerald-500 transition-all duration-75 w-0"></div>
+                            <!-- Packet Loss -->
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-mono uppercase text-slate-400">Packet Loss</label>
+                                <div class="relative flex items-center">
+                                    <input id="in-loss" type="number" step="0.1" value="0.1" class="w-full h-8 bg-black/50 border border-white/10 rounded-md pl-2.5 pr-7 text-xs text-white font-mono tabular-nums focus:outline-none focus:border-emerald-500">
+                                    <span class="absolute right-2 text-[10px] font-mono text-slate-500">%</span>
+                                </div>
                             </div>
-                        </div>
-
-                        <!-- Simulation Presets (Generous Touch Targets min 44px) -->
-                        <div class="text-xs space-y-2">
-                            <span class="text-slate-400 font-medium">Inject Realistic Field Telemetry Scenario:</span>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                                <button type="button" data-preset="optimal" class="preset-btn min-h-[44px] px-2 py-2 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors text-center pressable font-medium">
-                                    🟢 Fiber Optimal
-                                </button>
-                                <button type="button" data-preset="monsoon" class="preset-btn min-h-[44px] px-2 py-2 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors text-center pressable font-medium">
-                                    🌧️ Monsoon Loss (3.8%)
-                                </button>
-                                <button type="button" data-preset="fan_noise" class="preset-btn min-h-[44px] px-2 py-2 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors text-center pressable font-medium">
-                                    💨 Fan Noise (16 dB)
-                                </button>
-                                <button type="button" data-preset="edge_lag" class="preset-btn min-h-[44px] px-2 py-2 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors text-center pressable font-medium">
-                                    📡 4G Lag (340ms)
-                                </button>
+                            <!-- Jitter -->
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-mono uppercase text-slate-400">Jitter</label>
+                                <div class="relative flex items-center">
+                                    <input id="in-jitter" type="number" step="0.1" value="5.2" class="w-full h-8 bg-black/50 border border-white/10 rounded-md pl-2.5 pr-8 text-xs text-white font-mono tabular-nums focus:outline-none focus:border-emerald-500">
+                                    <span class="absolute right-2 text-[10px] font-mono text-slate-500">ms</span>
+                                </div>
                             </div>
-                        </div>
-
-                        <!-- Manual Metrics Inputs (Tabular Numbers) -->
-                        <div id="metrics-inputs" class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs pt-1">
-                            <div>
-                                <label class="text-slate-400 block mb-1 font-medium">Latency (ms)</label>
-                                <input id="in-latency" type="number" step="0.1" value="42.0" class="w-full min-h-[44px] bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200 font-mono tabular-nums">
-                            </div>
-                            <div>
-                                <label class="text-slate-400 block mb-1 font-medium">Packet Loss (%)</label>
-                                <input id="in-loss" type="number" step="0.1" value="0.1" class="w-full min-h-[44px] bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200 font-mono tabular-nums">
-                            </div>
-                            <div>
-                                <label class="text-slate-400 block mb-1 font-medium">Jitter (ms)</label>
-                                <input id="in-jitter" type="number" step="0.1" value="5.2" class="w-full min-h-[44px] bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200 font-mono tabular-nums">
-                            </div>
-                            <div>
-                                <label class="text-slate-400 block mb-1 font-medium">WS RTT (ms)</label>
-                                <input id="in-ws-rtt" type="number" step="0.1" value="55.0" class="w-full min-h-[44px] bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200 font-mono tabular-nums">
+                            <!-- WS RTT -->
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-mono uppercase text-slate-400">WS Keepalive</label>
+                                <div class="relative flex items-center">
+                                    <input id="in-ws-rtt" type="number" step="0.1" value="55.0" class="w-full h-8 bg-black/50 border border-white/10 rounded-md pl-2.5 pr-8 text-xs text-white font-mono tabular-nums focus:outline-none focus:border-emerald-500">
+                                    <span class="absolute right-2 text-[10px] font-mono text-slate-500">ms</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Progress Bar during 5s diagnostic (Interruptible) -->
-                    <div id="progress-container" class="hidden mb-4 space-y-1.5">
-                        <div class="flex justify-between text-xs text-slate-400">
-                            <span class="font-medium">Executing 5-Second Telemetry Probe...</span>
-                            <span id="progress-pct" class="font-mono text-emerald-400 tabular-nums font-bold">0%</span>
+                    <!-- Row 3: Acoustic Noise Floor & Microphone FFT -->
+                    <div class="obsidian-subpanel rounded-xl p-3.5 space-y-2.5">
+                        <div class="flex items-center justify-between text-xs">
+                            <div class="flex items-center space-x-1.5">
+                                <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                                <span class="font-semibold text-slate-300 uppercase tracking-wider text-[11px]">Hardware &amp; FFT Audio Sampling</span>
+                            </div>
+                            <span id="mic-status-label" class="font-mono text-[11px] text-slate-400 truncate max-w-[200px]">Default Audio Device</span>
                         </div>
-                        <div class="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-slate-800">
-                            <div id="progress-bar" class="h-full bg-emerald-500 transition-all duration-100 w-0"></div>
+
+                        <div class="grid grid-cols-2 gap-3 text-xs font-mono tabular-nums">
+                            <div class="bg-black/40 px-3 py-2 rounded-lg border border-white/[0.06] flex justify-between items-center">
+                                <span class="text-slate-400 text-[11px]">Sample Rate:</span>
+                                <span id="live-sample-rate" class="text-white font-semibold">48000 Hz</span>
+                            </div>
+                            <div class="bg-black/40 px-3 py-2 rounded-lg border border-white/[0.06] flex justify-between items-center">
+                                <span class="text-slate-400 text-[11px]">Noise Floor (SNR):</span>
+                                <span id="live-snr-db" class="text-emerald-400 font-semibold">26.5 dB</span>
+                            </div>
+                        </div>
+
+                        <!-- Real-time Level Bar -->
+                        <div class="w-full bg-black/60 h-2 rounded-full overflow-hidden border border-white/[0.06]">
+                            <div id="audio-level-bar" class="h-full bg-emerald-500 transition-all duration-75 w-0"></div>
                         </div>
                     </div>
 
-                    <!-- Submit Button (44px min height touch target) -->
-                    <button id="btn-run-diagnostic" class="w-full min-h-[48px] py-3 rounded-lg font-semibold text-sm bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md flex items-center justify-center space-x-2 pressable focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
-                        <span>⚡</span>
-                        <span>Run 5-Second Pre-Flight Check</span>
-                    </button>
+                    <!-- Row 4: Professional Segmented Field Scenario Switcher (Replaces toy buttons) -->
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-medium text-slate-400 uppercase tracking-wider block">Field Baseline Simulation QA</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-black/40 p-1 rounded-lg border border-white/[0.06]">
+                            <button type="button" data-preset="optimal" class="preset-btn py-1.5 px-2 rounded-md text-xs font-medium text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all text-center pressable">
+                                Fiber Optimal
+                            </button>
+                            <button type="button" data-preset="monsoon" class="preset-btn py-1.5 px-2 rounded-md text-xs font-medium text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all text-center pressable">
+                                Monsoon (3.8% Drop)
+                            </button>
+                            <button type="button" data-preset="fan_noise" class="preset-btn py-1.5 px-2 rounded-md text-xs font-medium text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all text-center pressable">
+                                Fan Noise (15.5 dB)
+                            </button>
+                            <button type="button" data-preset="edge_lag" class="preset-btn py-1.5 px-2 rounded-md text-xs font-medium text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all text-center pressable">
+                                4G Lag (340ms)
+                            </button>
+                        </div>
+                    </div>
 
-                    <!-- 8. Zero CLS Reserved Result Slot (Permanent min-height container) -->
-                    <div id="verdict-container-slot" class="min-h-[320px] mt-6 flex flex-col justify-start">
-                        <!-- Skeleton Placeholder shown while probing -->
-                        <div id="verdict-skeleton" class="hidden border border-slate-800 rounded-xl p-5 space-y-4 bg-slate-900/40">
+                    <!-- Primary Action Trigger & Progress Bar -->
+                    <div class="pt-1">
+                        <!-- Progress state during 5s diagnostic -->
+                        <div id="progress-container" class="hidden mb-3 space-y-1.5">
+                            <div class="flex justify-between text-xs text-slate-400 font-mono">
+                                <span>Running hardware FFT &amp; WebSocket probe...</span>
+                                <span id="progress-pct" class="text-emerald-400 font-bold tabular-nums">0%</span>
+                            </div>
+                            <div class="w-full bg-black/60 h-2 rounded-full overflow-hidden border border-white/[0.06]">
+                                <div id="progress-bar" class="h-full bg-emerald-500 transition-all duration-100 w-0"></div>
+                            </div>
+                        </div>
+
+                        <!-- Refined Action Trigger -->
+                        <button id="btn-run-diagnostic" class="w-full h-11 rounded-lg font-semibold text-xs text-white btn-primary-glow transition-all flex items-center justify-center space-x-2 pressable focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            <span>Run 5-Second Pre-Flight Check</span>
+                            <span class="text-[10px] font-mono text-emerald-200/70 border border-emerald-400/30 px-1.5 py-0.5 rounded ml-2">↵ Enter</span>
+                        </button>
+                    </div>
+
+                    <!-- Results Section (Zero CLS with smooth expansion) -->
+                    <div id="verdict-container-slot" class="space-y-3">
+                        <!-- Shimmer Skeleton -->
+                        <div id="verdict-skeleton" class="hidden obsidian-subpanel rounded-xl p-4 space-y-3">
                             <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-8 h-8 rounded-full skeleton-shimmer"></div>
-                                    <div class="space-y-1.5">
-                                        <div class="w-32 h-4 rounded skeleton-shimmer"></div>
-                                        <div class="w-48 h-3 rounded skeleton-shimmer"></div>
+                                <div class="w-36 h-4 rounded skeleton-shimmer"></div>
+                                <div class="w-24 h-5 rounded-full skeleton-shimmer"></div>
+                            </div>
+                            <div class="w-full h-8 rounded skeleton-shimmer"></div>
+                        </div>
+
+                        <!-- Verdict Card -->
+                        <div id="verdict-card" class="hidden obsidian-subpanel rounded-xl p-4 space-y-3.5 border-l-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2.5">
+                                    <div id="verdict-icon-container" class="h-7 w-7 rounded-lg flex items-center justify-center">
+                                        <!-- Injected dynamically -->
                                     </div>
-                                </div>
-                                <div class="w-24 h-6 rounded-full skeleton-shimmer"></div>
-                            </div>
-                            <div class="w-full h-12 rounded-lg skeleton-shimmer"></div>
-                            <div class="grid grid-cols-3 gap-2">
-                                <div class="h-10 rounded skeleton-shimmer"></div>
-                                <div class="h-10 rounded skeleton-shimmer"></div>
-                                <div class="h-10 rounded skeleton-shimmer"></div>
-                            </div>
-                        </div>
-
-                        <!-- Actual Evaluation Verdict Card -->
-                        <div id="verdict-card" class="hidden border rounded-xl p-5 space-y-4 transition-all duration-300">
-                            <!-- Tier 1: At-a-Glance Summary -->
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <span id="verdict-icon" class="text-2xl">🟢</span>
                                     <div>
-                                        <h4 id="verdict-title" class="text-base font-bold text-white tracking-tight">OPTIMAL</h4>
-                                        <p id="verdict-courtroom" class="text-xs text-slate-400 font-mono tracking-wide">DL-HC-CRT04 • Session Cleared</p>
+                                        <h4 id="verdict-title" class="text-sm font-bold tracking-tight text-white">OPTIMAL</h4>
+                                        <p id="verdict-courtroom" class="text-[11px] font-mono text-slate-400">DL-HC-CRT04 • Session Cleared</p>
                                     </div>
                                 </div>
-                                <span id="verdict-badge" class="px-3 py-1.5 rounded-full text-xs font-mono font-bold tracking-wider uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                <span id="verdict-badge" class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase border">
                                     CAN START
                                 </span>
                             </div>
 
-                            <!-- Level 4: Golden Standard Alignment Score Widget -->
-                            <div id="golden-alignment-widget" class="bg-slate-950 p-3.5 rounded-lg border border-purple-500/30 space-y-2">
+                            <!-- Golden Alignment Score Gauge -->
+                            <div id="golden-alignment-widget" class="bg-black/40 p-3 rounded-lg border border-purple-500/20 space-y-1.5">
                                 <div class="flex justify-between items-center text-xs">
-                                    <span class="font-semibold text-purple-400 uppercase tracking-wider flex items-center space-x-1.5">
-                                        <span>🏆</span>
-                                        <span>Golden Standard Match:</span>
+                                    <span class="font-medium text-purple-300 text-[11px] flex items-center space-x-1.5">
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+                                        <span>Golden Benchmark Match</span>
                                     </span>
                                     <span id="golden-score-pct" class="font-mono font-bold text-white tabular-nums">--%</span>
                                 </div>
-                                <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                                <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
                                     <div id="golden-progress-bar" class="h-full bg-purple-500 w-0 transition-all duration-500"></div>
                                 </div>
-                                <p id="golden-summary-text" class="text-[11px] text-slate-400 leading-normal text-pretty">--</p>
+                                <p id="golden-summary-text" class="text-[10px] font-mono text-slate-400">--</p>
                             </div>
 
-                            <p id="verdict-summary" class="text-xs text-slate-300 leading-relaxed bg-slate-950/70 p-3.5 rounded-lg border border-slate-800 text-pretty">
+                            <p id="verdict-summary" class="text-xs text-slate-300 leading-relaxed bg-black/30 p-3 rounded-lg border border-white/[0.04]">
                                 All network and audio benchmarks meet optimal Koyal ASR quality gates.
                             </p>
 
-                            <!-- Dispatched Integrations Status -->
-                            <div class="grid grid-cols-3 gap-2.5 text-xs pt-1">
-                                <div id="receipt-airtable" class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-center">
-                                    <span class="text-slate-500 block text-[11px] uppercase tracking-wider font-semibold">Airtable</span>
-                                    <span class="font-semibold text-slate-300 text-xs">Synced</span>
+                            <!-- Integration Receipts Row -->
+                            <div class="grid grid-cols-3 gap-2 text-xs">
+                                <div id="receipt-airtable" class="p-2 rounded bg-black/40 border border-white/[0.05] text-center">
+                                    <span class="text-slate-500 block text-[10px] uppercase font-mono">Airtable</span>
+                                    <span class="font-semibold text-slate-300 text-[11px]">Synced</span>
                                 </div>
-                                <div id="receipt-slack" class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-center">
-                                    <span class="text-slate-500 block text-[11px] uppercase tracking-wider font-semibold">Slack Alert</span>
-                                    <span class="font-semibold text-slate-300 text-xs">--</span>
+                                <div id="receipt-slack" class="p-2 rounded bg-black/40 border border-white/[0.05] text-center">
+                                    <span class="text-slate-500 block text-[10px] uppercase font-mono">Slack Alert</span>
+                                    <span class="font-semibold text-slate-300 text-[11px]">--</span>
                                 </div>
-                                <div id="receipt-linear" class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-center">
-                                    <span class="text-slate-500 block text-[11px] uppercase tracking-wider font-semibold">Linear Ticket</span>
-                                    <span class="font-semibold text-slate-300 text-xs">--</span>
+                                <div id="receipt-linear" class="p-2 rounded bg-black/40 border border-white/[0.05] text-center">
+                                    <span class="text-slate-500 block text-[10px] uppercase font-mono">Linear Issue</span>
+                                    <span class="font-semibold text-slate-300 text-[11px]">--</span>
                                 </div>
                             </div>
 
-                            <!-- Level 3: Interactive Interview Prompt Button -->
-                            <div id="interview-trigger-box" class="hidden pt-2 border-t border-slate-800">
-                                <button id="btn-open-interview" type="button" class="w-full min-h-[44px] py-2.5 px-3 rounded-lg text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 transition-all flex items-center justify-center space-x-2 pressable">
-                                    <span>💬</span>
-                                    <span>Resolve via Guided Technician Interview Wizard</span>
+                            <!-- Level 3: Guided Technician Interview Trigger -->
+                            <div id="interview-trigger-box" class="hidden pt-1">
+                                <button id="btn-open-interview" type="button" class="w-full h-9 px-3 rounded-lg text-xs font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30 hover:bg-amber-500/20 transition-all flex items-center justify-center space-x-2 pressable">
+                                    <svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                    <span>Resolve via Guided Technician Interview</span>
                                 </button>
                             </div>
 
-                            <!-- 19. Progressive Disclosure Accordion for Deep Diagnostics -->
-                            <div class="pt-2 border-t border-slate-800/80">
-                                <button id="btn-toggle-deep-diagnostics" type="button" class="w-full py-2 flex items-center justify-between text-xs font-medium text-slate-400 hover:text-white transition-colors">
+                            <!-- Progressive Disclosure Accordion -->
+                            <div class="pt-1 border-t border-white/[0.06]">
+                                <button id="btn-toggle-deep-diagnostics" type="button" class="w-full py-1.5 flex items-center justify-between text-[11px] font-medium text-slate-400 hover:text-white transition-colors">
                                     <span class="flex items-center space-x-1.5">
-                                        <span>🔬</span>
-                                        <span>Inspect Deep Telemetry &amp; Integrations Payload</span>
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>
+                                        <span>Raw Telemetry &amp; Integrations Payload Trace</span>
                                     </span>
-                                    <span id="deep-diag-arrow" class="font-mono text-xs transition-transform duration-200">▾</span>
+                                    <span id="deep-diag-arrow" class="font-mono text-[10px]">▾</span>
                                 </button>
-                                <div id="deep-diagnostics-panel" class="hidden pt-3 space-y-2.5 text-[11px] font-mono">
-                                    <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 overflow-x-auto text-slate-300">
-                                        <p class="text-slate-500 mb-1">// Koyal ASR Quality Gate Verification Trace</p>
-                                        <pre id="raw-telemetry-json" class="text-emerald-400/90 whitespace-pre leading-relaxed"></pre>
-                                    </div>
+                                <div id="deep-diagnostics-panel" class="hidden pt-2">
+                                    <pre id="raw-telemetry-json" class="p-3 bg-black/60 rounded-lg border border-white/[0.06] text-emerald-400/90 text-[10px] font-mono overflow-x-auto whitespace-pre max-h-48"></pre>
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
 
-            <!-- Right Column: Regional Matrix & Live Incident Feed (5 cols) -->
-            <div class="lg:col-span-5 space-y-6">
+            <!-- RIGHT PANE: Operational Matrix & Incidents (5 cols) -->
+            <div class="lg:col-span-5 space-y-4">
 
-                <!-- 11-State Regional Health Grid (Choreographed Stagger Motion) -->
-                <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-5 shadow-sm">
-                    <div class="flex items-center justify-between mb-3.5">
-                        <h3 class="text-sm font-semibold text-white flex items-center space-x-1.5 tracking-tight">
-                            <span>🗺️</span>
-                            <span>11 Partner States Deployment</span>
-                        </h3>
-                        <span class="text-xs text-slate-400 font-medium">6,000+ Judges</span>
+                <!-- 11-State Telemetry Matrix -->
+                <div class="obsidian-panel rounded-xl p-4 space-y-3">
+                    <div class="flex items-center justify-between border-b border-white/[0.06] pb-2.5">
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                            <h3 class="text-xs font-semibold text-white tracking-tight uppercase">11 Partner States Deployment</h3>
+                        </div>
+                        <span class="text-[10px] font-mono text-slate-500">6,000+ Judges</span>
                     </div>
 
-                    <div id="regions-container" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                        <!-- Dynamically populated state cards with --stagger-index -->
+                    <!-- 3x4 Dense Matrix Grid -->
+                    <div id="regions-container" class="grid grid-cols-3 gap-2">
+                        <!-- Populated dynamically with state codes, status dot, and latency -->
                     </div>
                 </div>
 
-                <!-- Live Incidents Feed -->
-                <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-5 shadow-sm space-y-3">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-sm font-semibold text-white flex items-center space-x-1.5 tracking-tight">
-                            <span>🚨</span>
-                            <span>Live Incident Routing Feed</span>
-                        </h3>
-                        <span class="text-xs text-slate-500 font-medium">Auto Slack/Linear</span>
+                <!-- Live Incident Routing Stream -->
+                <div class="obsidian-panel rounded-xl p-4 space-y-3">
+                    <div class="flex items-center justify-between border-b border-white/[0.06] pb-2.5">
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-4 h-4 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+                            <h3 class="text-xs font-semibold text-white tracking-tight uppercase">Live Incident Routing Stream</h3>
+                        </div>
+                        <span class="text-[10px] font-mono text-emerald-400/80 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">Slack/Linear Sync</span>
                     </div>
 
-                    <div id="incidents-container" class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
-                        <!-- Dynamically populated incident records -->
-                        <p class="text-xs text-slate-500 text-center py-6 leading-normal">No critical breaches logged yet.</p>
+                    <div id="incidents-container" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                        <p class="text-[11px] text-slate-500 text-center py-6 font-mono">No active P0 incidents detected.</p>
                     </div>
                 </div>
 
@@ -538,34 +570,37 @@
 
     </main>
 
-    <!-- Level 3: Interactive Diagnostic Interview Modal (Optical Centered & Origin-Aware) -->
-    <div id="interview-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div id="interview-modal-dialog" class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl optical-center-modal">
-            <div class="flex justify-between items-start border-b border-slate-800 pb-3">
+    <!-- Level 3: Guided Technician Interview Modal (Linear-Style Dialog) -->
+    <div id="interview-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div id="interview-modal-dialog" class="obsidian-panel rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-2xl optical-center-dialog">
+            <div class="flex justify-between items-start border-b border-white/[0.06] pb-3">
                 <div class="flex items-center space-x-2.5">
-                    <span class="text-xl">💬</span>
+                    <div class="h-8 w-8 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </div>
                     <div>
-                        <h3 class="text-base font-bold text-white tracking-tight">Technician Diagnostic Interview</h3>
-                        <p class="text-xs text-slate-400">Level 3 Interactive Prompt Pyramid Dialogue</p>
+                        <h3 class="text-sm font-bold text-white tracking-tight">Technician Diagnostic Interview</h3>
+                        <p class="text-[11px] text-slate-400">Level 3 Interactive Prompt Pyramid Dialogue</p>
                     </div>
                 </div>
-                <!-- 44x44px touch target close button with optical centering -->
-                <button id="btn-close-interview" class="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-white text-xl font-mono pressable" aria-label="Close dialog">&times;</button>
+                <button id="btn-close-interview" class="min-h-[36px] min-w-[36px] flex items-center justify-center text-slate-400 hover:text-white rounded-lg hover:bg-white/[0.05] pressable" aria-label="Close">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
             </div>
 
             <div id="interview-question-container" class="space-y-3">
                 <!-- Dynamically populated question and options -->
             </div>
 
-            <div class="bg-amber-950/40 border border-amber-500/30 rounded-lg p-3.5 text-xs text-amber-200 leading-relaxed text-pretty" id="interview-remediation-box">
+            <div class="bg-amber-950/30 border border-amber-500/30 rounded-lg p-3 text-xs text-amber-200 font-sans" id="interview-remediation-box">
                 <!-- Remediation advice -->
             </div>
 
-            <div class="flex justify-end space-x-3 pt-2">
-                <button id="btn-cancel-interview" type="button" class="min-h-[44px] px-4 py-2 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 pressable">
+            <div class="flex justify-end space-x-2.5 pt-2">
+                <button id="btn-cancel-interview" type="button" class="min-h-[38px] px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 pressable">
                     Cancel
                 </button>
-                <button id="btn-submit-interview" type="button" class="min-h-[44px] px-5 py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md pressable focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
+                <button id="btn-submit-interview" type="button" class="min-h-[38px] px-4 py-1.5 rounded-lg text-xs font-semibold text-white btn-primary-glow pressable">
                     Apply Remediation &amp; Re-Evaluate
                 </button>
             </div>

@@ -25,6 +25,11 @@
   - *Color & Numbers:* Perceptually uniform OKLCH status palette and `tabular-nums` on all telemetry readings.
   - *Interaction:* Accessible keyboard combobox, 3-tier progressive disclosure accordion, tactile press affordances, and optimistic updates with rollback safety.
   - *Motion:* Origin-aware modal zoom, interruptible Web Animations API, choreographed waterfall stagger (`--stagger-index`), and View Transitions API integration.
+- **Enterprise Obsidian Design System (Zero Emojis):** Fully upgraded across `src/static/index.html` and `src/static/app.js` (ADR-007):
+  - *Obsidian Glassmorphism:* Layered `#07080B` canvas, 1px specular lighting, and multi-stop drop shadows.
+  - *100% SVG Micro-Vectors:* Eradication of all system emojis in favor of crisp 14-16px monochrome inline SVGs.
+  - *Balanced Viewport Layout:* High-density 2-pane command console with zero bottom void.
+  - *Inset Unit Inputs & Segmented QA:* Integrated `[ 42.0 | ms ]` badges and segmented field simulation controls.
 - **Automated Verification:** 30 out of 30 unit and integration tests passing in `tests/` in 10.43s.
 - **Git Repository & Remote Push:** Public repository created and synced at `https://github.com/AllenFletcherAI/adalat-pulse`.
 - **Containerization:** Multi-stage production `Dockerfile` and `docker-compose.yml`.

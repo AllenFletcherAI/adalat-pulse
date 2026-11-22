@@ -84,4 +84,20 @@
 * **Rejected Alternative:** Generic ad-hoc styling with arbitrary Tailwind utilities. Rejected because inconsistent paddings, shifting layouts, and small touch targets lead to operator errors in high-stakes judicial environments.
 * **When to Reconsider:** If a dedicated native desktop client (e.g. Tauri / Electron) completely replaces the browser-based gateway dashboard.
 
+---
+
+## ADR-007: Enterprise Obsidian Design System & SVG Micro-Vector Standard (Zero Emojis)
+* **Date:** November 2026
+* **Decision:** Replace all hackathon-style UI artifacts (Unicode emojis, pitch-black canvas, flat radioactive buttons, and full-screen vertical scroll pits) with a production-ready enterprise design standard:
+  1. *Obsidian Glassmorphic Surface Architecture:* Base `#07080B` canvas, layered glass panels (`rgba(17, 20, 28, 0.75)` with 16px backdrop blur), 1px directional specular lighting (`border-t border-white/[0.08]`), and multi-stop drop shadows.
+  2. *Zero Emojis / 100% SVG Micro-Vectors:* Eradicate all system emojis across headings, KPI cards, presets, and alerts. Replace with 14–16px inline SVG vectors (1.5px to 1.75px stroke width) with contextual monochrome tinting.
+  3. *High-Density Balanced Viewport:* Eliminate the bottom void through a high-information-density 2-pane console with integrated breadcrumbs, 4 compact KPIs, and zero layout shift.
+  4. *Inset Unit Input Cluster:* Merge raw input boxes into an integrated cluster with embedded unit badges (`[ 42.0 | ms ]`, `[ 0.10 | % ]`, `[ 26.5 | dB ]`).
+  5. *Segmented Field QA Switcher:* Replace cartoonish test buttons with a sleek segmented pill control (`Fiber Optimal`, `Monsoon`, `Fan Noise`, `4G Lag`).
+  6. *Refined Action Trigger:* Replace the oversized green slab button with a calibrated action trigger (`h-11`) featuring dual-state progress animations and keyboard shortcut hints (`↵ Enter`).
+* **Why:** Judicial software deployed for the Supreme Court, High Courts, and 6,000+ judges must command institutional trust and authority. Vibe-coded elements like emojis and radioactive neon colors damage professional credibility and reduce operator efficiency during live trials.
+* **Rejected Alternative:** Retaining system emojis or basic Bootstrap-style flat styling. Rejected because consumer-grade visual artifacts fail the enterprise quality bar expected by CTOs and senior state judicial coordinators.
+* **When to Reconsider:** Never. Institutional mission-critical infrastructure must maintain strict visual and ergonomic integrity.
+
+
 

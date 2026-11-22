@@ -1,11 +1,7 @@
 /**
  * Adalat-Pulse: Frontend Diagnostic Engine & Operations Visualizer
- * Implements 20-Point Ergonomic Design System:
- * - Typography & Spatial Hierarchy (Kerning, Tracking, Leading, X-Height, Line Length, Widow Control)
- * - Geometry & Viewport Bounds (Optical Center, Zero CLS, Safe Area, Min 44px Touch Targets)
- * - Color Metrics & Numerical Precision (OKLCH, Tabular Numbers)
- * - Interaction Architecture & UX (Affordance, Accessible Combobox, Progressive Disclosure, Optimistic Updates)
- * - Motion Choreography (Origin-Aware Modal, Interruptible Web Animations, Stagger Dynamics, View Transitions)
+ * Production-Grade Enterprise Standard (Linear / Stripe / Datadog aesthetic)
+ * 100% SVG Vector System — Zero Emojis
  */
 
 let audioContext = null;
@@ -16,10 +12,9 @@ let currentSnrDb = 26.5;
 let micDeviceLabel = "Default Audio Device";
 let lastReportPayload = null;
 let pendingInterviewQuestions = [];
-let activeProbeAnimation = null;
 let probeIntervalId = null;
 
-// 12. Helper: Prevent Typographic Widows by Injecting Non-Breaking Space
+// Helper: Typographic Widow Control
 function preventWidow(text) {
     if (!text || typeof text !== 'string') return text;
     const words = text.trim().split(' ');
@@ -60,7 +55,7 @@ async function initAudioHardware() {
             if (tracks.length > 0) {
                 micDeviceLabel = tracks[0].label || "Integrated Microphone";
                 const labelEl = document.getElementById('mic-status-label');
-                if (labelEl) labelEl.textContent = micDeviceLabel.slice(0, 28);
+                if (labelEl) labelEl.textContent = micDeviceLabel.slice(0, 24);
             }
 
             analyser = audioContext.createAnalyser();
@@ -71,7 +66,7 @@ async function initAudioHardware() {
             sampleAudioLoop();
         }
     } catch (err) {
-        console.warn("Browser mic access not granted or simulated:", err.message);
+        console.warn("Browser mic access fallback:", err.message);
         const labelEl = document.getElementById('mic-status-label');
         if (labelEl) labelEl.textContent = "Simulated / Fallback Mode";
         const srEl = document.getElementById('live-sample-rate');
@@ -109,19 +104,19 @@ function sampleAudioLoop() {
     requestAnimationFrame(sampleAudioLoop);
 }
 
-// 17. Accessible Courtroom Search & Combo Box Implementation
+// 3. Accessible Courtroom Search & Combobox Directory
 const COURTROOM_DIRECTORY = [
-    { id: "DL-HC-CRT04", state: "DL", bench: "Delhi High Court Bench 04 (Civil Division)", tier: "HIGH_COURT", golden: "GOLDEN-HC-FIBER" },
-    { id: "KL-HC-CRT01", state: "KL", bench: "Kerala High Court Bench 01 (Digital Benches)", tier: "HIGH_COURT", golden: "GOLDEN-HC-FIBER" },
-    { id: "KA-HC-BLR02", state: "KA", bench: "Karnataka High Court Bengaluru Bench 02", tier: "HIGH_COURT", golden: "GOLDEN-HC-FIBER" },
-    { id: "MH-HC-BOM01", state: "MH", bench: "Bombay High Court Bench 01 (Commercial Division)", tier: "HIGH_COURT", golden: "GOLDEN-HC-FIBER" },
-    { id: "UP-DC-LKO05", state: "UP", bench: "Lucknow District Court Hall 05", tier: "DISTRICT_COURT", golden: "GOLDEN-DC-HYBRID" },
-    { id: "TN-HC-MAD03", state: "TN", bench: "Madras High Court Hall 03", tier: "HIGH_COURT", golden: "GOLDEN-HC-FIBER" },
-    { id: "WB-HC-CAL01", state: "WB", bench: "Calcutta High Court Bench 01", tier: "HIGH_COURT", golden: "GOLDEN-HC-FIBER" },
-    { id: "GJ-HC-AHM02", state: "GJ", bench: "Gujarat High Court Ahmedabad Bench 02", tier: "HIGH_COURT", golden: "GOLDEN-HC-FIBER" },
-    { id: "RJ-DC-JPR02", state: "RJ", bench: "Jaipur District & Sessions Court 02", tier: "DISTRICT_COURT", golden: "GOLDEN-DC-HYBRID" },
-    { id: "MP-DC-BPL03", state: "MP", bench: "Bhopal District Court Room 03", tier: "DISTRICT_COURT", golden: "GOLDEN-DC-HYBRID" },
-    { id: "AP-HC-AMR01", state: "AP", bench: "Andhra Pradesh High Court Amaravati Bench 01", tier: "HIGH_COURT", golden: "GOLDEN-HC-FIBER" },
+    { id: "DL-HC-CRT04", state: "DL", bench: "Delhi High Court Bench 04 (Civil Division)", golden: "GOLDEN-HC-FIBER" },
+    { id: "KL-HC-CRT01", state: "KL", bench: "Kerala High Court Bench 01 (Digital Benches)", golden: "GOLDEN-HC-FIBER" },
+    { id: "KA-HC-BLR02", state: "KA", bench: "Karnataka High Court Bengaluru Bench 02", golden: "GOLDEN-HC-FIBER" },
+    { id: "MH-HC-BOM01", state: "MH", bench: "Bombay High Court Bench 01 (Commercial Division)", golden: "GOLDEN-HC-FIBER" },
+    { id: "UP-DC-LKO05", state: "UP", bench: "Lucknow District Court Hall 05", golden: "GOLDEN-DC-HYBRID" },
+    { id: "TN-HC-MAD03", state: "TN", bench: "Madras High Court Hall 03", golden: "GOLDEN-HC-FIBER" },
+    { id: "WB-HC-CAL01", state: "WB", bench: "Calcutta High Court Bench 01", golden: "GOLDEN-HC-FIBER" },
+    { id: "GJ-HC-AHM02", state: "GJ", bench: "Gujarat High Court Ahmedabad Bench 02", golden: "GOLDEN-HC-FIBER" },
+    { id: "RJ-DC-JPR02", state: "RJ", bench: "Jaipur District & Sessions Court 02", golden: "GOLDEN-DC-HYBRID" },
+    { id: "MP-DC-BPL03", state: "MP", bench: "Bhopal District Court Room 03", golden: "GOLDEN-DC-HYBRID" },
+    { id: "AP-HC-AMR01", state: "AP", bench: "Andhra Pradesh High Court Amaravati Bench 01", golden: "GOLDEN-HC-FIBER" },
 ];
 
 function initCourtroomComboBox() {
@@ -139,21 +134,20 @@ function initCourtroomComboBox() {
         );
 
         if (matches.length === 0) {
-            listbox.innerHTML = `<div class="p-3 text-xs text-slate-500 text-center">No matching courtroom benches found</div>`;
+            listbox.innerHTML = `<div class="p-3 text-[11px] text-slate-500 text-center font-mono">No matching courtroom benches found</div>`;
             return;
         }
 
         listbox.innerHTML = matches.map((item, idx) => `
-            <div role="option" data-index="${idx}" data-id="${item.id}" data-state="${item.state}" data-bench="${item.bench}" data-golden="${item.golden}" class="combo-option min-h-[44px] px-3.5 py-2.5 hover:bg-slate-800 cursor-pointer flex items-center justify-between text-xs transition-colors ${idx === highlightedIndex ? 'bg-slate-800 ring-1 ring-emerald-500/50' : ''}">
+            <div role="option" data-id="${item.id}" data-state="${item.state}" data-bench="${item.bench}" data-golden="${item.golden}" class="combo-option px-3 py-2 hover:bg-white/[0.06] cursor-pointer flex items-center justify-between text-xs transition-colors ${idx === highlightedIndex ? 'bg-white/[0.08]' : ''}">
                 <div>
-                    <span class="font-mono font-bold text-white tracking-wide">${item.id}</span>
-                    <p class="text-[11px] text-slate-400 truncate max-w-[280px]">${item.bench}</p>
+                    <span class="font-mono font-semibold text-white tracking-wide">${item.id}</span>
+                    <p class="text-[10px] text-slate-400 truncate max-w-[240px]">${item.bench}</p>
                 </div>
-                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-slate-800 text-slate-300 border border-slate-700">${item.state}</span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-300 bg-white/[0.05] border border-white/[0.08]">${item.state}</span>
             </div>
         `).join('');
 
-        // Attach option click handlers
         listbox.querySelectorAll('.combo-option').forEach(el => {
             el.addEventListener('click', () => {
                 selectCourtroomOption(el.dataset);
@@ -163,7 +157,6 @@ function initCourtroomComboBox() {
     }
 
     function selectCourtroomOption(data) {
-        // 20. Shared Element Transition wrapper if supported
         const applyUpdate = () => {
             input.value = data.id;
             document.getElementById('input-state').value = data.state;
@@ -198,14 +191,16 @@ function initCourtroomComboBox() {
         renderOptions(e.target.value);
     });
 
-    toggleBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (listbox.classList.contains('hidden')) {
-            openComboBox();
-        } else {
-            closeComboBox();
-        }
-    });
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (listbox.classList.contains('hidden')) {
+                openComboBox();
+            } else {
+                closeComboBox();
+            }
+        });
+    }
 
     input.addEventListener('keydown', (e) => {
         const options = listbox.querySelectorAll('.combo-option');
@@ -219,12 +214,12 @@ function initCourtroomComboBox() {
         if (e.key === 'ArrowDown') {
             e.preventDefault();
             highlightedIndex = Math.min(highlightedIndex + 1, options.length - 1);
-            options.forEach((opt, idx) => opt.classList.toggle('bg-slate-800', idx === highlightedIndex));
+            options.forEach((opt, idx) => opt.classList.toggle('bg-white/[0.08]', idx === highlightedIndex));
             if (options[highlightedIndex]) options[highlightedIndex].scrollIntoView({ block: 'nearest' });
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
             highlightedIndex = Math.max(highlightedIndex - 1, 0);
-            options.forEach((opt, idx) => opt.classList.toggle('bg-slate-800', idx === highlightedIndex));
+            options.forEach((opt, idx) => opt.classList.toggle('bg-white/[0.08]', idx === highlightedIndex));
             if (options[highlightedIndex]) options[highlightedIndex].scrollIntoView({ block: 'nearest' });
         } else if (e.key === 'Enter') {
             e.preventDefault();
@@ -238,17 +233,19 @@ function initCourtroomComboBox() {
     });
 
     document.addEventListener('click', (e) => {
-        if (!input.contains(e.target) && !listbox.contains(e.target) && !toggleBtn.contains(e.target)) {
+        if (!input.contains(e.target) && !listbox.contains(e.target) && (!toggleBtn || !toggleBtn.contains(e.target))) {
             closeComboBox();
         }
     });
 }
 initCourtroomComboBox();
 
-// 3. Preset Scenarios Handler
+// 4. Segmented Presets Handler (Zero Emojis)
 document.querySelectorAll('.preset-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
         const preset = e.currentTarget.getAttribute('data-preset');
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('bg-white/[0.12]', 'text-emerald-400', 'font-semibold'));
+        e.currentTarget.classList.add('bg-white/[0.12]', 'text-emerald-400', 'font-semibold');
         applyPreset(preset);
     });
 });
@@ -287,7 +284,7 @@ function applyPreset(preset) {
         jitIn.value = "7.5";
         rttIn.value = "75.0";
         currentSampleRate = 16000;
-        currentSnrDb = 15.5; // Degraded noise floor (15.5 dB) -> Triggers Level 3 Interview
+        currentSnrDb = 15.5; // Degraded noise floor (15.5 dB) -> Level 3 Interview trigger
         document.getElementById('input-courtroom-id').value = "UP-DC-LKO05";
         document.getElementById('input-state').value = "UP";
         document.getElementById('input-bench-name').value = "Lucknow District Court Hall 05";
@@ -311,7 +308,7 @@ function applyPreset(preset) {
     if (snrEl) snrEl.textContent = `${currentSnrDb.toFixed(1)} dB`;
 }
 
-// 4. Run 5-Second Live Pre-Flight Diagnostic Check (Zero CLS & Interruptible Motion)
+// 5. Run 5-Second Pre-Flight Check Trigger
 document.getElementById('btn-run-diagnostic').addEventListener('click', async () => {
     await initAudioHardware();
 
@@ -323,7 +320,6 @@ document.getElementById('btn-run-diagnostic').addEventListener('click', async ()
     const skeleton = document.getElementById('verdict-skeleton');
     const verdictCard = document.getElementById('verdict-card');
 
-    // 18. Interrupt any currently running probe cleanly
     if (probeIntervalId) {
         clearInterval(probeIntervalId);
         probeIntervalId = null;
@@ -333,12 +329,11 @@ document.getElementById('btn-run-diagnostic').addEventListener('click', async ()
     btn.classList.add('opacity-50', 'cursor-not-allowed');
     progressContainer.classList.remove('hidden');
 
-    // 8. Zero CLS: Keep the reserved slot occupied with the shimmer skeleton
     verdictCard.classList.add('hidden');
     skeleton.classList.remove('hidden');
 
     badge.textContent = "PROBING (5s)";
-    badge.className = "px-3 py-1 text-xs font-mono font-medium rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 animate-pulse tabular-nums";
+    badge.className = "px-2.5 py-1 text-[11px] font-mono font-medium rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/25 animate-pulse tabular-nums";
 
     const totalSteps = 50; // 50 * 100ms = 5000ms
     let currentStep = 0;
@@ -418,11 +413,12 @@ async function submitDiagnosticReport() {
     }
 }
 
+// 6. Vector-Driven Verdict Renderer (Zero Emojis)
 function renderVerdict(data) {
     const skeleton = document.getElementById('verdict-skeleton');
     const card = document.getElementById('verdict-card');
     const badge = document.getElementById('diagnostic-badge');
-    const icon = document.getElementById('verdict-icon');
+    const iconContainer = document.getElementById('verdict-icon-container');
     const title = document.getElementById('verdict-title');
     const crText = document.getElementById('verdict-courtroom');
     const verdictBadge = document.getElementById('verdict-badge');
@@ -432,37 +428,36 @@ function renderVerdict(data) {
     const receiptSlack = document.getElementById('receipt-slack');
     const receiptLinear = document.getElementById('receipt-linear');
 
-    // Level 4: Golden alignment elements
     const goldenScorePct = document.getElementById('golden-score-pct');
     const goldenProgressBar = document.getElementById('golden-progress-bar');
     const goldenSummaryText = document.getElementById('golden-summary-text');
 
-    // Level 3: Interview elements
     const interviewBox = document.getElementById('interview-trigger-box');
 
-    // Hide skeleton and reveal card smoothly (Zero CLS)
     skeleton.classList.add('hidden');
     card.classList.remove('hidden');
 
     if (data.verdict === 'OPTIMAL') {
-        card.className = "border border-emerald-500/40 bg-emerald-950/20 rounded-xl p-5 space-y-4";
-        badge.className = "px-3 py-1 text-xs font-mono font-medium rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 tabular-nums";
+        card.className = "obsidian-subpanel rounded-xl p-4 space-y-3.5 border-l-4 border-l-emerald-500 border border-white/[0.06]";
+        badge.className = "px-2.5 py-1 text-[11px] font-mono font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 tabular-nums";
         badge.textContent = "OPTIMAL";
-        icon.textContent = "🟢";
+        iconContainer.className = "h-7 w-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20";
+        iconContainer.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`;
         title.textContent = "OPTIMAL — SESSION APPROVED";
-        title.className = "text-base font-bold text-emerald-400 tracking-tight";
+        title.className = "text-sm font-bold text-emerald-400 tracking-tight";
         verdictBadge.textContent = "SESSION CLEARED";
-        verdictBadge.className = "px-3 py-1.5 rounded-full text-xs font-mono font-bold tracking-wider uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+        verdictBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
         interviewBox.classList.add('hidden');
     } else if (data.verdict === 'DEGRADED') {
-        card.className = "border border-amber-500/40 bg-amber-950/20 rounded-xl p-5 space-y-4";
-        badge.className = "px-3 py-1 text-xs font-mono font-medium rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 tabular-nums";
+        card.className = "obsidian-subpanel rounded-xl p-4 space-y-3.5 border-l-4 border-l-amber-500 border border-white/[0.06]";
+        badge.className = "px-2.5 py-1 text-[11px] font-mono font-medium rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/25 tabular-nums";
         badge.textContent = "DEGRADED";
-        icon.textContent = "🟡";
-        title.textContent = "DEGRADED — PROCEED WITH CAUTION";
-        title.className = "text-base font-bold text-amber-400 tracking-tight";
-        verdictBadge.textContent = "MONITORING ACTIVE";
-        verdictBadge.className = "px-3 py-1.5 rounded-full text-xs font-mono font-bold tracking-wider uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30";
+        iconContainer.className = "h-7 w-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20";
+        iconContainer.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+        title.textContent = "DEGRADED — MONITORING ACTIVE";
+        title.className = "text-sm font-bold text-amber-400 tracking-tight";
+        verdictBadge.textContent = "ATTENTION REQUIRED";
+        verdictBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-amber-500/10 text-amber-400 border border-amber-500/30";
 
         if (data.evaluation.pending_questions && data.evaluation.pending_questions.length > 0) {
             pendingInterviewQuestions = data.evaluation.pending_questions;
@@ -471,40 +466,41 @@ function renderVerdict(data) {
             interviewBox.classList.add('hidden');
         }
     } else {
-        card.className = "border border-rose-500/40 bg-rose-950/20 rounded-xl p-5 space-y-4";
-        badge.className = "px-3 py-1 text-xs font-mono font-medium rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 tabular-nums";
+        card.className = "obsidian-subpanel rounded-xl p-4 space-y-3.5 border-l-4 border-l-rose-500 border border-white/[0.06]";
+        badge.className = "px-2.5 py-1 text-[11px] font-mono font-medium rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/25 tabular-nums";
         badge.textContent = "CRITICAL BREACH";
-        icon.textContent = "🔴";
+        iconContainer.className = "h-7 w-7 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center border border-rose-500/20";
+        iconContainer.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
         title.textContent = "CRITICAL — SESSION HALTED";
-        title.className = "text-base font-bold text-rose-400 tracking-tight";
+        title.className = "text-sm font-bold text-rose-400 tracking-tight";
         verdictBadge.textContent = "GATE BLOCKED";
-        verdictBadge.className = "px-3 py-1.5 rounded-full text-xs font-mono font-bold tracking-wider uppercase bg-rose-500/20 text-rose-400 border border-rose-500/30";
+        verdictBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-rose-500/10 text-rose-400 border border-rose-500/30";
         interviewBox.classList.add('hidden');
     }
 
     crText.textContent = `${data.courtroom_id} (${data.state}) • Snapshot #${data.snapshot_id}`;
-    summary.innerHTML = `<strong>${preventWidow(data.evaluation.summary)}</strong><br>` +
-        data.evaluation.reason_codes.map(r => `• ${preventWidow(r)}`).join('<br>');
+    summary.innerHTML = `<div class="font-semibold text-slate-200 mb-1">${preventWidow(data.evaluation.summary)}</div>` +
+        data.evaluation.reason_codes.map(r => `<div class="text-[11px] text-slate-400 flex items-start space-x-1.5"><span class="text-slate-600">•</span><span>${preventWidow(r)}</span></div>`).join('');
 
     // Level 4: Render Golden Alignment Score
     if (data.evaluation.golden_alignment) {
         const align = data.evaluation.golden_alignment;
         goldenScorePct.textContent = `${align.alignment_pct}%`;
         goldenProgressBar.style.width = `${align.alignment_pct}%`;
-        goldenSummaryText.innerHTML = preventWidow(`${align.summary} (Latency: ${align.latency_delta_ms >= 0 ? '+' : ''}${align.latency_delta_ms}ms, Loss: ${align.packet_loss_delta_pct >= 0 ? '+' : ''}${align.packet_loss_delta_pct}%, SNR: ${align.snr_delta_db >= 0 ? '+' : ''}${align.snr_delta_db} dB)`);
+        goldenSummaryText.innerHTML = preventWidow(`${align.summary} (Δ Latency: ${align.latency_delta_ms >= 0 ? '+' : ''}${align.latency_delta_ms}ms, Δ Loss: ${align.packet_loss_delta_pct >= 0 ? '+' : ''}${align.packet_loss_delta_pct}%, Δ SNR: ${align.snr_delta_db >= 0 ? '+' : ''}${align.snr_delta_db} dB)`);
     }
 
-    // Update Receipts
-    receiptAirtable.querySelector('span:last-child').textContent = data.airtable_synced ? "✅ Synced" : "Pending";
-    receiptAirtable.querySelector('span:last-child').className = data.airtable_synced ? "font-semibold text-emerald-400" : "font-semibold text-slate-400";
+    // Update Integration Receipts
+    receiptAirtable.querySelector('span:last-child').textContent = data.airtable_synced ? "Synced" : "Pending";
+    receiptAirtable.querySelector('span:last-child').className = data.airtable_synced ? "font-semibold text-emerald-400 text-[11px]" : "font-semibold text-slate-400 text-[11px]";
 
-    receiptSlack.querySelector('span:last-child').textContent = data.slack_alert_sent ? "🚨 Sent (#all-alerts)" : "Standby";
-    receiptSlack.querySelector('span:last-child').className = data.slack_alert_sent ? "font-semibold text-rose-400" : "font-semibold text-slate-400";
+    receiptSlack.querySelector('span:last-child').textContent = data.slack_alert_sent ? "Dispatched" : "Standby";
+    receiptSlack.querySelector('span:last-child').className = data.slack_alert_sent ? "font-semibold text-rose-400 text-[11px]" : "font-semibold text-slate-400 text-[11px]";
 
-    receiptLinear.querySelector('span:last-child').textContent = data.linear_ticket_created ? "🎫 Created (P0)" : "None";
-    receiptLinear.querySelector('span:last-child').className = data.linear_ticket_created ? "font-semibold text-blue-400" : "font-semibold text-slate-400";
+    receiptLinear.querySelector('span:last-child').textContent = data.linear_ticket_created ? "P0 Created" : "None";
+    receiptLinear.querySelector('span:last-child').className = data.linear_ticket_created ? "font-semibold text-blue-400 text-[11px]" : "font-semibold text-slate-400 text-[11px]";
 
-    // 19. Update Deep Diagnostics Progressive Disclosure Raw JSON
+    // Update Deep Diagnostics JSON
     const rawPre = document.getElementById('raw-telemetry-json');
     if (rawPre) {
         rawPre.textContent = JSON.stringify({
@@ -520,7 +516,7 @@ function renderVerdict(data) {
     }
 }
 
-// 19. Progressive Disclosure Accordion Toggle
+// 7. Progressive Disclosure Accordion
 const btnToggleDeep = document.getElementById('btn-toggle-deep-diagnostics');
 if (btnToggleDeep) {
     btnToggleDeep.addEventListener('click', () => {
@@ -529,15 +525,15 @@ if (btnToggleDeep) {
         const isHidden = panel.classList.contains('hidden');
         if (isHidden) {
             panel.classList.remove('hidden');
-            arrow.style.transform = "rotate(180deg)";
+            arrow.textContent = "▴";
         } else {
             panel.classList.add('hidden');
-            arrow.style.transform = "rotate(0deg)";
+            arrow.textContent = "▾";
         }
     });
 }
 
-// 10. Origin-Aware Animation: Interview Modal Workflow
+// 8. Level 3: Guided Technician Interview Modal Workflow
 const btnOpenInterview = document.getElementById('btn-open-interview');
 if (btnOpenInterview) {
     btnOpenInterview.addEventListener('click', (e) => {
@@ -548,34 +544,29 @@ if (btnOpenInterview) {
         const container = document.getElementById('interview-question-container');
         const adviceBox = document.getElementById('interview-remediation-box');
 
-        // 10. Calculate origin coordinates relative to button clicked
         const rect = e.currentTarget.getBoundingClientRect();
-        const originX = rect.left + rect.width / 2;
-        const originY = rect.top + rect.height / 2;
-        dialog.style.transformOrigin = `${originX}px ${originY}px`;
+        dialog.style.transformOrigin = `${rect.left + rect.width / 2}px ${rect.top + rect.height / 2}px`;
 
-        // 14. Assign Stagger Index to Option Cards
         container.innerHTML = `
-            <p class="text-sm font-semibold text-slate-200 text-pretty">${preventWidow(q.prompt)}</p>
-            <div class="space-y-2.5 pt-2">
+            <p class="text-xs font-semibold text-slate-200">${preventWidow(q.prompt)}</p>
+            <div class="space-y-2 pt-1.5">
                 ${q.options.map((opt, idx) => `
-                    <label style="--stagger-index: ${idx}" class="stagger-item flex items-center space-x-3 p-3 rounded-lg bg-slate-950 border border-slate-800 hover:border-slate-700 cursor-pointer min-h-[44px] pressable">
-                        <input type="radio" name="interview-option" value="${opt}" ${idx === 0 ? 'checked' : ''} class="w-4 h-4 text-emerald-500 focus:ring-emerald-500 bg-slate-900 border-slate-700">
+                    <label style="--stagger-index: ${idx}" class="stagger-item flex items-center space-x-2.5 p-2.5 rounded-lg bg-black/40 border border-white/[0.08] hover:border-white/[0.18] cursor-pointer pressable">
+                        <input type="radio" name="interview-option" value="${opt}" ${idx === 0 ? 'checked' : ''} class="w-3.5 h-3.5 text-emerald-500 focus:ring-emerald-500 bg-black/50 border-white/20">
                         <span class="text-xs text-slate-300 font-medium">${preventWidow(opt)}</span>
                     </label>
                 `).join('')}
             </div>
         `;
 
-        adviceBox.innerHTML = `<strong>💡 Recommended Operator Action:</strong> ${preventWidow(q.remediation_advice)}`;
+        adviceBox.innerHTML = `<strong>Action Advice:</strong> ${preventWidow(q.remediation_advice)}`;
         modal.classList.remove('hidden');
 
-        // Play subtle origin expansion animation
         dialog.animate([
-            { transform: 'scale(0.88) translateY(12px)', opacity: 0 },
+            { transform: 'scale(0.92) translateY(8px)', opacity: 0 },
             { transform: 'scale(1) translateY(0)', opacity: 1 }
         ], {
-            duration: 260,
+            duration: 220,
             easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
             fill: 'forwards'
         });
@@ -587,9 +578,9 @@ function closeInterviewModal() {
     const dialog = document.getElementById('interview-modal-dialog');
     const anim = dialog.animate([
         { transform: 'scale(1)', opacity: 1 },
-        { transform: 'scale(0.92) translateY(8px)', opacity: 0 }
+        { transform: 'scale(0.94) translateY(6px)', opacity: 0 }
     ], {
-        duration: 180,
+        duration: 160,
         easing: 'ease-in',
         fill: 'forwards'
     });
@@ -599,7 +590,7 @@ function closeInterviewModal() {
 document.getElementById('btn-close-interview').addEventListener('click', closeInterviewModal);
 document.getElementById('btn-cancel-interview').addEventListener('click', closeInterviewModal);
 
-// 6. Level 3: Optimistic Update Handler with Rollback Safety
+// Optimistic Remediation Submission
 document.getElementById('btn-submit-interview').addEventListener('click', async () => {
     if (!pendingInterviewQuestions || pendingInterviewQuestions.length === 0) return;
     const q = pendingInterviewQuestions[0];
@@ -613,22 +604,19 @@ document.getElementById('btn-submit-interview').addEventListener('click', async 
         original_report: lastReportPayload
     };
 
-    // Snapshot previous state for rollback
-    const previousVerdictTitle = document.getElementById('verdict-title').textContent;
-    const previousVerdictClass = document.getElementById('verdict-card').className;
-
-    // 6. Optimistic UI update: immediately upgrade status card visually
     const card = document.getElementById('verdict-card');
     const title = document.getElementById('verdict-title');
     const verdictBadge = document.getElementById('verdict-badge');
-    const icon = document.getElementById('verdict-icon');
 
-    card.className = "border border-emerald-500/40 bg-emerald-950/20 rounded-xl p-5 space-y-4";
-    icon.textContent = "🟢";
-    title.textContent = "OPTIMAL — REMEDIATION CONFIRMED (+6.0 dB)";
-    title.className = "text-base font-bold text-emerald-400 tracking-tight";
+    const previousTitle = title.textContent;
+    const previousClass = card.className;
+
+    // Optimistic UI upgrade
+    card.className = "obsidian-subpanel rounded-xl p-4 space-y-3.5 border-l-4 border-l-emerald-500 border border-white/[0.06]";
+    title.textContent = "OPTIMAL — REMEDIATION APPLIED (+6.0 dB)";
+    title.className = "text-sm font-bold text-emerald-400 tracking-tight";
     verdictBadge.textContent = "REMEDIATED";
-    verdictBadge.className = "px-3 py-1.5 rounded-full text-xs font-mono font-bold tracking-wider uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+    verdictBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
 
     closeInterviewModal();
 
@@ -649,15 +637,14 @@ document.getElementById('btn-submit-interview').addEventListener('click', async 
         pollFleetOverview();
         pollIncidents();
     } catch (err) {
-        // Rollback optimistic update
-        console.error("Remediation submission failed, rolling back:", err.message);
-        card.className = previousVerdictClass;
-        title.textContent = previousVerdictTitle;
+        console.error("Remediation rollback:", err.message);
+        card.className = previousClass;
+        title.textContent = previousTitle;
         alert("Failed to apply interview remediation (rolled back): " + err.message);
     }
 });
 
-// 7. Poll Fleet Status Overview (Choreographed Stagger Motion & Tabular Numbers)
+// 9. Poll 11-State Fleet Telemetry Matrix (Zero Emojis, High Density)
 async function pollFleetOverview() {
     try {
         const res = await fetch('/api/v1/courtrooms/status');
@@ -669,30 +656,32 @@ async function pollFleetOverview() {
         document.getElementById('stat-optimal-sessions').textContent = data.verdict_breakdown.OPTIMAL || 0;
         document.getElementById('stat-incidents-count').textContent = data.recent_critical_incidents || 0;
 
-        // Render 11 State Cards with dynamic --stagger-index
         const container = document.getElementById('regions-container');
         if (container) {
             container.innerHTML = data.regions.map((r, idx) => {
-                let badgeColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-                let dotColor = "bg-emerald-400";
+                let dotClass = "bg-emerald-400";
+                let statusText = "Optimal";
+                let statusColor = "text-emerald-400";
                 if (r.critical_count > 0) {
-                    badgeColor = "bg-rose-500/10 text-rose-400 border-rose-500/20";
-                    dotColor = "bg-rose-400";
+                    dotClass = "bg-rose-400 animate-pulse";
+                    statusText = "Critical";
+                    statusColor = "text-rose-400";
                 } else if (r.degraded_count > 0) {
-                    badgeColor = "bg-amber-500/10 text-amber-400 border-amber-500/20";
-                    dotColor = "bg-amber-400";
+                    dotClass = "bg-amber-400";
+                    statusText = "Degraded";
+                    statusColor = "text-amber-400";
                 }
 
                 return `
-                <div style="--stagger-index: ${idx}" class="stagger-item bg-slate-950 p-3 rounded-lg border border-slate-800 hover:border-slate-700 flex flex-col justify-between min-h-[72px] pressable cursor-pointer" onclick="filterByState('${r.state}')">
+                <div style="--stagger-index: ${idx}" class="stagger-item bg-black/40 hover:bg-white/[0.05] p-2.5 rounded-lg border border-white/[0.05] hover:border-white/[0.12] transition-all cursor-pointer pressable flex flex-col justify-between" onclick="filterByState('${r.state}')">
                     <div class="flex items-center justify-between">
-                        <span class="font-bold text-xs text-white tracking-wide font-mono">${r.state}</span>
-                        <span class="w-2.5 h-2.5 rounded-full ${dotColor}"></span>
+                        <span class="font-mono font-bold text-xs text-white">${r.state}</span>
+                        <span class="h-2 w-2 rounded-full ${dotClass}"></span>
                     </div>
-                    <p class="text-[11px] text-slate-400 truncate mt-1">${r.state_name}</p>
-                    <div class="flex justify-between items-center text-[10px] text-slate-500 mt-2 pt-1 border-t border-slate-900 tabular-nums">
+                    <p class="text-[10px] text-slate-400 truncate mt-0.5">${r.state_name}</p>
+                    <div class="flex justify-between items-center text-[10px] text-slate-500 mt-2 pt-1 border-t border-white/[0.04] tabular-nums">
                         <span>Active: <strong class="text-slate-300 font-mono">${r.total_courtrooms}</strong></span>
-                        <span class="font-mono text-emerald-400 font-semibold">${r.healthy_pct}%</span>
+                        <span class="font-mono ${statusColor}">${r.healthy_pct}%</span>
                     </div>
                 </div>
                 `;
@@ -703,20 +692,27 @@ async function pollFleetOverview() {
     }
 }
 
-// Quick filter state helper
 window.filterByState = function(stateCode) {
-    const stateSelect = document.getElementById('input-state');
-    if (stateSelect) {
-        stateSelect.value = stateCode;
-    }
     const match = COURTROOM_DIRECTORY.find(c => c.state === stateCode);
     if (match) {
-        document.getElementById('input-courtroom-id').value = match.id;
-        document.getElementById('input-bench-name').value = match.bench;
+        const applyUpdate = () => {
+            document.getElementById('input-courtroom-id').value = match.id;
+            document.getElementById('input-state').value = match.state;
+            document.getElementById('input-bench-name').value = match.bench;
+            if (match.golden) {
+                document.getElementById('select-golden-profile').value = match.golden;
+            }
+        };
+
+        if (document.startViewTransition) {
+            document.startViewTransition(applyUpdate);
+        } else {
+            applyUpdate();
+        }
     }
 };
 
-// 8. Poll Incidents Feed (Tabular Numbers & Widow Balancing)
+// 10. Poll Live Incident Routing Stream (Zero Emojis, Sleek SVG Pills)
 async function pollIncidents() {
     try {
         const res = await fetch('/api/v1/incidents?limit=10');
@@ -728,15 +724,15 @@ async function pollIncidents() {
             container.innerHTML = data.incidents.map((inc, idx) => {
                 const dateStr = inc.created_at ? new Date(inc.created_at).toLocaleTimeString() : "--";
                 return `
-                <div style="--stagger-index: ${idx}" class="stagger-item bg-slate-950 border border-slate-800 rounded-lg p-3 space-y-1.5 text-xs">
+                <div style="--stagger-index: ${idx}" class="stagger-item bg-black/40 border border-white/[0.05] rounded-lg p-2.5 space-y-1.5 text-xs">
                     <div class="flex justify-between items-center">
-                        <span class="font-mono font-semibold text-rose-400 tracking-wide">${inc.courtroom_id}</span>
-                        <span class="text-[10px] text-slate-500 tabular-nums font-mono">${dateStr}</span>
+                        <span class="font-mono font-bold text-rose-400 text-[11px]">${inc.courtroom_id}</span>
+                        <span class="text-[10px] font-mono text-slate-500 tabular-nums">${dateStr}</span>
                     </div>
-                    <p class="text-slate-300 font-medium truncate text-pretty">${preventWidow(inc.title)}</p>
-                    <div class="flex items-center space-x-2 text-[10px] pt-1 font-mono">
-                        <span class="px-2 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800">Slack: ${inc.slack_status}</span>
-                        <span class="px-2 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800">Linear: ${inc.linear_status}</span>
+                    <p class="text-slate-300 font-medium text-[11px] truncate">${preventWidow(inc.title)}</p>
+                    <div class="flex items-center space-x-2 text-[10px] font-mono pt-0.5">
+                        <span class="px-1.5 py-0.5 rounded bg-white/[0.04] text-slate-400 border border-white/[0.06]">Slack: ${inc.slack_status}</span>
+                        <span class="px-1.5 py-0.5 rounded bg-white/[0.04] text-slate-400 border border-white/[0.06]">Linear: ${inc.linear_status}</span>
                     </div>
                 </div>
                 `;
@@ -747,7 +743,7 @@ async function pollIncidents() {
     }
 }
 
-// 9. Manual Airtable Sync Button (44px Touch Target)
+// 11. Manual Airtable Sync
 document.getElementById('btn-sync-airtable').addEventListener('click', async () => {
     const btn = document.getElementById('btn-sync-airtable');
     btn.disabled = true;
@@ -761,11 +757,16 @@ document.getElementById('btn-sync-airtable').addEventListener('click', async () 
         alert("Airtable sync error: " + err.message);
     } finally {
         btn.disabled = false;
-        btn.innerHTML = '<span>🔄</span><span>Sync Airtable</span>';
+        btn.innerHTML = `
+            <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/>
+            </svg>
+            <span>Sync Airtable</span>
+        `;
     }
 });
 
-// Boot operations
+// Boot Loop
 pollFleetOverview();
 pollIncidents();
 setInterval(pollFleetOverview, 5000);
