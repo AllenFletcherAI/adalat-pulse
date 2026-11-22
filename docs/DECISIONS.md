@@ -236,3 +236,21 @@
 * **Why:** Software built for the CTO and executive leadership must respect human psychology, order of operations, and information density. Real-time visual feedback proves that audio hardware and network probes are active before trial proceedings commence.
 * **Rejected Alternative:** Scattered decorative cards and consumer onboarding tutorials. Rejected because executive operators require clear tabular comparisons, immediate voice proof, and zero decorative noise.
 * **When to Reconsider:** Never. Structured comparisons and real-time sensory feedback remain core engineering principles.
+
+---
+
+## ADR-015: Real-Time Audio Hardware Laboratory, Scrolling Packet Strip-Charts, and Hierarchical State Jurisdiction Architecture
+* **Date:** November 2026
+* **Decision:** Overhaul the diagnostic engine and command cockpit for deep physical observability, zero mock scenarios, and complete state jurisdiction drill-downs:
+  1. *Real-Time Hardware Audio Laboratory:* Added an explicit `[Start Mic Test]` / `[Stop Mic Test]` toggle and `[Reset Audio]` control. Features dual visualizers: a 32-band FFT frequency spectrum analyzer canvas and a real-time time-domain voice oscilloscope canvas. When active, it samples the physical microphone stream via Web Audio API, computes real room SNR from speech RMS, and displays active hardware sample rate. When stopped or reset, tracks are stopped (`track.stop()`), the animation frame is cancelled, and canvases are cleared so no continuous simulated wave or noise runs.
+  2. *Purge of All Mock Scenarios:* Completely removed dummy test scenario buttons (`Fiber optimal`, `Monsoon`, `Fan noise`, `4G lag`). All diagnostics execute live over WebSocket (`/ws/probe`) and real microphone input.
+  3. *Scrolling Network Packet Strip-Chart:* Added a real-time canvas time-series strip-chart plotting live WebSocket round-trip times (RTT) and statistical jitter points against the 200ms Koyal ASR threshold line.
+  4. *Dynamic Comparative Visual Figures & Delta Bars:* Each network metric (Latency, Packet Loss, Jitter, WS RTT) displays live measured numbers, threshold markers, color-coded delta values, and dynamic range bars indicating safe vs breached operational zones.
+  5. *Ephemeral Auto-Dismissing Verdict Banner:* Replaced permanent sticky verdict banners with an ephemeral notification banner. On optimal clearance, it automatically dismisses after 6 seconds; includes a manual `[Dismiss]` button and a global `[Reset Console]` button in the header.
+  6. *Live Incident Routing on Every Check:* When any diagnostic run breaches degraded or critical thresholds, a structured incident entry is immediately prepended to the Live Incident Routing table with a live IST timestamp, Slack dispatch status, and Linear ticket ID, styled with a brief visual flash.
+  7. *Hierarchical State Jurisdiction Subsections:* Clicking any of the 11 partner states expands an inline accordion table revealing all judicial units (High Court Principal Seats, regional division benches, District Courts, Sessions Courts, and Taluka Courts) with individual tier badges and direct `[Test]` actions that configure the diagnostic console.
+  8. *Solitary Bold Brand Header:* Eradicated the green wave icon; formatted **Adalat Pulse** in bold, clean typography as the single brand element on the left.
+* **Why:** The CTO and field engineers require genuine hardware telemetry and maximum dynamic visual clarity. Interactive audio testing and real time-series strip-charts confirm real courtroom readiness without simulated shortcuts.
+* **Rejected Alternative:** Simulated audio waveforms and static scenario buttons. Rejected because fake data masks physical courtroom hardware failures and confuses operators.
+* **When to Reconsider:** Never. Transparent physical telemetry and hierarchical operational visibility are permanent foundations of Adalat Pulse.
+

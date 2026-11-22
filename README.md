@@ -1,4 +1,4 @@
-# ⚡ Adalat-Pulse
+# Adalat-Pulse
 
 > **Edge-ready Courtroom Pre-Flight Diagnostic & Deployment Telemetry Gateway**  
 > *Built for Adalat AI (Associate, CTO's Office Artifact)*  

@@ -67,7 +67,6 @@
             --text-secondary: #475569;
             --text-muted: #64748B;
 
-            /* Adjusted OKLCH Status for Light Background */
             --color-optimal: oklch(0.52 0.18 155);
             --color-optimal-bg: rgba(16, 185, 129, 0.10);
             --color-degraded: oklch(0.55 0.17 75);
@@ -90,11 +89,10 @@
             transition: none !important;
         }
 
-        /* Surface Classes */
         .surface-panel {
             background-color: var(--bg-surface);
             border: 1px solid var(--border-alpha);
-            border-radius: 10px;
+            border-radius: 8px;
         }
 
         .surface-sub {
@@ -116,13 +114,11 @@
             box-shadow: 0 0 0 1px var(--color-optimal);
         }
 
-        /* Tabular Numbers */
         .tabular-nums, .font-mono {
             font-variant-numeric: tabular-nums;
             font-feature-settings: "tnum" 1;
         }
 
-        /* Button Press Physics: Scale 0.97 */
         button, .pressable {
             transition: scale 150ms ease-out, background-color 120ms ease, border-color 120ms ease, opacity 120ms ease;
             transform-origin: center center;
@@ -132,7 +128,6 @@
             scale: 0.97;
         }
 
-        /* Action Primary Button */
         .btn-action-primary {
             background-color: var(--color-optimal);
             color: #FFFFFF;
@@ -144,58 +139,6 @@
             filter: brightness(1.08);
         }
 
-        /* Preset Tabs Styling */
-        .preset-tab {
-            background-color: transparent;
-            color: var(--text-secondary);
-            border: 1px solid transparent;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 500;
-            padding: 4px 8px;
-            cursor: pointer;
-            transition: all 120ms ease;
-        }
-        .preset-tab:hover {
-            background-color: var(--bg-sub-hover);
-            color: var(--text-primary);
-        }
-        .preset-tab.active-preset {
-            background-color: var(--bg-sub);
-            color: var(--text-primary);
-            border-color: var(--border-alpha-hover);
-            font-weight: 600;
-        }
-
-        /* Input Rejection Shake Animation */
-        @keyframes field-shake {
-            0% { transform: translateX(0); }
-            16% { transform: translateX(-6px); }
-            33% { transform: translateX(6px); }
-            50% { transform: translateX(-4px); }
-            66% { transform: translateX(4px); }
-            83% { transform: translateX(-2px); }
-            100% { transform: translateX(0); }
-        }
-        .input-invalid {
-            animation: field-shake 360ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-            border-color: var(--color-critical) !important;
-            box-shadow: 0 0 0 1px var(--color-critical) !important;
-        }
-
-        /* Smooth Accordion */
-        .accordion-drawer {
-            overflow: hidden;
-            height: 0;
-            opacity: 0;
-            transition: height 240ms cubic-bezier(0.16, 1, 0.3, 1), opacity 180ms ease;
-        }
-        .accordion-drawer.is-open {
-            height: auto;
-            opacity: 1;
-        }
-
-        /* Meter Fills */
         .meter-fill {
             transform: scaleX(0);
             transform-origin: left center;
@@ -203,7 +146,6 @@
             transition: transform 100ms linear;
         }
 
-        /* Scrollbars */
         ::-webkit-scrollbar {
             width: 4px;
             height: 4px;
@@ -216,18 +158,7 @@
             border-radius: 2px;
         }
 
-        /* Shimmer Loading */
-        @keyframes shimmer-anim {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-        .skeleton-shimmer {
-            background: linear-gradient(90deg, var(--bg-sub) 25%, var(--border-alpha-hover) 50%, var(--bg-sub) 75%);
-            background-size: 200% 100%;
-            animation: shimmer-anim 1.5s infinite;
-        }
-
-        /* Custom Select Wrapper with SVG Arrow */
+        /* Custom Select Wrapper */
         .custom-select-wrapper {
             position: relative;
         }
@@ -237,47 +168,69 @@
             -moz-appearance: none;
             background-image: none;
         }
+
+        /* Subsections Accordion Row */
+        .state-subsection-drawer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 200ms cubic-bezier(0.16, 1, 0.3, 1), opacity 150ms ease;
+            opacity: 0;
+        }
+        .state-subsection-drawer.is-expanded {
+            max-height: 240px;
+            opacity: 1;
+        }
+
+        /* Flash Animation for newly created incident */
+        @keyframes incident-flash {
+            0% { background-color: rgba(239, 68, 68, 0.35); }
+            100% { background-color: transparent; }
+        }
+        .row-incident-new {
+            animation: incident-flash 1.5s ease-out;
+        }
     </style>
 </head>
 <body class="h-[100dvh] w-screen overflow-hidden flex flex-col justify-between selection:bg-emerald-600/30">
 
     <!-- Top Navigation Bar: 42px -->
     <header class="h-[42px] flex-none border-b border-[var(--border-alpha)] bg-[var(--bg-canvas)] px-4 flex items-center justify-between z-30">
-        <!-- Left: Brand -->
-        <div class="flex items-center space-x-2.5">
-            <div class="h-6 w-6 rounded bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                </svg>
-            </div>
-            <span class="text-xs font-bold text-[var(--text-primary)] tracking-tight">Adalat Pulse</span>
+        <!-- Left: Brand (Wave icon eradicated; big bold formatting as requested) -->
+        <div class="flex items-center">
+            <span class="text-base font-extrabold text-[var(--text-primary)] tracking-tight">Adalat Pulse</span>
         </div>
 
         <!-- Center: Interactive Fleet Micro-KPI Buttons -->
-        <div class="flex items-center space-x-1.5 text-xs bg-[var(--bg-surface)] px-2 py-0.5 rounded-md border border-[var(--border-alpha)]">
-            <button id="chip-active" type="button" class="flex items-center space-x-1 px-1.5 py-0.5 rounded hover:bg-[var(--bg-sub)] transition-colors pressable">
-                <span class="text-[var(--text-muted)] text-[11px]">Active:</span>
+        <div class="flex items-center space-x-1.5 text-xs bg-[var(--bg-surface)] px-2.5 py-0.5 rounded-md border border-[var(--border-alpha)]">
+            <button id="chip-active" type="button" class="flex items-center space-x-1 px-1.5 py-0.5 rounded hover:bg-[var(--bg-sub)] transition-colors pressable" title="View all registered courtrooms">
+                <span class="text-[var(--text-muted)] text-[11px] font-medium">Active:</span>
                 <span id="stat-total-courtrooms" class="font-mono font-semibold text-[var(--text-primary)] text-xs">--</span>
             </button>
             <span class="text-[var(--text-muted)] opacity-30">•</span>
-            <button id="chip-fleet" type="button" class="flex items-center space-x-1 px-1.5 py-0.5 rounded hover:bg-[var(--bg-sub)] transition-colors pressable">
-                <span class="text-[var(--text-muted)] text-[11px]">Fleet:</span>
+            <button id="chip-fleet" type="button" class="flex items-center space-x-1 px-1.5 py-0.5 rounded hover:bg-[var(--bg-sub)] transition-colors pressable" title="Fleet health percentage">
+                <span class="text-[var(--text-muted)] text-[11px] font-medium">Fleet:</span>
                 <span id="stat-fleet-health" class="font-mono font-semibold text-emerald-400 text-xs">--%</span>
             </button>
             <span class="text-[var(--text-muted)] opacity-30">•</span>
-            <button id="chip-optimal" type="button" class="flex items-center space-x-1 px-1.5 py-0.5 rounded hover:bg-[var(--bg-sub)] transition-colors pressable">
-                <span class="text-[var(--text-muted)] text-[11px]">Optimal:</span>
+            <button id="chip-optimal" type="button" class="flex items-center space-x-1 px-1.5 py-0.5 rounded hover:bg-[var(--bg-sub)] transition-colors pressable" title="Filter optimal benches">
+                <span class="text-[var(--text-muted)] text-[11px] font-medium">Optimal:</span>
                 <span id="stat-optimal-sessions" class="font-mono font-semibold text-[var(--text-primary)] text-xs">--</span>
             </button>
             <span class="text-[var(--text-muted)] opacity-30">•</span>
-            <button id="chip-incidents" type="button" class="flex items-center space-x-1 px-1.5 py-0.5 rounded hover:bg-[var(--bg-sub)] transition-colors pressable">
-                <span class="text-[var(--text-muted)] text-[11px]">Incidents:</span>
+            <button id="chip-incidents" type="button" class="flex items-center space-x-1 px-1.5 py-0.5 rounded hover:bg-[var(--bg-sub)] transition-colors pressable" title="Active P0/P1 incidents">
+                <span class="text-[var(--text-muted)] text-[11px] font-medium">Incidents:</span>
                 <span id="stat-incidents-count" class="font-mono font-semibold text-rose-400 text-xs">--</span>
             </button>
         </div>
 
-        <!-- Right: Theme Switch, IST Clock, Airtable Sync -->
+        <!-- Right: Theme Switch, IST Clock, Airtable Sync, Reset Console -->
         <div class="flex items-center space-x-2">
+            <!-- Reset Console Button -->
+            <button id="btn-reset-console" type="button" class="h-7 px-2 rounded text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha)] flex items-center space-x-1 pressable" title="Reset diagnostic console to default ready state">
+                <svg class="w-3 h-3 text-[var(--text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span>Reset</span>
+            </button>
+
             <!-- Theme Toggle Button -->
             <button id="btn-toggle-theme" type="button" aria-label="Toggle Light/Dark Theme" class="h-7 w-7 rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha)] flex items-center justify-center pressable">
                 <svg id="icon-theme-sun" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -307,34 +260,33 @@
     </header>
 
     <!-- Main Viewport: Strict 100dvh Single-Screen Workstation -->
-    <main class="flex-1 w-full max-w-[1520px] mx-auto p-2.5 sm:p-3 grid grid-cols-1 lg:grid-cols-12 gap-2.5 sm:gap-3 overflow-hidden">
+    <main class="flex-1 w-full max-w-[1540px] mx-auto p-2.5 grid grid-cols-1 lg:grid-cols-12 gap-2.5 overflow-hidden">
 
-        <!-- LEFT WORKSTATION: The Diagnostic Console (7 cols) -->
-        <div class="lg:col-span-7 surface-panel p-3 flex flex-col justify-between h-full overflow-hidden space-y-2.5">
+        <!-- LEFT WORKSTATION: Diagnostic Instruments & Real-Time Test Engine (7 cols) -->
+        <div class="lg:col-span-7 surface-panel p-3 flex flex-col justify-between h-full overflow-hidden space-y-2">
 
-            <!-- 1. Target & Baseline Row (Meticulously Aligned 38px Inputs with Auto-Pairing) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 flex-none">
-                <!-- Courtroom Combobox -->
+            <!-- 1. Bench Selection & Auto-Paired Golden Baseline (38px Aligned Inputs) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-none">
+                <!-- Courtroom Bench Input -->
                 <div class="space-y-1">
                     <div class="flex items-center justify-between">
                         <label class="block text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">Courtroom Bench</label>
                         <span id="bench-tier-badge" class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded border border-emerald-500/20">HIGH COURT</span>
                     </div>
                     <div class="relative flex items-center">
-                        <input id="input-courtroom-id" type="text" value="DL-HC-CRT04" role="combobox" aria-expanded="false" class="clean-input w-full h-[38px] px-3 pr-8 text-xs font-mono font-semibold" placeholder="Type or select bench...">
+                        <input id="input-courtroom-id" type="text" value="DL-HC-CRT04" role="combobox" aria-expanded="false" class="clean-input w-full h-[38px] px-3 pr-8 text-xs font-mono font-semibold" placeholder="Search courtroom ID...">
                         <button id="btn-combo-toggle" type="button" aria-label="Toggle bench dropdown" class="absolute right-2.5 h-5 w-5 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] pressable">
                             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                         </button>
                     </div>
-                    <!-- Dropdown Popover -->
                     <div id="courtroom-combo-list" role="listbox" class="hidden absolute left-0 right-0 top-full mt-1 bg-[var(--bg-surface)] border border-[var(--border-alpha)] rounded-md shadow-2xl max-h-48 overflow-y-auto z-40 divide-y divide-[var(--border-alpha)]"></div>
                 </div>
 
-                <!-- Certified Golden Baseline (Aligned 38px Select with Custom Chevron) -->
+                <!-- Certified Golden Standard Select -->
                 <div class="space-y-1">
                     <div class="flex items-center justify-between">
                         <label class="block text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">Certified Golden Standard</label>
-                        <span id="golden-profile-tier" class="text-[10px] font-mono text-[var(--text-muted)]">TIER CERTIFIED</span>
+                        <span id="golden-profile-tier" class="text-[10px] font-mono text-[var(--text-muted)]">TIER AUTO-PAIRED</span>
                     </div>
                     <div class="custom-select-wrapper relative flex items-center">
                         <select id="select-golden-profile" class="clean-input w-full h-[38px] px-3 pr-8 text-xs font-medium text-[var(--text-primary)] cursor-pointer">
@@ -352,118 +304,141 @@
                 <input id="input-bench-name" type="hidden" value="Delhi High Court Bench 04 (Civil Division)">
             </div>
 
-            <!-- 2. Live IRL / IRT Hardware Audio Verification & Oscilloscope Canvas -->
+            <!-- 2. Real-Time Hardware Audio Laboratory (IRL / IRT Microphone Test with Explicit Toggle & Visualizer) -->
+            <div class="surface-sub p-2.5 space-y-2 flex-none border border-[var(--border-alpha)]">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span id="mic-indicator-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+                        <span class="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">Live Acoustic Hardware Test</span>
+                        <span id="mic-status-badge" class="px-1.5 py-0.2 rounded text-[10px] font-mono bg-[var(--bg-canvas)] text-[var(--text-muted)] border border-[var(--border-alpha)]">STANDBY</span>
+                    </div>
+
+                    <!-- Explicit Mic Controls -->
+                    <div class="flex items-center space-x-2">
+                        <button id="btn-toggle-mic" type="button" class="h-6 px-2.5 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition-colors flex items-center space-x-1 pressable">
+                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                            <span id="mic-btn-label">Start Mic Test</span>
+                        </button>
+                        <button id="btn-reset-audio" type="button" class="h-6 px-2 rounded text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-[var(--bg-canvas)] border border-[var(--border-alpha)] pressable" title="Reset audio canvas and stop recording">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dual Visualizers: 32-Band Spectrum Analyzer (Left) + Voice Oscilloscope Waveform (Right) -->
+                <div class="grid grid-cols-12 gap-2 h-14">
+                    <!-- 32-Band FFT Spectrum Analyzer Canvas -->
+                    <div class="col-span-5 h-full relative">
+                        <canvas id="audio-spectrum-canvas" width="250" height="56" class="w-full h-full bg-[var(--bg-canvas)] rounded border border-[var(--border-alpha)] block"></canvas>
+                        <span class="absolute left-1.5 top-1 text-[9px] font-mono text-[var(--text-muted)] pointer-events-none">32-Band Spectrum</span>
+                    </div>
+
+                    <!-- Voice Oscilloscope Waveform Canvas -->
+                    <div class="col-span-7 h-full relative">
+                        <canvas id="audio-waveform-canvas" width="380" height="56" class="w-full h-full bg-[var(--bg-canvas)] rounded border border-[var(--border-alpha)] block"></canvas>
+                        <span class="absolute left-1.5 top-1 text-[9px] font-mono text-[var(--text-muted)] pointer-events-none">Time-Domain Oscilloscope</span>
+                    </div>
+                </div>
+
+                <!-- Audio Metadata & Live Decibel Meter -->
+                <div class="flex items-center justify-between text-[11px] font-mono pt-0.5 text-[var(--text-secondary)]">
+                    <span id="mic-device-name" class="truncate max-w-[220px]">Hardware: Ready to sample</span>
+                    <div class="flex items-center space-x-3">
+                        <span>Rate: <strong id="live-sample-rate" class="text-[var(--text-primary)]">48,000 Hz</strong></span>
+                        <span>Room SNR: <strong id="live-snr-db" class="text-emerald-400 tabular-nums">28.0 dB</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Dynamic Real-Time Network Packet Probe Strip-Chart (Canvas Time-Series) -->
             <div class="surface-sub p-2.5 space-y-1.5 flex-none border border-[var(--border-alpha)]">
                 <div class="flex items-center justify-between text-xs">
-                    <div class="flex items-center space-x-2">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span class="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">Live Audio Input &amp; Oscilloscope</span>
-                        <span id="mic-device-name" class="text-[11px] font-mono text-[var(--text-secondary)] truncate max-w-[200px]">Default Microphone</span>
-                    </div>
+                    <span class="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">WebSocket Packet Round-Trip Strip-Chart (/ws/probe)</span>
                     <div class="flex items-center space-x-2 font-mono text-[11px]">
-                        <span class="text-[var(--text-muted)]">Sample Rate:</span>
-                        <span id="live-sample-rate" class="text-[var(--text-primary)] font-semibold">48,000 Hz</span>
+                        <span class="text-[var(--text-muted)]">RTT: <strong id="chart-live-rtt" class="text-emerald-400 tabular-nums">35.0 ms</strong></span>
                         <span class="text-[var(--text-muted)] opacity-30">•</span>
-                        <span class="text-[var(--text-muted)]">Room SNR:</span>
-                        <span id="live-snr-db" class="text-emerald-400 font-semibold tabular-nums">28.0 dB</span>
+                        <span class="text-[var(--text-muted)]">Jitter: <strong id="chart-live-jitter" class="text-emerald-400 tabular-nums">4.5 ms</strong></span>
+                        <span class="text-[var(--text-muted)] opacity-30">•</span>
+                        <span class="text-[var(--text-muted)]">Loss: <strong id="chart-live-loss" class="text-emerald-400 tabular-nums">0.0%</strong></span>
                     </div>
                 </div>
 
-                <!-- Real-Time HTML5 Oscilloscope Audio Waveform Canvas -->
-                <canvas id="audio-waveform-canvas" width="600" height="42" class="w-full h-[42px] bg-[var(--bg-canvas)] rounded border border-[var(--border-alpha)] block"></canvas>
+                <!-- Scrolling Canvas Time-Series Graph -->
+                <canvas id="network-strip-chart" width="600" height="48" class="w-full h-[48px] bg-[var(--bg-canvas)] rounded border border-[var(--border-alpha)] block"></canvas>
             </div>
 
-            <!-- 3. Live Telemetry vs. Golden Standard Comparison Table -->
-            <div class="surface-sub overflow-hidden border border-[var(--border-alpha)] flex-none">
-                <table class="w-full text-left text-xs">
-                    <thead>
-                        <tr class="border-b border-[var(--border-alpha)] text-[var(--text-muted)] bg-[var(--bg-canvas)] text-[11px] uppercase tracking-wider">
-                            <th class="py-1.5 px-3 font-semibold">Parameter</th>
-                            <th class="py-1.5 px-3 font-semibold">Live Measured</th>
-                            <th class="py-1.5 px-3 font-semibold">Golden Target</th>
-                            <th class="py-1.5 px-3 font-semibold">Delta</th>
-                            <th class="py-1.5 px-3 font-semibold">Koyal Gate</th>
-                            <th class="py-1.5 px-3 font-semibold text-right">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-[var(--border-alpha)] font-mono text-xs">
-                        <!-- Latency Row -->
-                        <tr class="hover:bg-[var(--bg-sub-hover)] transition-colors">
-                            <td class="py-1.5 px-3 font-sans font-medium text-[var(--text-secondary)]">Latency</td>
-                            <td class="py-1.5 px-3">
-                                <input id="in-latency" type="text" value="35.0" class="clean-input w-20 h-7 px-1.5 text-xs font-mono font-semibold tabular-nums">
-                                <span class="text-[10px] text-[var(--text-muted)]">ms</span>
-                            </td>
-                            <td id="target-latency" class="py-1.5 px-3 text-[var(--text-secondary)] tabular-nums">35.0 ms</td>
-                            <td id="delta-latency" class="py-1.5 px-3 text-emerald-400 tabular-nums">0.0 ms</td>
-                            <td class="py-1.5 px-3 text-[var(--text-muted)]">&lt; 200 ms</td>
-                            <td class="py-1.5 px-3 text-right">
-                                <span id="gate-latency-badge" class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">PASS</span>
-                            </td>
-                        </tr>
-                        <!-- Packet Loss Row -->
-                        <tr class="hover:bg-[var(--bg-sub-hover)] transition-colors">
-                            <td class="py-1.5 px-3 font-sans font-medium text-[var(--text-secondary)]">Packet Loss</td>
-                            <td class="py-1.5 px-3">
-                                <input id="in-loss" type="text" value="0.0" class="clean-input w-20 h-7 px-1.5 text-xs font-mono font-semibold tabular-nums">
-                                <span class="text-[10px] text-[var(--text-muted)]">%</span>
-                            </td>
-                            <td id="target-loss" class="py-1.5 px-3 text-[var(--text-secondary)] tabular-nums">0.0 %</td>
-                            <td id="delta-loss" class="py-1.5 px-3 text-emerald-400 tabular-nums">0.0 %</td>
-                            <td class="py-1.5 px-3 text-[var(--text-muted)]">&lt; 2.0 %</td>
-                            <td class="py-1.5 px-3 text-right">
-                                <span id="gate-loss-badge" class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">PASS</span>
-                            </td>
-                        </tr>
-                        <!-- Jitter Row -->
-                        <tr class="hover:bg-[var(--bg-sub-hover)] transition-colors">
-                            <td class="py-1.5 px-3 font-sans font-medium text-[var(--text-secondary)]">Jitter</td>
-                            <td class="py-1.5 px-3">
-                                <input id="in-jitter" type="text" value="4.5" class="clean-input w-20 h-7 px-1.5 text-xs font-mono font-semibold tabular-nums">
-                                <span class="text-[10px] text-[var(--text-muted)]">ms</span>
-                            </td>
-                            <td id="target-jitter" class="py-1.5 px-3 text-[var(--text-secondary)] tabular-nums">5.0 ms</td>
-                            <td id="delta-jitter" class="py-1.5 px-3 text-emerald-400 tabular-nums">-0.5 ms</td>
-                            <td class="py-1.5 px-3 text-[var(--text-muted)]">&lt; 30 ms</td>
-                            <td class="py-1.5 px-3 text-right">
-                                <span id="gate-jitter-badge" class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">PASS</span>
-                            </td>
-                        </tr>
-                        <!-- WS Keepalive RTT Row -->
-                        <tr class="hover:bg-[var(--bg-sub-hover)] transition-colors">
-                            <td class="py-1.5 px-3 font-sans font-medium text-[var(--text-secondary)]">WS RTT</td>
-                            <td class="py-1.5 px-3">
-                                <input id="in-ws-rtt" type="text" value="42.0" class="clean-input w-20 h-7 px-1.5 text-xs font-mono font-semibold tabular-nums">
-                                <span class="text-[10px] text-[var(--text-muted)]">ms</span>
-                            </td>
-                            <td id="target-ws-rtt" class="py-1.5 px-3 text-[var(--text-secondary)] tabular-nums">45.0 ms</td>
-                            <td id="delta-ws-rtt" class="py-1.5 px-3 text-emerald-400 tabular-nums">-3.0 ms</td>
-                            <td class="py-1.5 px-3 text-[var(--text-muted)]">&lt; 250 ms</td>
-                            <td class="py-1.5 px-3 text-right">
-                                <span id="gate-ws-badge" class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">PASS</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- 4. Dynamic Multi-Metric Comparative Visual Figures & Delta Bars -->
+            <div class="surface-sub p-2.5 space-y-1.5 flex-none border border-[var(--border-alpha)]">
+                <div class="flex items-center justify-between text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+                    <span>ASR Quality Gate Comparison Matrix</span>
+                    <span class="font-mono text-[10px]">Deterministic Thresholds</span>
+                </div>
+
+                <div class="space-y-1.5 font-mono text-xs">
+                    <!-- Metric Bar 1: Latency -->
+                    <div class="flex items-center justify-between space-x-2">
+                        <span class="w-24 text-[11px] font-sans text-[var(--text-secondary)]">Latency:</span>
+                        <input id="in-latency" type="text" value="35.0" class="clean-input w-16 h-6 px-1 text-xs font-mono font-bold tabular-nums text-center">
+                        <span class="text-[10px] text-[var(--text-muted)] w-6">ms</span>
+                        <!-- Visual Range Bar (0 - 400ms) with 200ms threshold tick -->
+                        <div class="flex-1 bg-[var(--bg-canvas)] h-2 rounded-full overflow-hidden relative border border-[var(--border-alpha)]">
+                            <div id="bar-latency-fill" class="h-full bg-emerald-400 meter-fill w-full" style="transform: scaleX(0.175);"></div>
+                            <div class="absolute left-1/2 top-0 bottom-0 w-0.5 bg-rose-500/50" title="Koyal ASR Limit: 200ms"></div>
+                        </div>
+                        <span id="delta-latency" class="w-16 text-right text-[11px] text-emerald-400 tabular-nums">0.0 ms</span>
+                        <span id="gate-latency-badge" class="w-12 text-center text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded py-0.2">PASS</span>
+                    </div>
+
+                    <!-- Metric Bar 2: Packet Loss -->
+                    <div class="flex items-center justify-between space-x-2">
+                        <span class="w-24 text-[11px] font-sans text-[var(--text-secondary)]">Packet Loss:</span>
+                        <input id="in-loss" type="text" value="0.0" class="clean-input w-16 h-6 px-1 text-xs font-mono font-bold tabular-nums text-center">
+                        <span class="text-[10px] text-[var(--text-muted)] w-6">%</span>
+                        <!-- Visual Range Bar (0 - 5.0%) with 2.0% threshold tick -->
+                        <div class="flex-1 bg-[var(--bg-canvas)] h-2 rounded-full overflow-hidden relative border border-[var(--border-alpha)]">
+                            <div id="bar-loss-fill" class="h-full bg-emerald-400 meter-fill w-full" style="transform: scaleX(0.02);"></div>
+                            <div class="absolute left-[40%] top-0 bottom-0 w-0.5 bg-rose-500/50" title="Critical Limit: 2.0%"></div>
+                        </div>
+                        <span id="delta-loss" class="w-16 text-right text-[11px] text-emerald-400 tabular-nums">0.0 %</span>
+                        <span id="gate-loss-badge" class="w-12 text-center text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded py-0.2">PASS</span>
+                    </div>
+
+                    <!-- Metric Bar 3: Jitter -->
+                    <div class="flex items-center justify-between space-x-2">
+                        <span class="w-24 text-[11px] font-sans text-[var(--text-secondary)]">Jitter:</span>
+                        <input id="in-jitter" type="text" value="4.5" class="clean-input w-16 h-6 px-1 text-xs font-mono font-bold tabular-nums text-center">
+                        <span class="text-[10px] text-[var(--text-muted)] w-6">ms</span>
+                        <!-- Visual Range Bar (0 - 60ms) with 30ms threshold tick -->
+                        <div class="flex-1 bg-[var(--bg-canvas)] h-2 rounded-full overflow-hidden relative border border-[var(--border-alpha)]">
+                            <div id="bar-jitter-fill" class="h-full bg-emerald-400 meter-fill w-full" style="transform: scaleX(0.15);"></div>
+                            <div class="absolute left-1/2 top-0 bottom-0 w-0.5 bg-amber-500/50" title="Threshold: 30ms"></div>
+                        </div>
+                        <span id="delta-jitter" class="w-16 text-right text-[11px] text-emerald-400 tabular-nums">-0.5 ms</span>
+                        <span id="gate-jitter-badge" class="w-12 text-center text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded py-0.2">PASS</span>
+                    </div>
+
+                    <!-- Metric Bar 4: WS Keepalive RTT -->
+                    <div class="flex items-center justify-between space-x-2">
+                        <span class="w-24 text-[11px] font-sans text-[var(--text-secondary)]">WS RTT:</span>
+                        <input id="in-ws-rtt" type="text" value="42.0" class="clean-input w-16 h-6 px-1 text-xs font-mono font-bold tabular-nums text-center">
+                        <span class="text-[10px] text-[var(--text-muted)] w-6">ms</span>
+                        <!-- Visual Range Bar (0 - 500ms) with 250ms threshold tick -->
+                        <div class="flex-1 bg-[var(--bg-canvas)] h-2 rounded-full overflow-hidden relative border border-[var(--border-alpha)]">
+                            <div id="bar-ws-fill" class="h-full bg-emerald-400 meter-fill w-full" style="transform: scaleX(0.168);"></div>
+                            <div class="absolute left-1/2 top-0 bottom-0 w-0.5 bg-rose-500/50" title="Timeout Limit: 250ms"></div>
+                        </div>
+                        <span id="delta-ws-rtt" class="w-16 text-right text-[11px] text-emerald-400 tabular-nums">-3.0 ms</span>
+                        <span id="gate-ws-badge" class="w-12 text-center text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded py-0.2">PASS</span>
+                    </div>
+                </div>
             </div>
 
-            <!-- 4. Presets & Action Trigger -->
+            <!-- 5. Diagnostic Execution & Ephemeral Auto-Dismissing Verdict Banner -->
             <div class="space-y-1.5 flex-none">
-                <!-- Preset Bar -->
-                <div class="flex items-center justify-between text-xs bg-[var(--bg-canvas)] px-2 py-1 rounded border border-[var(--border-alpha)]">
-                    <span class="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">Test Baseline Scenario:</span>
-                    <div class="flex items-center space-x-1">
-                        <button type="button" data-preset="optimal" class="preset-tab active-preset pressable">Fiber optimal</button>
-                        <button type="button" data-preset="monsoon" class="preset-tab pressable">Monsoon (3.8% loss)</button>
-                        <button type="button" data-preset="fan_noise" class="preset-tab pressable">Fan noise (15.5 dB)</button>
-                        <button type="button" data-preset="edge_lag" class="preset-tab pressable">4G lag (340ms)</button>
-                    </div>
-                </div>
-
-                <!-- Progress Bar -->
+                <!-- Progress Indicator -->
                 <div id="progress-container" class="hidden space-y-1">
                     <div class="flex justify-between text-[11px] text-[var(--text-secondary)] font-mono">
-                        <span id="probe-status-text">Streaming WebSocket pings to /ws/probe...</span>
+                        <span id="probe-status-text">Streaming WebSocket packets to /ws/probe...</span>
                         <span id="progress-pct" class="text-emerald-400 font-semibold tabular-nums">0%</span>
                     </div>
                     <div class="w-full bg-[var(--bg-canvas)] h-1.5 rounded-full overflow-hidden border border-[var(--border-alpha)]">
@@ -471,128 +446,79 @@
                     </div>
                 </div>
 
-                <!-- Execute Button -->
+                <!-- Primary Action Button -->
                 <button id="btn-run-diagnostic" class="btn-action-primary w-full h-9 flex items-center justify-center space-x-2 text-xs shadow-sm pressable">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                     <span>Run 5-second pre-flight check</span>
                     <span class="text-[10px] font-mono text-emerald-100 bg-emerald-900/60 px-1 py-0.2 rounded ml-1">↵ Enter</span>
                 </button>
-            </div>
 
-            <!-- 5. In-Place Pre-Allocated Verdict Container (Zero Layout Shift) -->
-            <div id="verdict-container-slot" class="flex-1 min-h-[95px] max-h-[115px] overflow-hidden flex flex-col justify-between">
-                
-                <!-- Standby State -->
-                <div id="verdict-standby" class="h-full bg-[var(--bg-canvas)] border border-[var(--border-alpha)] rounded-md p-2.5 flex items-center justify-between">
+                <!-- Verdict Notification Banner (Auto-dismisses on Optimal, with manual Dismiss & Reset) -->
+                <div id="verdict-banner" class="hidden surface-sub p-2.5 rounded border border-[var(--border-alpha)] flex items-center justify-between border-l-4">
                     <div class="flex items-center space-x-2.5">
-                        <div class="h-7 w-7 rounded bg-[var(--bg-surface)] border border-[var(--border-alpha)] flex items-center justify-center text-[var(--text-muted)]">
-                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
-                        </div>
+                        <div id="verdict-icon-container" class="h-5 w-5 rounded flex items-center justify-center"></div>
                         <div>
-                            <p class="text-xs font-semibold text-[var(--text-primary)]">Ready for Pre-Flight Evaluation</p>
-                            <p class="text-[11px] text-[var(--text-muted)] font-mono">Target: <span id="standby-bench-id" class="text-[var(--text-secondary)]">DL-HC-CRT04</span></p>
-                        </div>
-                    </div>
-                    <span class="text-[11px] font-mono text-[var(--text-muted)]">Press Enter to Run</span>
-                </div>
-
-                <!-- Shimmer Skeleton -->
-                <div id="verdict-skeleton" class="hidden h-full bg-[var(--bg-canvas)] border border-[var(--border-alpha)] rounded-md p-2.5 space-y-2">
-                    <div class="flex items-center justify-between">
-                        <div class="w-28 h-3.5 rounded skeleton-shimmer"></div>
-                        <div class="w-16 h-3.5 rounded skeleton-shimmer"></div>
-                    </div>
-                    <div class="w-full h-4 rounded skeleton-shimmer"></div>
-                </div>
-
-                <!-- Verdict Result Banner -->
-                <div id="verdict-card" class="hidden h-full bg-[var(--bg-canvas)] border border-[var(--border-alpha)] rounded-md p-2.5 flex flex-col justify-between space-y-1.5 border-l-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-2">
-                            <div id="verdict-icon-container" class="h-5 w-5 rounded flex items-center justify-center"></div>
-                            <div>
-                                <h4 id="verdict-title" class="text-xs font-bold text-[var(--text-primary)] tracking-tight">Optimal</h4>
-                                <p id="verdict-courtroom" class="text-[10px] font-mono text-[var(--text-secondary)]">DL-HC-CRT04 • Cleared</p>
+                            <div class="flex items-center space-x-2">
+                                <span id="verdict-title" class="text-xs font-bold text-[var(--text-primary)]">Verdict</span>
+                                <span id="verdict-badge" class="px-1.5 py-0.2 rounded text-[10px] font-mono font-medium">Cleared</span>
+                                <span class="text-[10px] font-mono text-[var(--text-muted)]">Alignment: <strong id="golden-score-pct" class="text-[var(--text-primary)]">--%</strong></span>
                             </div>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <div class="text-right font-mono text-[10px]">
-                                <span class="text-[var(--text-muted)]">Alignment: </span>
-                                <span id="golden-score-pct" class="font-bold text-[var(--text-primary)]">94.8%</span>
-                            </div>
-                            <span id="verdict-badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-medium">Cleared</span>
+                            <p id="verdict-summary" class="text-[11px] text-[var(--text-secondary)] truncate max-w-[420px] mt-0.5">Summary text</p>
                         </div>
                     </div>
 
-                    <div id="verdict-summary" class="text-[11px] text-[var(--text-secondary)] leading-snug line-clamp-1"></div>
-
-                    <!-- Bottom Bar: Receipts & JSON Drawer -->
-                    <div class="flex items-center justify-between pt-1 border-t border-[var(--border-alpha)] text-[10px] font-mono">
-                        <div class="flex items-center space-x-1.5">
-                            <span id="receipt-airtable" class="px-1.5 py-0.2 rounded bg-[var(--bg-surface)] text-[var(--text-secondary)] border border-[var(--border-alpha)]">Airtable: Synced</span>
-                            <span id="receipt-slack" class="px-1.5 py-0.2 rounded bg-[var(--bg-surface)] text-[var(--text-secondary)] border border-[var(--border-alpha)]">Slack: Standby</span>
-                            <span id="receipt-linear" class="px-1.5 py-0.2 rounded bg-[var(--bg-surface)] text-[var(--text-secondary)] border border-[var(--border-alpha)]">Linear: None</span>
-                        </div>
-
-                        <div id="interview-trigger-box" class="hidden">
-                            <button id="btn-open-interview" type="button" class="px-2 py-0.2 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 pressable">
-                                Guided Remediation
-                            </button>
-                        </div>
-
-                        <button id="btn-toggle-deep-diagnostics" type="button" class="text-[var(--text-muted)] hover:text-[var(--text-primary)] pressable">
-                            JSON <span id="deep-diag-arrow">▾</span>
+                    <!-- Right Action Receipts & Dismiss Button -->
+                    <div class="flex items-center space-x-2 text-[10px] font-mono">
+                        <span id="receipt-airtable" class="px-1.5 py-0.2 rounded bg-[var(--bg-canvas)] text-[var(--text-secondary)] border border-[var(--border-alpha)]">Airtable: Synced</span>
+                        <span id="receipt-slack" class="px-1.5 py-0.2 rounded bg-[var(--bg-canvas)] text-[var(--text-secondary)] border border-[var(--border-alpha)]">Slack: Delivered</span>
+                        <span id="receipt-linear" class="px-1.5 py-0.2 rounded bg-[var(--bg-canvas)] text-[var(--text-secondary)] border border-[var(--border-alpha)]">Linear: ALL-7</span>
+                        <button id="btn-dismiss-verdict" type="button" class="h-5 w-5 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded hover:bg-[var(--bg-canvas)] pressable" title="Dismiss notification">
+                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                         </button>
                     </div>
-
-                    <!-- Accordion -->
-                    <div id="deep-diagnostics-panel" class="accordion-drawer">
-                        <pre id="raw-telemetry-json" class="p-2 bg-[var(--bg-surface)] rounded text-emerald-400 text-[10px] font-mono overflow-x-auto max-h-20"></pre>
-                    </div>
                 </div>
-
             </div>
 
         </div>
 
-        <!-- RIGHT WORKSTATION: Fleet Jurisdiction Table & Live Incident Routing (5 cols) -->
-        <div class="lg:col-span-5 flex flex-col space-y-2.5 h-full overflow-hidden">
+        <!-- RIGHT WORKSTATION: Fleet Jurisdiction Subsections & Live Incident Stream (5 cols) -->
+        <div class="lg:col-span-5 flex flex-col space-y-2 h-full overflow-hidden">
 
-            <!-- 1. 11-State Regional Fleet Table -->
-            <div class="surface-panel p-3 flex-1 flex flex-col min-h-0 overflow-hidden space-y-2">
+            <!-- 1. 11-State Regional Fleet Table with Hierarchical Subsections / Units -->
+            <div class="surface-panel p-2.5 flex-1 flex flex-col min-h-0 overflow-hidden space-y-1.5">
                 <div class="flex items-center justify-between flex-none">
                     <h3 class="text-xs font-semibold text-[var(--text-primary)] tracking-tight uppercase">11 Partner States Deployment</h3>
-                    <span class="text-[10px] text-[var(--text-muted)] font-mono">Live Fleet Health</span>
+                    <span class="text-[10px] text-[var(--text-muted)] font-mono">Click state to view all units</span>
                 </div>
 
-                <div class="flex-1 overflow-y-auto border border-[var(--border-alpha)] rounded">
+                <div class="flex-1 overflow-y-auto border border-[var(--border-alpha)] rounded bg-[var(--bg-canvas)]">
                     <table class="w-full text-left text-xs">
-                        <thead class="sticky top-0 bg-[var(--bg-canvas)] border-b border-[var(--border-alpha)] text-[var(--text-muted)] text-[10px] uppercase font-semibold">
+                        <thead class="sticky top-0 bg-[var(--bg-surface)] border-b border-[var(--border-alpha)] text-[var(--text-muted)] text-[10px] uppercase font-semibold">
                             <tr>
                                 <th class="py-1 px-2.5">State</th>
                                 <th class="py-1 px-2">Jurisdiction Seat</th>
-                                <th class="py-1 px-2">Active</th>
+                                <th class="py-1 px-2">Units</th>
                                 <th class="py-1 px-2">Health</th>
-                                <th class="py-1 px-2.5 text-right">Action</th>
+                                <th class="py-1 px-2.5 text-right">Drill-Down</th>
                             </tr>
                         </thead>
                         <tbody id="regions-table-body" class="divide-y divide-[var(--border-alpha)] font-mono text-[11px]">
-                            <!-- Populated dynamically with 11 states -->
+                            <!-- Populated dynamically with accordion states & subsections -->
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- 2. Live Incident Routing Table -->
-            <div class="surface-panel p-3 flex-1 flex flex-col min-h-0 overflow-hidden space-y-2">
+            <!-- 2. Live Incident Routing Table (Updated on EVERY check / entry) -->
+            <div class="surface-panel p-2.5 flex-1 flex flex-col min-h-0 overflow-hidden space-y-1.5">
                 <div class="flex items-center justify-between flex-none">
-                    <h3 class="text-xs font-semibold text-[var(--text-primary)] tracking-tight uppercase">Live Incident Routing</h3>
+                    <h3 class="text-xs font-semibold text-[var(--text-primary)] tracking-tight uppercase">Live Incident Routing Log</h3>
                     <span class="text-[10px] text-rose-400 font-mono font-semibold">Automated P0 Dispatch</span>
                 </div>
 
-                <div class="flex-1 overflow-y-auto border border-[var(--border-alpha)] rounded">
+                <div class="flex-1 overflow-y-auto border border-[var(--border-alpha)] rounded bg-[var(--bg-canvas)]">
                     <table class="w-full text-left text-xs">
-                        <thead class="sticky top-0 bg-[var(--bg-canvas)] border-b border-[var(--border-alpha)] text-[var(--text-muted)] text-[10px] uppercase font-semibold">
+                        <thead class="sticky top-0 bg-[var(--bg-surface)] border-b border-[var(--border-alpha)] text-[var(--text-muted)] text-[10px] uppercase font-semibold">
                             <tr>
                                 <th class="py-1 px-2.5">Courtroom</th>
                                 <th class="py-1 px-2">Severity</th>
@@ -602,7 +528,7 @@
                             </tr>
                         </thead>
                         <tbody id="incidents-table-body" class="divide-y divide-[var(--border-alpha)] font-mono text-[11px]">
-                            <!-- Populated dynamically with incident rows -->
+                            <!-- Populated dynamically and prepended on every check -->
                         </tbody>
                     </table>
                 </div>
@@ -612,7 +538,7 @@
 
     </main>
 
-    <!-- MODAL 1: Structured Incident Inspector Modal (Zero Raw Markdown!) -->
+    <!-- MODAL 1: Structured Incident Inspector (No Raw Markdown!) -->
     <div id="incident-detail-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="surface-panel max-w-xl w-full p-4 space-y-3 shadow-2xl">
             <div class="flex justify-between items-start border-b border-[var(--border-alpha)] pb-2.5">
@@ -625,7 +551,7 @@
                 </button>
             </div>
 
-            <!-- Structured Metadata Matrix -->
+            <!-- Metadata Grid -->
             <div class="grid grid-cols-2 gap-2 surface-sub p-2.5 text-xs font-mono">
                 <div>
                     <span class="text-[var(--text-muted)] text-[10px] block uppercase">Target Bench</span>
@@ -636,7 +562,7 @@
                     <span id="inc-modal-id" class="text-[var(--text-secondary)] truncate block">--</span>
                 </div>
                 <div>
-                    <span class="text-[var(--text-muted)] text-[10px] block uppercase">Slack Webhook</span>
+                    <span class="text-[var(--text-muted)] text-[10px] block uppercase">Slack Dispatch</span>
                     <span id="inc-modal-slack" class="text-emerald-400 font-semibold">DELIVERED (#all-adalat-pulse-alerts)</span>
                 </div>
                 <div>
@@ -658,9 +584,7 @@
                                 <th class="py-1 px-2.5">ASR Speech Impact</th>
                             </tr>
                         </thead>
-                        <tbody id="inc-modal-breach-tbody" class="divide-y divide-[var(--border-alpha)] font-mono text-[11px]">
-                            <!-- Populated dynamically -->
-                        </tbody>
+                        <tbody id="inc-modal-breach-tbody" class="divide-y divide-[var(--border-alpha)] font-mono text-[11px]"></tbody>
                     </table>
                 </div>
             </div>
@@ -709,33 +633,6 @@
             <div class="flex justify-end pt-2 border-t border-[var(--border-alpha)]">
                 <button id="btn-dismiss-fleet-modal" type="button" class="h-7 px-3 rounded text-xs font-semibold bg-[var(--bg-sub)] hover:bg-[var(--bg-sub-hover)] text-[var(--text-primary)] border border-[var(--border-alpha)] pressable">
                     Close
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL 3: Technician Remediation Stepper Modal -->
-    <div id="interview-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div id="interview-modal-dialog" class="surface-panel max-w-md w-full p-4 space-y-3 shadow-2xl">
-            <div class="flex justify-between items-start border-b border-[var(--border-alpha)] pb-2">
-                <div>
-                    <h3 class="text-xs font-bold text-[var(--text-primary)] tracking-tight">Technician Diagnostic Interview</h3>
-                    <p class="text-[10px] text-[var(--text-secondary)]">Targeted acoustic &amp; network remediation</p>
-                </div>
-                <button id="btn-close-interview" class="h-6 w-6 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded pressable" aria-label="Close">
-                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                </button>
-            </div>
-
-            <div id="interview-question-container" class="space-y-1.5 overflow-hidden text-xs"></div>
-            <div class="bg-[var(--bg-canvas)] border border-amber-500/30 rounded p-2 text-[11px] text-amber-300 font-mono" id="interview-remediation-box"></div>
-
-            <div class="flex justify-end space-x-2 pt-1 border-t border-[var(--border-alpha)]">
-                <button id="btn-cancel-interview" type="button" class="h-7 px-3 rounded text-xs font-semibold bg-[var(--bg-sub)] hover:bg-[var(--bg-sub-hover)] text-[var(--text-primary)] border border-[var(--border-alpha)] pressable">
-                    Cancel
-                </button>
-                <button id="btn-submit-interview" type="button" class="btn-action-primary h-7 px-3 text-xs pressable">
-                    Apply Remediation
                 </button>
             </div>
         </div>

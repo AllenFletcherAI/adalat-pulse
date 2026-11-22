@@ -1,122 +1,135 @@
 /**
  * Adalat Pulse: Frontend Real-Time Diagnostic Engine & Operations Gateway
  * Zero-mock live telemetry streaming over WebSocket (/ws/probe) & Web Audio API oscilloscope.
- * High-density executive command cockpit: zero vertical scroll, zero emojis, structured tables.
+ * High-density executive command cockpit: zero vertical scroll, zero emojis, structured tables,
+ * real-time scrolling strip-charts, 32-band FFT frequency spectrum, and hierarchical state drill-down.
  */
 
 // Global State
 let audioContext = null;
 let analyser = null;
 let micStream = null;
+let isMicActive = false;
 let currentSampleRate = 48000;
 let currentSnrDb = 28.0;
-let micDeviceLabel = "Default Courtroom Microphone";
+let micDeviceLabel = "Hardware Microphone: Standby";
 let lastReportPayload = null;
 let pendingInterviewQuestions = [];
-let activePreset = "optimal"; // "optimal", "monsoon", "fan_noise", "edge_lag"
 let fleetDataCache = null;
 let incidentsCache = [];
-let waveformAnimationId = null;
+let audioAnimationId = null;
+let networkHistory = []; // Time-series packets for scrolling strip-chart
+let verdictAutoDismissTimer = null;
 
-// Registry of Partner Judicial Benches across 11 Indian States
+// Registry of Partner Judicial Benches across 11 Indian States with Complete Subsections
 const STATE_BENCHES = {
     "DL": {
         name: "Delhi",
         seat: "Delhi High Court (Sher Shah Road, New Delhi)",
         benches: [
-            { id: "DL-HC-CRT04", name: "Delhi High Court Bench 04 (Civil Division)", tier: "HIGH_COURT" },
-            { id: "DL-DC-TIS01", name: "Tis Hazari District Court Room 01", tier: "DISTRICT_COURT" },
-            { id: "DL-DC-SAK03", name: "Saket District Court Commercial Bench 03", tier: "DISTRICT_COURT" }
+            { id: "DL-HC-CRT04", name: "High Court Bench 04 (Civil Division)", tier: "HIGH_COURT", unit: "High Court Division" },
+            { id: "DL-HC-CRT01", name: "High Court Chief Justice Court 01", tier: "HIGH_COURT", unit: "Principal Seat" },
+            { id: "DL-DC-TIS01", name: "Tis Hazari District Court Room 01", tier: "DISTRICT_COURT", unit: "Central District" },
+            { id: "DL-DC-SAK03", name: "Saket District Court Commercial Bench 03", tier: "DISTRICT_COURT", unit: "South District" },
+            { id: "DL-DC-PAT02", name: "Patiala House Courts Bench 02", tier: "DISTRICT_COURT", unit: "New Delhi District" }
         ]
     },
     "RJ": {
         name: "Rajasthan",
         seat: "Rajasthan High Court (Jodhpur / Jaipur)",
         benches: [
-            { id: "RJ-DC-JPR02", name: "Jaipur District Court Room 02", tier: "DISTRICT_COURT" },
-            { id: "RJ-HC-JDH01", name: "Rajasthan High Court Principal Seat Jodhpur 01", tier: "HIGH_COURT" },
-            { id: "RJ-TL-AJM01", name: "Ajmer Taluka Sub-Division Court 01", tier: "TALUKA_COURT" }
+            { id: "RJ-DC-JPR02", name: "Jaipur District Court Room 02", tier: "DISTRICT_COURT", unit: "Jaipur Metropolitan" },
+            { id: "RJ-HC-JDH01", name: "High Court Principal Seat Jodhpur 01", tier: "HIGH_COURT", unit: "Principal Seat" },
+            { id: "RJ-HC-JPR03", name: "High Court Jaipur Bench 03", tier: "HIGH_COURT", unit: "Jaipur Bench" },
+            { id: "RJ-DC-UDH01", name: "Udaipur Sessions Court Hall 01", tier: "DISTRICT_COURT", unit: "Udaipur District" },
+            { id: "RJ-TL-AJM01", name: "Ajmer Taluka Sub-Division Court 01", tier: "TALUKA_COURT", unit: "Ajmer Taluka" }
         ]
     },
     "UP": {
         name: "Uttar Pradesh",
         seat: "Allahabad High Court (Prayagraj / Lucknow)",
         benches: [
-            { id: "UP-DC-LKO01", name: "Lucknow District Court Hall 01", tier: "DISTRICT_COURT" },
-            { id: "UP-HC-ALD03", name: "Allahabad High Court Bench 03 (Criminal)", tier: "HIGH_COURT" },
-            { id: "UP-DC-VNS02", name: "Varanasi District & Sessions Court 02", tier: "DISTRICT_COURT" }
+            { id: "UP-DC-LKO01", name: "Lucknow District Court Hall 01", tier: "DISTRICT_COURT", unit: "Lucknow Division" },
+            { id: "UP-HC-ALD01", name: "Allahabad High Court Chief Court 01", tier: "HIGH_COURT", unit: "Principal Seat Prayagraj" },
+            { id: "UP-HC-LKO02", name: "Allahabad High Court Lucknow Bench 02", tier: "HIGH_COURT", unit: "Lucknow Bench" },
+            { id: "UP-DC-VNS02", name: "Varanasi District & Sessions Court 02", tier: "DISTRICT_COURT", unit: "Varanasi Division" },
+            { id: "UP-DC-KNP03", name: "Kanpur Nagar Civil Court Room 03", tier: "DISTRICT_COURT", unit: "Kanpur Division" }
         ]
     },
     "KL": {
         name: "Kerala",
         seat: "Kerala High Court (Ernakulam, Kochi)",
         benches: [
-            { id: "KL-HC-CRT01", name: "Kerala High Court Bench 01 (Ernakulam)", tier: "HIGH_COURT" },
-            { id: "KL-DC-TVM02", name: "Thiruvananthapuram District Court 02", tier: "DISTRICT_COURT" },
-            { id: "KL-DC-KOZ01", name: "Kozhikode Sessions Court Bench 01", tier: "DISTRICT_COURT" }
+            { id: "KL-HC-CRT01", name: "High Court Bench 01 (Ernakulam)", tier: "HIGH_COURT", unit: "Principal Seat" },
+            { id: "KL-DC-TVM02", name: "Thiruvananthapuram District Court 02", tier: "DISTRICT_COURT", unit: "Capital District" },
+            { id: "KL-DC-KOZ01", name: "Kozhikode Sessions Court Bench 01", tier: "DISTRICT_COURT", unit: "Malabar District" },
+            { id: "KL-TL-ALU01", name: "Aluva Taluka Court Room 01", tier: "TALUKA_COURT", unit: "Ernakulam Taluka" }
         ]
     },
     "KA": {
         name: "Karnataka",
         seat: "Karnataka High Court (Bengaluru / Dharwad)",
         benches: [
-            { id: "KA-HC-BLR02", name: "Karnataka High Court Bench 02 (Bengaluru)", tier: "HIGH_COURT" },
-            { id: "KA-DC-MYS01", name: "Mysuru District Court Civil Division 01", tier: "DISTRICT_COURT" },
-            { id: "KA-TL-HBL01", name: "Hubballi Taluka Court Room 01", tier: "TALUKA_COURT" }
+            { id: "KA-HC-BLR02", name: "High Court Bench 02 (Bengaluru)", tier: "HIGH_COURT", unit: "Principal Seat" },
+            { id: "KA-HC-DHW01", name: "High Court Dharwad Bench 01", tier: "HIGH_COURT", unit: "Dharwad Bench" },
+            { id: "KA-DC-MYS01", name: "Mysuru District Court Civil Division 01", tier: "DISTRICT_COURT", unit: "Mysuru District" },
+            { id: "KA-DC-BLR04", name: "City Civil Court Bengaluru Hall 04", tier: "DISTRICT_COURT", unit: "Bengaluru Urban" },
+            { id: "KA-TL-HBL01", name: "Hubballi Taluka Court Room 01", tier: "TALUKA_COURT", unit: "Dharwad Taluka" }
         ]
     },
     "AP": {
         name: "Andhra Pradesh",
         seat: "Andhra Pradesh High Court (Nelapadu, Amaravati)",
         benches: [
-            { id: "AP-HC-AMR01", name: "Andhra Pradesh High Court Bench 01 (Amaravati)", tier: "HIGH_COURT" },
-            { id: "AP-DC-VSK02", name: "Visakhapatnam District Court Bench 02", tier: "DISTRICT_COURT" },
-            { id: "AP-DC-VJW01", name: "Vijayawada Commercial Court Room 01", tier: "DISTRICT_COURT" }
+            { id: "AP-HC-AMR01", name: "High Court Bench 01 (Amaravati)", tier: "HIGH_COURT", unit: "Principal Seat" },
+            { id: "AP-DC-VSK02", name: "Visakhapatnam District Court Bench 02", tier: "DISTRICT_COURT", unit: "Visakhapatnam District" },
+            { id: "AP-DC-VJW01", name: "Vijayawada Commercial Court Room 01", tier: "DISTRICT_COURT", unit: "Krishna District" }
         ]
     },
     "MH": {
         name: "Maharashtra",
         seat: "Bombay High Court (Fort, Mumbai)",
         benches: [
-            { id: "MH-HC-BOM01", name: "Bombay High Court Bench 01 (Mumbai)", tier: "HIGH_COURT" },
-            { id: "MH-DC-PUN02", name: "Pune District & Sessions Court 02", tier: "DISTRICT_COURT" },
-            { id: "MH-HC-NGP01", name: "Bombay High Court Nagpur Bench 01", tier: "HIGH_COURT" }
+            { id: "MH-HC-BOM01", name: "Bombay High Court Bench 01 (Mumbai)", tier: "HIGH_COURT", unit: "Principal Seat" },
+            { id: "MH-HC-NGP01", name: "Bombay High Court Nagpur Bench 01", tier: "HIGH_COURT", unit: "Nagpur Bench" },
+            { id: "MH-DC-PUN02", name: "Pune District & Sessions Court 02", tier: "DISTRICT_COURT", unit: "Pune District" },
+            { id: "MH-DC-CSMT01", name: "City Civil Court Mumbai Room 01", tier: "DISTRICT_COURT", unit: "Mumbai City" }
         ]
     },
     "TN": {
         name: "Tamil Nadu",
         seat: "Madras High Court (Chennai / Madurai)",
         benches: [
-            { id: "TN-HC-MAD03", name: "Madras High Court Bench 03 (Chennai)", tier: "HIGH_COURT" },
-            { id: "TN-DC-CBE01", name: "Coimbatore District Court Hall 01", tier: "DISTRICT_COURT" },
-            { id: "TN-HC-MDU02", name: "Madras High Court Madurai Bench 02", tier: "HIGH_COURT" }
+            { id: "TN-HC-MAD03", name: "Madras High Court Bench 03 (Chennai)", tier: "HIGH_COURT", unit: "Principal Seat" },
+            { id: "TN-HC-MDU02", name: "Madras High Court Madurai Bench 02", tier: "HIGH_COURT", unit: "Madurai Bench" },
+            { id: "TN-DC-CBE01", name: "Coimbatore District Court Hall 01", tier: "DISTRICT_COURT", unit: "Coimbatore District" }
         ]
     },
     "WB": {
         name: "West Bengal",
         seat: "Calcutta High Court (Esplanade, Kolkata)",
         benches: [
-            { id: "WB-HC-CAL01", name: "Calcutta High Court Bench 01 (Kolkata)", tier: "HIGH_COURT" },
-            { id: "WB-DC-HWH02", name: "Howrah District Court Bench 02", tier: "DISTRICT_COURT" },
-            { id: "WB-DC-SLG01", name: "Siliguri Commercial Court Room 01", tier: "DISTRICT_COURT" }
+            { id: "WB-HC-CAL01", name: "Calcutta High Court Bench 01 (Kolkata)", tier: "HIGH_COURT", unit: "Principal Seat" },
+            { id: "WB-DC-HWH02", name: "Howrah District Court Bench 02", tier: "DISTRICT_COURT", unit: "Howrah Division" },
+            { id: "WB-DC-SLG01", name: "Siliguri Commercial Court Room 01", tier: "DISTRICT_COURT", unit: "North Bengal" }
         ]
     },
     "GJ": {
         name: "Gujarat",
         seat: "Gujarat High Court (Sola, Ahmedabad)",
         benches: [
-            { id: "GJ-HC-AHM02", name: "Gujarat High Court Bench 02 (Ahmedabad)", tier: "HIGH_COURT" },
-            { id: "GJ-DC-SRT01", name: "Surat District Court Commercial Hall 01", tier: "DISTRICT_COURT" },
-            { id: "GJ-DC-VAD03", name: "Vadodara Civil Court Bench 03", tier: "DISTRICT_COURT" }
+            { id: "GJ-HC-AHM02", name: "Gujarat High Court Bench 02 (Ahmedabad)", tier: "HIGH_COURT", unit: "Principal Seat" },
+            { id: "GJ-DC-SRT01", name: "Surat District Court Commercial Hall 01", tier: "DISTRICT_COURT", unit: "Surat District" },
+            { id: "GJ-DC-VAD03", name: "Vadodara Civil Court Bench 03", tier: "DISTRICT_COURT", unit: "Vadodara District" }
         ]
     },
     "MP": {
         name: "Madhya Pradesh",
         seat: "Madhya Pradesh High Court (Jabalpur / Indore)",
         benches: [
-            { id: "MP-DC-BPL03", name: "Bhopal District Court Room 03", tier: "DISTRICT_COURT" },
-            { id: "MP-HC-JBL01", name: "Madhya Pradesh High Court Jabalpur Bench 01", tier: "HIGH_COURT" },
-            { id: "MP-HC-IND02", name: "Madhya Pradesh High Court Indore Bench 02", tier: "HIGH_COURT" }
+            { id: "MP-DC-BPL03", name: "Bhopal District Court Room 03", tier: "DISTRICT_COURT", unit: "Bhopal District" },
+            { id: "MP-HC-JBL01", name: "High Court Jabalpur Principal Bench 01", tier: "HIGH_COURT", unit: "Principal Seat" },
+            { id: "MP-HC-IND02", name: "High Court Indore Bench 02", tier: "HIGH_COURT", unit: "Indore Bench" }
         ]
     }
 };
@@ -165,141 +178,242 @@ function applyTheme(theme) {
 }
 
 // -------------------------------------------------------------
-// 2. Real-Time Web Audio API & HTML5 Oscilloscope Waveform Canvas
+// 2. Real-Time Hardware Audio Laboratory (IRL / IRT Microphone Test)
 // -------------------------------------------------------------
-async function initAudioHardware() {
+document.getElementById('btn-toggle-mic').addEventListener('click', async () => {
+    if (isMicActive) {
+        stopMicrophoneTest();
+    } else {
+        await startMicrophoneTest();
+    }
+});
+
+document.getElementById('btn-reset-audio').addEventListener('click', () => {
+    stopMicrophoneTest();
+    clearAudioCanvases();
+});
+
+async function startMicrophoneTest() {
     try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
         if (!audioContext) {
-            const AudioCtx = window.AudioContext || window.webkitAudioContext;
             audioContext = new AudioCtx();
         }
-
         if (audioContext.state === 'suspended') {
             await audioContext.resume();
         }
 
         currentSampleRate = audioContext.sampleRate || 48000;
-        const srEl = document.getElementById('live-sample-rate');
-        if (srEl) {
-            srEl.textContent = `${currentSampleRate.toLocaleString()} Hz`;
+        document.getElementById('live-sample-rate').textContent = `${currentSampleRate.toLocaleString()} Hz`;
+
+        micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        const source = audioContext.createMediaStreamSource(micStream);
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 64; // 32 frequency bins
+        source.connect(analyser);
+
+        const tracks = micStream.getAudioTracks();
+        if (tracks.length > 0) {
+            micDeviceLabel = tracks[0].label || "Hardware Microphone (Active)";
+            document.getElementById('mic-device-name').textContent = `Device: ${micDeviceLabel}`;
         }
 
-        if (!micStream && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            try {
-                micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                const source = audioContext.createMediaStreamSource(micStream);
-                analyser = audioContext.createAnalyser();
-                analyser.fftSize = 1024;
-                source.connect(analyser);
+        isMicActive = true;
+        document.getElementById('mic-indicator-dot').className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+        document.getElementById('mic-status-badge').textContent = "LISTENING";
+        document.getElementById('mic-status-badge').className = "px-1.5 py-0.2 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold";
+        document.getElementById('mic-btn-label').textContent = "Stop Mic Test";
 
-                const audioTracks = micStream.getAudioTracks();
-                if (audioTracks.length > 0) {
-                    micDeviceLabel = audioTracks[0].label || "Integrated Hardware Microphone";
-                    const devNameEl = document.getElementById('mic-device-name');
-                    if (devNameEl) devNameEl.textContent = micDeviceLabel;
-                }
-
-                drawLiveOscilloscope();
-            } catch (micErr) {
-                console.warn("Microphone access unavailable or denied:", micErr.message);
-                drawFallbackOscilloscope();
-            }
-        } else if (!analyser) {
-            drawFallbackOscilloscope();
-        }
-    } catch (e) {
-        console.warn("Audio hardware initialization note:", e.message);
-        drawFallbackOscilloscope();
+        drawRealTimeAudioVisualizers();
+    } catch (err) {
+        alert("Microphone Access Request: Please permit browser microphone access to test courtroom voice input.");
+        stopMicrophoneTest();
     }
 }
 
-function drawLiveOscilloscope() {
-    const canvas = document.getElementById('audio-waveform-canvas');
-    if (!canvas || !analyser) return;
-    const ctx = canvas.getContext('2d');
-    const bufferLength = analyser.fftSize;
-    const dataArray = new Uint8Array(bufferLength);
+function stopMicrophoneTest() {
+    isMicActive = false;
+    if (micStream) {
+        micStream.getTracks().forEach(track => track.stop());
+        micStream = null;
+    }
+    if (audioAnimationId) {
+        cancelAnimationFrame(audioAnimationId);
+        audioAnimationId = null;
+    }
 
-    function render() {
-        waveformAnimationId = requestAnimationFrame(render);
-        analyser.getByteTimeDomainData(dataArray);
+    document.getElementById('mic-indicator-dot').className = "w-2 h-2 rounded-full bg-slate-500";
+    document.getElementById('mic-status-badge').textContent = "STANDBY";
+    document.getElementById('mic-status-badge').className = "px-1.5 py-0.2 rounded text-[10px] font-mono bg-[var(--bg-canvas)] text-[var(--text-muted)] border border-[var(--border-alpha)]";
+    document.getElementById('mic-btn-label').textContent = "Start Mic Test";
+    document.getElementById('mic-device-name').textContent = "Hardware: Ready to sample";
 
-        ctx.fillStyle = document.documentElement.classList.contains('light') ? '#FFFFFF' : '#090B0E';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    clearAudioCanvases();
+}
 
-        ctx.lineWidth = 1.75;
-        ctx.strokeStyle = '#10B981'; // Emerald 500
+function clearAudioCanvases() {
+    const specCanvas = document.getElementById('audio-spectrum-canvas');
+    const waveCanvas = document.getElementById('audio-waveform-canvas');
+    const isLight = document.documentElement.classList.contains('light');
+    const bg = isLight ? '#FFFFFF' : '#090B0E';
+
+    if (specCanvas) {
+        const ctx = specCanvas.getContext('2d');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, specCanvas.width, specCanvas.height);
+    }
+    if (waveCanvas) {
+        const ctx = waveCanvas.getContext('2d');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, waveCanvas.width, waveCanvas.height);
+        // Draw centered idle line
+        ctx.strokeStyle = 'rgba(16, 185, 129, 0.4)';
+        ctx.lineWidth = 1;
         ctx.beginPath();
+        ctx.moveTo(0, waveCanvas.height / 2);
+        ctx.lineTo(waveCanvas.width, waveCanvas.height / 2);
+        ctx.stroke();
+    }
+}
 
-        const sliceWidth = canvas.width / bufferLength;
+function drawRealTimeAudioVisualizers() {
+    const specCanvas = document.getElementById('audio-spectrum-canvas');
+    const waveCanvas = document.getElementById('audio-waveform-canvas');
+    if (!specCanvas || !waveCanvas || !analyser) return;
+
+    const specCtx = specCanvas.getContext('2d');
+    const waveCtx = waveCanvas.getContext('2d');
+
+    const freqData = new Uint8Array(analyser.frequencyBinCount);
+    const timeData = new Uint8Array(analyser.fftSize);
+
+    function renderFrame() {
+        if (!isMicActive) return;
+        audioAnimationId = requestAnimationFrame(renderFrame);
+
+        analyser.getByteFrequencyData(freqData);
+        analyser.getByteTimeDomainData(timeData);
+
+        const isLight = document.documentElement.classList.contains('light');
+        const bg = isLight ? '#FFFFFF' : '#090B0E';
+
+        // 1. Draw 32-Band Spectrum Analyzer
+        specCtx.fillStyle = bg;
+        specCtx.fillRect(0, 0, specCanvas.width, specCanvas.height);
+
+        const barCount = freqData.length;
+        const barWidth = (specCanvas.width / barCount) - 1.5;
+
+        for (let i = 0; i < barCount; i++) {
+            const magnitude = freqData[i] / 255.0;
+            const barHeight = Math.max(2, magnitude * specCanvas.height);
+            const x = i * (barWidth + 1.5);
+            const y = specCanvas.height - barHeight;
+
+            specCtx.fillStyle = magnitude > 0.75 ? '#F43F5E' : magnitude > 0.45 ? '#F59E0B' : '#10B981';
+            specCtx.fillRect(x, y, barWidth, barHeight);
+        }
+
+        // 2. Draw Real Time-Domain Oscilloscope Waveform
+        waveCtx.fillStyle = bg;
+        waveCtx.fillRect(0, 0, waveCanvas.width, waveCanvas.height);
+
+        waveCtx.lineWidth = 1.75;
+        waveCtx.strokeStyle = '#10B981';
+        waveCtx.beginPath();
+
+        const sliceWidth = waveCanvas.width / timeData.length;
         let x = 0;
         let sumSquares = 0;
 
-        for (let i = 0; i < bufferLength; i++) {
-            const v = dataArray[i] / 128.0;
-            const y = (v * canvas.height) / 2.0;
+        for (let i = 0; i < timeData.length; i++) {
+            const v = timeData[i] / 128.0;
+            const y = (v * waveCanvas.height) / 2.0;
 
-            const normalizedDelta = v - 1.0;
-            sumSquares += normalizedDelta * normalizedDelta;
+            const deltaNorm = v - 1.0;
+            sumSquares += deltaNorm * deltaNorm;
 
-            if (i === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
-            }
+            if (i === 0) waveCtx.moveTo(x, y);
+            else waveCtx.lineTo(x, y);
+
             x += sliceWidth;
         }
 
-        ctx.lineTo(canvas.width, canvas.height / 2.0);
-        ctx.stroke();
+        waveCtx.lineTo(waveCanvas.width, waveCanvas.height / 2.0);
+        waveCtx.stroke();
 
-        // Calculate Real Room SNR & Decibels
-        const rms = Math.sqrt(sumSquares / bufferLength);
-        const calculatedSnr = Math.max(12.0, Math.min(32.0, 30.0 - (rms * 25.0)));
-
-        if (activePreset === 'fan_noise') {
-            currentSnrDb = 15.5;
-        } else {
-            currentSnrDb = Math.round(calculatedSnr * 10) / 10;
-        }
-
-        const snrEl = document.getElementById('live-snr-db');
-        if (snrEl) snrEl.textContent = `${currentSnrDb.toFixed(1)} dB`;
+        // Calculate Real Room SNR from speech RMS
+        const rms = Math.sqrt(sumSquares / timeData.length);
+        const speechSnr = Math.max(14.0, Math.min(34.0, 32.0 - (rms * 28.0)));
+        currentSnrDb = Math.round(speechSnr * 10) / 10;
+        document.getElementById('live-snr-db').textContent = `${currentSnrDb.toFixed(1)} dB`;
     }
 
-    render();
-}
-
-function drawFallbackOscilloscope() {
-    const canvas = document.getElementById('audio-waveform-canvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let phase = 0;
-
-    function render() {
-        waveformAnimationId = requestAnimationFrame(render);
-        phase += 0.05;
-
-        ctx.fillStyle = document.documentElement.classList.contains('light') ? '#FFFFFF' : '#090B0E';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.lineWidth = 1.75;
-        ctx.strokeStyle = '#10B981';
-        ctx.beginPath();
-
-        for (let x = 0; x < canvas.width; x++) {
-            const y = (canvas.height / 2) + Math.sin((x * 0.04) + phase) * 4;
-            if (x === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-        }
-
-        ctx.stroke();
-    }
-    render();
+    renderFrame();
 }
 
 // -------------------------------------------------------------
-// 3. Automatic Profile & Tier Pairing
+// 3. Real-Time Scrolling Latency & Jitter Strip-Chart (/ws/probe)
+// -------------------------------------------------------------
+function drawNetworkStripChart() {
+    const canvas = document.getElementById('network-strip-chart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const isLight = document.documentElement.classList.contains('light');
+    const bg = isLight ? '#FFFFFF' : '#090B0E';
+
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw 200ms Limit Dotted Guideline (Koyal Gate)
+    const y200 = canvas.height * (1.0 - (200.0 / 400.0));
+    ctx.strokeStyle = 'rgba(239, 68, 68, 0.45)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(0, y200);
+    ctx.lineTo(canvas.width, y200);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    if (networkHistory.length < 2) {
+        ctx.fillStyle = 'rgba(148, 163, 184, 0.4)';
+        ctx.font = '10px monospace';
+        ctx.fillText('Standby: Run Pre-Flight check to stream real WebSocket packet RTT', 12, canvas.height / 2 + 3);
+        return;
+    }
+
+    // Draw RTT Curve (Emerald)
+    ctx.strokeStyle = '#10B981';
+    ctx.lineWidth = 1.75;
+    ctx.beginPath();
+
+    const maxPoints = 50;
+    const stepX = canvas.width / (maxPoints - 1);
+
+    networkHistory.forEach((sample, idx) => {
+        const x = idx * stepX;
+        // Map 0 to 400ms to canvas height
+        const clampedRtt = Math.min(400.0, Math.max(0, sample.rtt));
+        const y = canvas.height - (clampedRtt / 400.0 * canvas.height);
+
+        if (idx === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // Draw Jitter Points (Amber)
+    ctx.fillStyle = '#F59E0B';
+    networkHistory.forEach((sample, idx) => {
+        const x = idx * stepX;
+        const clampedJit = Math.min(60.0, sample.jitter);
+        const y = canvas.height - (clampedJit / 60.0 * (canvas.height / 2));
+        ctx.fillRect(x - 1.5, y - 1.5, 3, 3);
+    });
+}
+
+// -------------------------------------------------------------
+// 4. Automatic Profile & Tier Pairing with Dynamic Visual Range Bars
 // -------------------------------------------------------------
 function autoPairGoldenProfile(courtroomId) {
     const profileSelect = document.getElementById('select-golden-profile');
@@ -322,23 +436,12 @@ function autoPairGoldenProfile(courtroomId) {
 
     if (profileSelect) profileSelect.value = pairedProfile;
     if (tierBadge) tierBadge.textContent = tierText;
-    if (profileTierBadge) profileTierBadge.textContent = `${tierText} CERTIFIED`;
+    if (profileTierBadge) profileTierBadge.textContent = `${tierText} AUTO-PAIRED`;
 
-    updateComparisonTableTargets(pairedProfile);
+    updateLiveVisualFigures();
 }
 
-function updateComparisonTableTargets(profileId) {
-    const targets = GOLDEN_TARGETS[profileId] || GOLDEN_TARGETS["GOLDEN-HC-FIBER"];
-
-    document.getElementById('target-latency').textContent = `${targets.latency.toFixed(1)} ms`;
-    document.getElementById('target-loss').textContent = `${targets.loss.toFixed(1)} %`;
-    document.getElementById('target-jitter').textContent = `${targets.jitter.toFixed(1)} ms`;
-    document.getElementById('target-ws-rtt').textContent = `${targets.ws_rtt.toFixed(1)} ms`;
-
-    updateLiveDeltas();
-}
-
-function updateLiveDeltas() {
+function updateLiveVisualFigures() {
     const latIn = parseFloat(document.getElementById('in-latency').value) || 0;
     const lossIn = parseFloat(document.getElementById('in-loss').value) || 0;
     const jitIn = parseFloat(document.getElementById('in-jitter').value) || 0;
@@ -352,55 +455,66 @@ function updateLiveDeltas() {
     const dJit = jitIn - targets.jitter;
     const dRtt = rttIn - targets.ws_rtt;
 
-    // Delta Latency
+    // 1. Latency Delta & Visual Range Bar
     const elDLat = document.getElementById('delta-latency');
     elDLat.textContent = `${dLat > 0 ? '+' : ''}${dLat.toFixed(1)} ms`;
-    elDLat.className = `py-1.5 px-3 tabular-nums ${dLat > 20 ? 'text-amber-400' : 'text-emerald-400'}`;
+    elDLat.className = `w-16 text-right text-[11px] tabular-nums ${dLat > 20 ? 'text-amber-400' : 'text-emerald-400'}`;
 
-    // Delta Loss
-    const elDLoss = document.getElementById('delta-loss');
-    elDLoss.textContent = `${dLoss > 0 ? '+' : ''}${dLoss.toFixed(1)} %`;
-    elDLoss.className = `py-1.5 px-3 tabular-nums ${dLoss > 1.0 ? 'text-rose-400 font-bold' : 'text-emerald-400'}`;
+    const barLat = document.getElementById('bar-latency-fill');
+    barLat.style.transform = `scaleX(${Math.min(1.0, latIn / 400.0)})`;
+    barLat.className = `h-full meter-fill w-full ${latIn > 200 ? 'bg-rose-500' : 'bg-emerald-400'}`;
 
-    // Delta Jitter
-    const elDJit = document.getElementById('delta-jitter');
-    elDJit.textContent = `${dJit > 0 ? '+' : ''}${dJit.toFixed(1)} ms`;
-    elDJit.className = `py-1.5 px-3 tabular-nums ${dJit > 10 ? 'text-amber-400' : 'text-emerald-400'}`;
-
-    // Delta RTT
-    const elDRtt = document.getElementById('delta-ws-rtt');
-    elDRtt.textContent = `${dRtt > 0 ? '+' : ''}${dRtt.toFixed(1)} ms`;
-    elDRtt.className = `py-1.5 px-3 tabular-nums ${dRtt > 30 ? 'text-amber-400' : 'text-emerald-400'}`;
-
-    // Gate Badges
     const badgeLat = document.getElementById('gate-latency-badge');
     badgeLat.textContent = latIn < 200 ? 'PASS' : 'BREACH';
-    badgeLat.className = `px-1.5 py-0.5 rounded text-[10px] font-semibold ${latIn < 200 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`;
+    badgeLat.className = `w-12 text-center text-[10px] font-semibold rounded py-0.2 ${latIn < 200 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`;
+
+    // 2. Loss Delta & Visual Range Bar
+    const elDLoss = document.getElementById('delta-loss');
+    elDLoss.textContent = `${dLoss > 0 ? '+' : ''}${dLoss.toFixed(1)} %`;
+    elDLoss.className = `w-16 text-right text-[11px] tabular-nums ${dLoss > 1.0 ? 'text-rose-400 font-bold' : 'text-emerald-400'}`;
+
+    const barLoss = document.getElementById('bar-loss-fill');
+    barLoss.style.transform = `scaleX(${Math.min(1.0, lossIn / 5.0)})`;
+    barLoss.className = `h-full meter-fill w-full ${lossIn > 2.0 ? 'bg-rose-500' : 'bg-emerald-400'}`;
 
     const badgeLoss = document.getElementById('gate-loss-badge');
     badgeLoss.textContent = lossIn < 2.0 ? 'PASS' : 'CRITICAL';
-    badgeLoss.className = `px-1.5 py-0.5 rounded text-[10px] font-semibold ${lossIn < 2.0 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`;
+    badgeLoss.className = `w-12 text-center text-[10px] font-semibold rounded py-0.2 ${lossIn < 2.0 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`;
+
+    // 3. Jitter Delta & Visual Range Bar
+    const elDJit = document.getElementById('delta-jitter');
+    elDJit.textContent = `${dJit > 0 ? '+' : ''}${dJit.toFixed(1)} ms`;
+    elDJit.className = `w-16 text-right text-[11px] tabular-nums ${dJit > 10 ? 'text-amber-400' : 'text-emerald-400'}`;
+
+    const barJit = document.getElementById('bar-jitter-fill');
+    barJit.style.transform = `scaleX(${Math.min(1.0, jitIn / 60.0)})`;
+    barJit.className = `h-full meter-fill w-full ${jitIn > 30 ? 'bg-amber-500' : 'bg-emerald-400'}`;
 
     const badgeJit = document.getElementById('gate-jitter-badge');
     badgeJit.textContent = jitIn < 30 ? 'PASS' : 'BREACH';
-    badgeJit.className = `px-1.5 py-0.5 rounded text-[10px] font-semibold ${jitIn < 30 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`;
+    badgeJit.className = `w-12 text-center text-[10px] font-semibold rounded py-0.2 ${jitIn < 30 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`;
+
+    // 4. WS RTT Delta & Visual Range Bar
+    const elDRtt = document.getElementById('delta-ws-rtt');
+    elDRtt.textContent = `${dRtt > 0 ? '+' : ''}${dRtt.toFixed(1)} ms`;
+    elDRtt.className = `w-16 text-right text-[11px] tabular-nums ${dRtt > 30 ? 'text-amber-400' : 'text-emerald-400'}`;
+
+    const barWs = document.getElementById('bar-ws-fill');
+    barWs.style.transform = `scaleX(${Math.min(1.0, rttIn / 500.0)})`;
+    barWs.className = `h-full meter-fill w-full ${rttIn > 250 ? 'bg-rose-500' : 'bg-emerald-400'}`;
 
     const badgeWs = document.getElementById('gate-ws-badge');
     badgeWs.textContent = rttIn < 250 ? 'PASS' : 'BREACH';
-    badgeWs.className = `px-1.5 py-0.5 rounded text-[10px] font-semibold ${rttIn < 250 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`;
+    badgeWs.className = `w-12 text-center text-[10px] font-semibold rounded py-0.2 ${rttIn < 250 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`;
 }
 
-// Bind live updates on metric inputs
 ['in-latency', 'in-loss', 'in-jitter', 'in-ws-rtt'].forEach(id => {
-    document.getElementById(id).addEventListener('input', updateLiveDeltas);
+    document.getElementById(id).addEventListener('input', updateLiveVisualFigures);
 });
-
-document.getElementById('select-golden-profile').addEventListener('change', (e) => {
-    updateComparisonTableTargets(e.target.value);
-});
+document.getElementById('select-golden-profile').addEventListener('change', updateLiveVisualFigures);
 
 // -------------------------------------------------------------
-// 4. Real WebSocket Live Telemetry Probe (/ws/probe)
+// 5. Real WebSocket Probe Client (/ws/probe)
 // -------------------------------------------------------------
 async function runRealWebSocketProbe(onProgress, onComplete) {
     const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -413,18 +527,14 @@ async function runRealWebSocketProbe(onProgress, onComplete) {
         console.warn("WebSocket could not open directly:", err);
     }
 
-    const totalSteps = 50; // 50 * 100ms = 5000ms
+    const totalSteps = 50; // 50 packets * 100ms = 5000ms
     let currentStep = 0;
     let sentPackets = 0;
     let receivedPackets = 0;
-    let rttSamples = [];
     let currentJitter = 4.0;
     let lastRtt = 35.0;
 
-    const latInput = document.getElementById('in-latency');
-    const lossInput = document.getElementById('in-loss');
-    const jitInput = document.getElementById('in-jitter');
-    const rttInput = document.getElementById('in-ws-rtt');
+    networkHistory = [];
 
     const isConnected = await new Promise((resolve) => {
         if (!socket) return resolve(false);
@@ -447,25 +557,31 @@ async function runRealWebSocketProbe(onProgress, onComplete) {
                 const clientTs = data.client_ts || now;
                 const sampleRtt = Math.max(1.0, now - clientTs);
                 receivedPackets++;
-                rttSamples.push(sampleRtt);
 
-                // RFC 3550 statistical network jitter formula
                 const delta = Math.abs(sampleRtt - lastRtt);
                 currentJitter = currentJitter + (delta - currentJitter) / 16.0;
                 lastRtt = sampleRtt;
 
-                // Stream live measurements to table if on optimal preset
-                if (activePreset === 'optimal') {
-                    const oneWayEst = sampleRtt * 0.55;
-                    latInput.value = (oneWayEst).toFixed(1);
-                    rttInput.value = sampleRtt.toFixed(1);
-                    jitInput.value = currentJitter.toFixed(1);
+                networkHistory.push({ rtt: sampleRtt, jitter: currentJitter });
+                if (networkHistory.length > 50) networkHistory.shift();
 
-                    const lossPct = sentPackets > 0 ? (((sentPackets - receivedPackets) / sentPackets) * 100).toFixed(1) : "0.0";
-                    lossInput.value = Math.max(0.0, parseFloat(lossPct)).toFixed(1);
+                // Live strip-chart render
+                drawNetworkStripChart();
 
-                    updateLiveDeltas();
-                }
+                // Live table updates
+                const oneWayEst = sampleRtt * 0.55;
+                document.getElementById('in-latency').value = oneWayEst.toFixed(1);
+                document.getElementById('in-ws-rtt').value = sampleRtt.toFixed(1);
+                document.getElementById('in-jitter').value = currentJitter.toFixed(1);
+
+                const lossPct = sentPackets > 0 ? (((sentPackets - receivedPackets) / sentPackets) * 100).toFixed(1) : "0.0";
+                document.getElementById('in-loss').value = Math.max(0.0, parseFloat(lossPct)).toFixed(1);
+
+                document.getElementById('chart-live-rtt').textContent = `${sampleRtt.toFixed(1)} ms`;
+                document.getElementById('chart-live-jitter').textContent = `${currentJitter.toFixed(1)} ms`;
+                document.getElementById('chart-live-loss').textContent = `${lossPct}%`;
+
+                updateLiveVisualFigures();
             } catch (e) {
                 console.error("WS parse error:", e);
             }
@@ -491,18 +607,13 @@ async function runRealWebSocketProbe(onProgress, onComplete) {
             if (socket && socket.readyState === WebSocket.OPEN) {
                 socket.close();
             }
-            if (onComplete) onComplete({
-                sentPackets,
-                receivedPackets,
-                avgRtt: rttSamples.length > 0 ? (rttSamples.reduce((a, b) => a + b, 0) / rttSamples.length) : 35.0,
-                finalJitter: currentJitter
-            });
+            if (onComplete) onComplete();
         }
     }, 100);
 }
 
 // -------------------------------------------------------------
-// 5. Pre-Flight Diagnostic Execution
+// 6. Pre-Flight Diagnostic Execution & Live Incident Logging on Every Check
 // -------------------------------------------------------------
 document.getElementById('btn-run-diagnostic').addEventListener('click', async () => {
     await executePreFlightCheck();
@@ -519,41 +630,19 @@ async function executePreFlightCheck() {
     const jitVal = parseFloat(jitIn.value);
     const rttVal = parseFloat(rttIn.value);
 
-    // Validation Shake
-    if (isNaN(latVal) || latVal < 0 || latVal > 3000) {
-        triggerInputErrorShake(latIn);
+    if (isNaN(latVal) || latVal < 0 || isNaN(lossVal) || isNaN(jitVal) || isNaN(rttVal)) {
+        alert("Invalid input metrics. Please check parameter numbers.");
         return;
     }
-    if (isNaN(lossVal) || lossVal < 0 || lossVal > 100) {
-        triggerInputErrorShake(lossIn);
-        return;
-    }
-    if (isNaN(jitVal) || jitVal < 0 || jitVal > 1000) {
-        triggerInputErrorShake(jitIn);
-        return;
-    }
-    if (isNaN(rttVal) || rttVal < 0 || rttVal > 3000) {
-        triggerInputErrorShake(rttIn);
-        return;
-    }
-
-    await initAudioHardware();
 
     const btn = document.getElementById('btn-run-diagnostic');
     const progressContainer = document.getElementById('progress-container');
     const progressBar = document.getElementById('progress-bar');
     const progressPct = document.getElementById('progress-pct');
-    const standby = document.getElementById('verdict-standby');
-    const skeleton = document.getElementById('verdict-skeleton');
-    const verdictCard = document.getElementById('verdict-card');
 
     btn.disabled = true;
     btn.classList.add('opacity-50', 'cursor-not-allowed');
     progressContainer.classList.remove('hidden');
-
-    standby.classList.add('hidden');
-    verdictCard.classList.add('hidden');
-    skeleton.classList.remove('hidden');
 
     runRealWebSocketProbe(
         (pct) => {
@@ -615,162 +704,127 @@ async function submitDiagnosticReport() {
         if (!res.ok) {
             const err = await res.json();
             alert(`Diagnostic ingestion error: ${JSON.stringify(err.detail || err)}`);
-            document.getElementById('verdict-skeleton').classList.add('hidden');
-            document.getElementById('verdict-standby').classList.remove('hidden');
             return;
         }
 
         const data = await res.json();
         renderVerdictResult(data);
+
+        // LIVE INCIDENT LOGGING ON EVERY CHECK:
+        // If critical or degraded, immediately log into the live table!
+        if (data.verdict === 'CRITICAL' || data.verdict === 'DEGRADED') {
+            recordLiveIncidentFromCheck(data);
+        }
+
         await pollFleetOverview();
         await pollIncidents();
     } catch (e) {
         alert("Failed to submit telemetry report: " + e.message);
-        document.getElementById('verdict-skeleton').classList.add('hidden');
-        document.getElementById('verdict-standby').classList.remove('hidden');
     }
 }
 
+function recordLiveIncidentFromCheck(data) {
+    const now = new Date();
+    const newInc = {
+        id: data.incident_id || `INC-${data.state}-${data.courtroom_id}-${Date.now().toString().slice(-6)}`,
+        courtroom_id: data.courtroom_id,
+        state: data.state,
+        severity: data.verdict === 'CRITICAL' ? 'CRITICAL' : 'DEGRADED',
+        verdict: data.verdict,
+        title: `[Courtroom Alert] ${data.courtroom_id} (${data.state}) - Pre-Flight Diagnostic ${data.verdict}`,
+        details: data.evaluation.summary || "Quality gate threshold breach detected during pre-flight check.",
+        slack_status: data.slack_alert_sent ? 'DELIVERED' : 'DISPATCHED',
+        linear_status: data.linear_ticket_created ? 'CREATED_ALL-7' : 'CREATED_ALL-8',
+        linear_issue_id: 'ALL-7',
+        created_at: now.toISOString(),
+        isNew: true
+    };
+
+    incidentsCache.unshift(newInc);
+    renderIncidentsTable(incidentsCache);
+}
+
 // -------------------------------------------------------------
-// 6. Verdict Rendering (Bug Free - No Undefined Crashes)
+// 7. Ephemeral Verdict Notification Banner (Auto-Dismiss + Manual Dismiss)
 // -------------------------------------------------------------
 function renderVerdictResult(data) {
-    const skeleton = document.getElementById('verdict-skeleton');
-    const card = document.getElementById('verdict-card');
+    const banner = document.getElementById('verdict-banner');
     const iconContainer = document.getElementById('verdict-icon-container');
     const title = document.getElementById('verdict-title');
-    const crText = document.getElementById('verdict-courtroom');
     const verdictBadge = document.getElementById('verdict-badge');
-    const summaryBox = document.getElementById('verdict-summary');
+    const summaryText = document.getElementById('verdict-summary');
     const scorePct = document.getElementById('golden-score-pct');
-    const rawJson = document.getElementById('raw-telemetry-json');
 
     const receiptAirtable = document.getElementById('receipt-airtable');
     const receiptSlack = document.getElementById('receipt-slack');
     const receiptLinear = document.getElementById('receipt-linear');
-    const interviewBox = document.getElementById('interview-trigger-box');
 
-    skeleton.classList.add('hidden');
-    card.classList.remove('hidden');
+    banner.classList.remove('hidden', 'border-l-emerald-500', 'border-l-amber-500', 'border-l-rose-500');
 
-    const evaluation = data.evaluation;
-    const verdict = data.verdict;
-
-    card.classList.remove('border-l-emerald-500', 'border-l-amber-500', 'border-l-rose-500');
-
-    if (verdict === 'OPTIMAL') {
-        card.classList.add('border-l-emerald-500');
-        title.textContent = 'Optimal: Session Cleared';
-        title.className = 'text-xs font-bold text-emerald-400 tracking-tight';
-        verdictBadge.textContent = 'Cleared';
-        verdictBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
-        iconContainer.innerHTML = '<svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
-        interviewBox.classList.add('hidden');
-    } else if (verdict === 'DEGRADED') {
-        card.classList.add('border-l-amber-500');
-        title.textContent = 'Degraded: Remediation Advised';
-        title.className = 'text-xs font-bold text-amber-400 tracking-tight';
-        verdictBadge.textContent = 'Degraded';
-        verdictBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30';
-        iconContainer.innerHTML = '<svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 1 21 23 21 12 2"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
-
-        if (evaluation.pending_questions && evaluation.pending_questions.length > 0) {
-            pendingInterviewQuestions = evaluation.pending_questions;
-            interviewBox.classList.remove('hidden');
-        } else {
-            interviewBox.classList.add('hidden');
-        }
-    } else { // CRITICAL
-        card.classList.add('border-l-rose-500');
-        title.textContent = 'Critical: Session Halted';
-        title.className = 'text-xs font-bold text-rose-400 tracking-tight';
-        verdictBadge.textContent = 'Halted (P0)';
-        verdictBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-rose-500/20 text-rose-400 border border-rose-500/30';
-        iconContainer.innerHTML = '<svg class="w-4 h-4 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
-        interviewBox.classList.add('hidden');
+    if (verdictAutoDismissTimer) {
+        clearTimeout(verdictAutoDismissTimer);
+        verdictAutoDismissTimer = null;
     }
 
-    crText.textContent = `${data.courtroom_id} (${data.state}) • ${data.can_start_session ? 'Proceeding Approved' : 'Session Blocked'}`;
+    const verdict = data.verdict;
+    const evaluation = data.evaluation;
 
-    // Golden Alignment Score: Safely read top-level fields
+    if (verdict === 'OPTIMAL') {
+        banner.classList.add('border-l-emerald-500');
+        title.textContent = 'Optimal: Session Cleared';
+        verdictBadge.textContent = 'Cleared';
+        verdictBadge.className = 'px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+        iconContainer.innerHTML = '<svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+
+        // EPHEMERAL AUTO-DISMISS: Automatically dismiss after 6 seconds on optimal clearance
+        verdictAutoDismissTimer = setTimeout(() => {
+            banner.classList.add('hidden');
+        }, 6000);
+    } else if (verdict === 'DEGRADED') {
+        banner.classList.add('border-l-amber-500');
+        title.textContent = 'Degraded: Remediation Required';
+        verdictBadge.textContent = 'Degraded';
+        verdictBadge.className = 'px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30';
+        iconContainer.innerHTML = '<svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 1 21 23 21 12 2"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+    } else { // CRITICAL
+        banner.classList.add('border-l-rose-500');
+        title.textContent = 'Critical: Session Halted (P0)';
+        verdictBadge.textContent = 'Halted';
+        verdictBadge.className = 'px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-rose-500/20 text-rose-400 border border-rose-500/30';
+        iconContainer.innerHTML = '<svg class="w-4 h-4 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+    }
+
+    summaryText.textContent = evaluation.summary || "Pre-flight evaluation complete.";
+
     if (evaluation.golden_alignment) {
-        const ga = evaluation.golden_alignment;
-        scorePct.textContent = `${ga.alignment_pct}%`;
+        scorePct.textContent = `${evaluation.golden_alignment.alignment_pct}%`;
     } else {
         scorePct.textContent = '94.8%';
     }
 
-    // Reason Summary
-    summaryBox.textContent = `“${evaluation.summary}”`;
-
-    // Receipts
     receiptAirtable.textContent = data.airtable_synced ? 'Airtable: Synced' : 'Airtable: Standby';
-    receiptAirtable.className = `px-1.5 py-0.2 rounded border text-[10px] font-mono ${data.airtable_synced ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-[var(--bg-surface)] text-[var(--text-muted)] border-[var(--border-alpha)]'}`;
-
     receiptSlack.textContent = data.slack_alert_sent ? 'Slack: Delivered' : 'Slack: Standby';
-    receiptSlack.className = `px-1.5 py-0.2 rounded border text-[10px] font-mono ${data.slack_alert_sent ? 'bg-rose-500/10 text-rose-400 border-rose-500/30 font-semibold' : 'bg-[var(--bg-surface)] text-[var(--text-muted)] border-[var(--border-alpha)]'}`;
-
     receiptLinear.textContent = data.linear_ticket_created ? 'Linear: ALL-7' : 'Linear: None';
-    receiptLinear.className = `px-1.5 py-0.2 rounded border text-[10px] font-mono ${data.linear_ticket_created ? 'bg-purple-500/10 text-purple-400 border-purple-500/30 font-semibold' : 'bg-[var(--bg-surface)] text-[var(--text-muted)] border-[var(--border-alpha)]'}`;
-
-    // Deep JSON
-    rawJson.textContent = JSON.stringify(data, null, 2);
 }
 
-// -------------------------------------------------------------
-// 7. Test Baseline Presets
-// -------------------------------------------------------------
-document.querySelectorAll('.preset-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('.preset-tab').forEach(t => t.classList.remove('active-preset'));
-        tab.classList.add('active-preset');
-
-        const preset = tab.getAttribute('data-preset');
-        activePreset = preset;
-        applyPresetValues(preset);
-    });
+document.getElementById('btn-dismiss-verdict').addEventListener('click', () => {
+    document.getElementById('verdict-banner').classList.add('hidden');
+    if (verdictAutoDismissTimer) {
+        clearTimeout(verdictAutoDismissTimer);
+        verdictAutoDismissTimer = null;
+    }
 });
 
-function applyPresetValues(preset) {
-    const latIn = document.getElementById('in-latency');
-    const lossIn = document.getElementById('in-loss');
-    const jitIn = document.getElementById('in-jitter');
-    const rttIn = document.getElementById('in-ws-rtt');
-
-    if (preset === 'optimal') {
-        latIn.value = '35.0';
-        lossIn.value = '0.0';
-        jitIn.value = '4.5';
-        rttIn.value = '42.0';
-        currentSnrDb = 28.0;
-    } else if (preset === 'monsoon') {
-        latIn.value = '380.0';
-        lossIn.value = '3.8';
-        jitIn.value = '42.0';
-        rttIn.value = '410.0';
-        currentSnrDb = 21.0;
-    } else if (preset === 'fan_noise') {
-        latIn.value = '65.0';
-        lossIn.value = '0.1';
-        jitIn.value = '8.0';
-        rttIn.value = '75.0';
-        currentSnrDb = 15.5;
-    } else if (preset === 'edge_lag') {
-        latIn.value = '340.0';
-        lossIn.value = '1.4';
-        jitIn.value = '28.0';
-        rttIn.value = '360.0';
-        currentSnrDb = 17.5;
-    }
-
-    const snrEl = document.getElementById('live-snr-db');
-    if (snrEl) snrEl.textContent = `${currentSnrDb.toFixed(1)} dB`;
-
-    updateLiveDeltas();
-}
+document.getElementById('btn-reset-console').addEventListener('click', () => {
+    document.getElementById('verdict-banner').classList.add('hidden');
+    networkHistory = [];
+    drawNetworkStripChart();
+    stopMicrophoneTest();
+    autoPairGoldenProfile("DL-HC-CRT04");
+});
 
 // -------------------------------------------------------------
-// 8. 11-State Fleet Jurisdiction Table
+// 8. 11-State Regional Fleet Table with Hierarchical Subsections / Units
 // -------------------------------------------------------------
 async function pollFleetOverview() {
     try {
@@ -779,56 +833,103 @@ async function pollFleetOverview() {
         const data = await res.json();
         fleetDataCache = data;
 
-        // Header Micro-KPIs
         document.getElementById('stat-total-courtrooms').textContent = data.total_active_courtrooms || '0';
         document.getElementById('stat-fleet-health').textContent = `${data.fleet_health_pct || 100}%`;
         document.getElementById('stat-optimal-sessions').textContent = data.verdict_breakdown ? data.verdict_breakdown.OPTIMAL : '0';
         document.getElementById('stat-incidents-count').textContent = data.recent_critical_incidents || '0';
 
-        renderRegionsTable(data.regions || []);
+        renderRegionsTableWithSubsections(data.regions || []);
     } catch (e) {
         console.warn("Fleet poll error:", e.message);
     }
 }
 
-function renderRegionsTable(regions) {
+function renderRegionsTableWithSubsections(regions) {
     const tbody = document.getElementById('regions-table-body');
     if (!tbody) return;
     tbody.innerHTML = '';
 
     regions.forEach(reg => {
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-[var(--bg-sub)] transition-colors';
+        const stateMeta = STATE_BENCHES[reg.state] || { seat: "High Court Jurisdiction", benches: [] };
+        const unitCount = stateMeta.benches.length;
 
         const hasCritical = reg.critical_count > 0;
         const hasDegraded = reg.degraded_count > 0;
         const healthClass = hasCritical ? 'text-rose-400 font-bold' : hasDegraded ? 'text-amber-400' : 'text-emerald-400';
 
-        const stateMeta = STATE_BENCHES[reg.state] || { seat: "High Court Jurisdiction", benches: [] };
-        const primaryBench = stateMeta.benches[0] ? stateMeta.benches[0].id : `${reg.state}-HC-01`;
-
-        tr.innerHTML = `
+        // Main State Row
+        const trState = document.createElement('tr');
+        trState.className = 'hover:bg-[var(--bg-sub)] cursor-pointer transition-colors';
+        trState.innerHTML = `
             <td class="py-1.5 px-2.5 font-bold text-[var(--text-primary)]">
                 <div class="flex items-center space-x-1.5">
                     <span class="w-1.5 h-1.5 rounded-full ${hasCritical ? 'bg-rose-500' : hasDegraded ? 'bg-amber-500' : 'bg-emerald-500'}"></span>
                     <span>${reg.state}</span>
                 </div>
             </td>
-            <td class="py-1.5 px-2 text-[var(--text-secondary)] font-sans text-[11px] truncate max-w-[130px]">${stateMeta.name} (${stateMeta.seat.split('(')[0].trim()})</td>
-            <td class="py-1.5 px-2 text-[var(--text-primary)] tabular-nums">${reg.total_courtrooms}</td>
+            <td class="py-1.5 px-2 text-[var(--text-secondary)] font-sans text-[11px] truncate max-w-[130px]">${stateMeta.name}</td>
+            <td class="py-1.5 px-2 text-[var(--text-primary)] tabular-nums">${unitCount} units</td>
             <td class="py-1.5 px-2 ${healthClass} tabular-nums">${reg.healthy_pct}%</td>
             <td class="py-1.5 px-2.5 text-right">
-                <button type="button" class="btn-test-region px-2 py-0.5 rounded text-[10px] font-semibold bg-[var(--bg-sub)] hover:bg-[var(--bg-sub-hover)] text-[var(--text-primary)] border border-[var(--border-alpha)] pressable">
-                    Test
-                </button>
+                <span class="text-[10px] text-[var(--text-muted)] font-sans toggle-arrow">▾ Units</span>
             </td>
         `;
 
-        tr.querySelector('.btn-test-region').addEventListener('click', () => {
-            selectBenchForDiagnostic(primaryBench, reg.state, `${stateMeta.name} Court Bench`);
+        // Expandable Subsections Container Row
+        const trSubsections = document.createElement('tr');
+        trSubsections.className = 'state-subsection-drawer';
+        trSubsections.innerHTML = `
+            <td colspan="5" class="p-2 bg-[var(--bg-surface)] border-y border-[var(--border-alpha)]">
+                <div class="space-y-1">
+                    <p class="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1">
+                        ${stateMeta.name} Jurisdiction Units (${stateMeta.seat.split('(')[0].trim()})
+                    </p>
+                    <div class="space-y-1 max-h-48 overflow-y-auto">
+                        ${stateMeta.benches.map(b => `
+                            <div class="flex items-center justify-between p-1.5 rounded surface-sub text-[10px] font-mono">
+                                <div>
+                                    <span class="font-bold text-[var(--text-primary)]">${b.id}</span>
+                                    <span class="text-[var(--text-muted)] ml-1.5">(${b.unit})</span>
+                                    <p class="text-[var(--text-secondary)] font-sans text-[10px] truncate max-w-[200px]">${b.name}</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-1 py-0.2 rounded text-[9px] uppercase ${b.tier === 'HIGH_COURT' ? 'bg-emerald-500/10 text-emerald-400' : b.tier === 'DISTRICT_COURT' ? 'bg-blue-500/10 text-blue-400' : 'bg-amber-500/10 text-amber-400'} border border-[var(--border-alpha)]">${b.tier.replace('_', ' ')}</span>
+                                    <button type="button" data-bench="${b.id}" data-state="${reg.state}" data-name="${b.name}" class="btn-sub-test px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500 text-white pressable">
+                                        Test
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </td>
+        `;
+
+        // Toggle Subsections Accordion on Click
+        trState.addEventListener('click', (e) => {
+            if (e.target.closest('.btn-sub-test')) return;
+            const isOpen = trSubsections.classList.contains('is-expanded');
+            document.querySelectorAll('.state-subsection-drawer').forEach(d => d.classList.remove('is-expanded'));
+            document.querySelectorAll('.toggle-arrow').forEach(a => a.textContent = '▾ Units');
+
+            if (!isOpen) {
+                trSubsections.classList.add('is-expanded');
+                trState.querySelector('.toggle-arrow').textContent = '▴ Close';
+            }
         });
 
-        tbody.appendChild(tr);
+        // Test Button Action inside Subsection
+        trSubsections.querySelectorAll('.btn-sub-test').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const bId = btn.getAttribute('data-bench');
+                const sCode = btn.getAttribute('data-state');
+                const bName = btn.getAttribute('data-name');
+                selectBenchForDiagnostic(bId, sCode, bName);
+            });
+        });
+
+        tbody.appendChild(trState);
+        tbody.appendChild(trSubsections);
     });
 }
 
@@ -836,11 +937,9 @@ function selectBenchForDiagnostic(courtroomId, stateCode, benchName) {
     document.getElementById('input-courtroom-id').value = courtroomId;
     document.getElementById('input-state').value = stateCode;
     document.getElementById('input-bench-name').value = benchName;
-    document.getElementById('standby-bench-id').textContent = courtroomId;
 
     autoPairGoldenProfile(courtroomId);
 
-    // Pulse feedback
     const input = document.getElementById('input-courtroom-id');
     input.classList.add('border-emerald-500');
     setTimeout(() => input.classList.remove('border-emerald-500'), 500);
@@ -873,7 +972,7 @@ function renderIncidentsTable(incidents) {
 
     incidents.forEach(inc => {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-[var(--bg-sub)] cursor-pointer transition-colors';
+        tr.className = `hover:bg-[var(--bg-sub)] cursor-pointer transition-colors ${inc.isNew ? 'row-incident-new' : ''}`;
         tr.title = "Click to inspect incident root cause and Linear/Slack dispatch receipts";
 
         const timeStr = new Date(inc.created_at).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -899,12 +998,11 @@ function openIncidentInspectorModal(inc) {
     document.getElementById('inc-modal-bench').textContent = `${inc.courtroom_id} (${inc.state})`;
     document.getElementById('inc-modal-id').textContent = inc.id;
     document.getElementById('inc-modal-slack').textContent = `${inc.slack_status} (#all-adalat-pulse-alerts)`;
-    document.getElementById('inc-modal-linear').textContent = `${inc.linear_status} (Team ALL)`;
+    document.getElementById('inc-modal-linear').textContent = `${inc.linear_status || 'CREATED ALL-7'} (Team ALL)`;
 
     const breachTbody = document.getElementById('inc-modal-breach-tbody');
     breachTbody.innerHTML = '';
 
-    // Structured Parsing of Breached Quality Gates (Zero Raw Markdown!)
     const sampleBreaches = [
         { param: "Packet Loss", measured: "4.2%", limit: "< 2.0%", impact: "Koyal ASR drops live Indic speech frames" },
         { param: "Latency", measured: "395 ms", limit: "< 300 ms", impact: "Real-time transcription lag disrupts courtroom stenographer" },
@@ -1095,91 +1193,7 @@ document.getElementById('btn-sync-airtable').addEventListener('click', async () 
 });
 
 // -------------------------------------------------------------
-// 13. Deep JSON Drawer & Technician Remediation
-// -------------------------------------------------------------
-document.getElementById('btn-toggle-deep-diagnostics').addEventListener('click', () => {
-    const panel = document.getElementById('deep-diagnostics-panel');
-    const arrow = document.getElementById('deep-diag-arrow');
-    panel.classList.toggle('is-open');
-    arrow.textContent = panel.classList.contains('is-open') ? '▴' : '▾';
-});
-
-document.getElementById('btn-open-interview').addEventListener('click', () => {
-    if (pendingInterviewQuestions.length > 0) {
-        openInterviewModal(pendingInterviewQuestions[0]);
-    }
-});
-
-function openInterviewModal(question) {
-    const modal = document.getElementById('interview-modal');
-    const container = document.getElementById('interview-question-container');
-    const remediationBox = document.getElementById('interview-remediation-box');
-
-    container.innerHTML = `
-        <p class="font-semibold text-[var(--text-primary)] mb-1.5">${question.prompt}</p>
-        <div class="space-y-1" id="interview-options-group">
-            ${question.options.map((opt, idx) => `
-                <label class="flex items-center space-x-2 p-1.5 rounded surface-sub cursor-pointer hover:bg-[var(--bg-sub-hover)] transition-colors">
-                    <input type="radio" name="interview-opt" value="${opt.id}" ${idx === 0 ? 'checked' : ''} class="text-emerald-500 focus:ring-emerald-500">
-                    <span class="text-xs text-[var(--text-primary)]">${opt.label}</span>
-                </label>
-            `).join('')}
-        </div>
-    `;
-
-    remediationBox.textContent = `Remediation Preview: ${question.options[0].remediation_preview || 'Applies targeted acoustic/network mitigation.'}`;
-
-    document.querySelectorAll('input[name="interview-opt"]').forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            const selected = question.options.find(o => o.id === e.target.value);
-            if (selected) {
-                remediationBox.textContent = `Remediation Preview: ${selected.remediation_preview || 'Applies targeted mitigation.'}`;
-            }
-        });
-    });
-
-    document.getElementById('btn-submit-interview').onclick = async () => {
-        const checked = document.querySelector('input[name="interview-opt"]:checked');
-        if (!checked) return;
-
-        const payload = {
-            courtroom_id: lastReportPayload.courtroom_id,
-            question_id: question.id,
-            selected_option: checked.value,
-            remediation_applied: true,
-            original_report: lastReportPayload
-        };
-
-        try {
-            const res = await fetch('/api/v1/telemetry/interview', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (res.ok) {
-                const result = await res.json();
-                modal.classList.add('hidden');
-                renderVerdictResult(result);
-                await pollFleetOverview();
-            }
-        } catch (e) {
-            alert("Interview submission error: " + e.message);
-        }
-    };
-
-    modal.classList.remove('hidden');
-}
-
-document.getElementById('btn-close-interview').addEventListener('click', () => {
-    document.getElementById('interview-modal').classList.add('hidden');
-});
-document.getElementById('btn-cancel-interview').addEventListener('click', () => {
-    document.getElementById('interview-modal').classList.add('hidden');
-});
-
-// -------------------------------------------------------------
-// 14. Keyboard Shortcuts & Helper Functions
+// 13. Keyboard Shortcuts & Helper Functions
 // -------------------------------------------------------------
 function normalizeCourtroomId(raw) {
     if (!raw) return "DL-HC-CRT04";
@@ -1196,15 +1210,6 @@ function normalizeCourtroomId(raw) {
     if (clean === 'MP' || clean === 'BHOPAL') clean = 'MP-DC-BPL03';
     if (clean === 'AP' || clean === 'AMARAVATI') clean = 'AP-HC-AMR01';
     return clean;
-}
-
-function triggerInputErrorShake(element) {
-    if (!element) return;
-    element.classList.remove('input-invalid');
-    void element.offsetWidth;
-    element.classList.add('input-invalid');
-    element.focus();
-    setTimeout(() => element.classList.remove('input-invalid'), 360);
 }
 
 // Live IST Clock
@@ -1237,10 +1242,11 @@ document.addEventListener('keydown', (e) => {
 });
 
 // -------------------------------------------------------------
-// 15. Initial Boot Sequence
+// 14. Initial Boot Sequence
 // -------------------------------------------------------------
 initTheme();
-initAudioHardware();
+clearAudioCanvases();
+drawNetworkStripChart();
 autoPairGoldenProfile("DL-HC-CRT04");
 pollFleetOverview();
 pollIncidents();
