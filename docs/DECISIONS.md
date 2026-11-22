@@ -99,5 +99,35 @@
 * **Rejected Alternative:** Retaining system emojis or basic Bootstrap-style flat styling. Rejected because consumer-grade visual artifacts fail the enterprise quality bar expected by CTOs and senior state judicial coordinators.
 * **When to Reconsider:** Never. Institutional mission-critical infrastructure must maintain strict visual and ergonomic integrity.
 
+---
+
+## ADR-008: 20-Principle Motion & Cognitive Psychology Architecture
+* **Date:** November 2026
+* **Decision:** Implement the 12 Classic Disney Animation Principles adapted for UI motion and the 8 Foundational Laws of UX and Cognitive Psychology across `src/static/index.html` and `src/static/app.js`:
+  1. *Squash & Stretch:* Elastic compression (`scale(0.97, 0.94)`) on button press and meter surges.
+  2. *Anticipation Wind-Up:* 70ms inward depression priming the eye before diagnostic execution.
+  3. *Staging the Focus:* Peripheral dimming (`staged-dimmed`) and critical spotlight vignetting directing immediate attention to single urgent points.
+  4. *Pose to Pose:* Predefined immutable CSS machine states (`pose-idle`, `pose-probing`, `pose-verdict`) guaranteeing glitch-free interpolation.
+  5. *Follow Through & Overlapping Action:* Staggered cascade of progress, badge drop-in (+70ms), and golden score glide (+120ms).
+  6. *Slow In & Slow Out:* Replacement of linear motion with custom cubic-beziers (`cubic-bezier(0.16, 1, 0.3, 1)` and `cubic-bezier(0.34, 1.56, 0.64, 1)`).
+  7. *Moving in Arcs:* Curved parabolic trajectories for modal expansion and fleet card flight.
+  8. *Secondary Action:* Specular border-beam sweeps and live SNR counter rollup reinforcing primary actions.
+  9. *Snappy Timing:* Strict duration budgets (hover: 100ms, modal: 220ms, overall budget <280ms).
+  10. *Exaggerated Feedback:* Crimson shockwave pulses and KPI counter scale-pops on critical breaches.
+  11. *Solid Drawing in 3D:* Consistent 90° top specular highlights, chiseled inset wells, and 3D tactile button lips.
+  12. *Overall Appeal:* Unified 4px rhythm grid and tokenized border radiuses.
+  13. *Fitts’s Law:* Primary trigger positioned directly below inputs spanning full console width.
+  14. *Bigger Hit Areas:* 44px × 44px invisible touch extensions (`::before`) on close buttons and combobox triggers.
+  15. *Hick’s Law:* Smart state defaults and 1-question guided interviews minimizing decision fatigue.
+  16. *Miller’s Law:* Telemetry chunked into 3 distinct perceptual clusters (Identity, Transport, Acoustics).
+  17. *Doherty Threshold:* Sub-50ms click responses and sub-100ms optimistic remediation updates.
+  18. *Postel’s Law:* Liberal input parsing accepting messy shorthand and stripping units, conservative Pydantic output.
+  19. *Jakob’s Law:* Standard shortcuts (`Enter` to run, `Esc` to close) and universal color conventions.
+  20. *Frequency of Use:* Instantaneous 0ms execution for high-frequency clicks; rich choreography reserved for milestones.
+* **Why:** In high-stress courtroom environments with sitting judges and real-time transcription, ergonomic predictability and human cognitive limits dictate operational success.
+* **Rejected Alternative:** Static lifeless UI or arbitrary decorative animations. Rejected because unprincipled animations cause motion sickness, fatigue, and input latency.
+* **When to Reconsider:** Never. Universal cognitive and physical laws remain constant across computing platforms.
+
+
 
 

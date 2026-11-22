@@ -42,6 +42,11 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
 
+            /* 6. Standard Custom Easing Curves */
+            --ease-snappy: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-accelerate: cubic-bezier(0.7, 0, 0.84, 0);
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
             /* Perceptually uniform OKLCH Palette */
             --ok-optimal: oklch(0.68 0.18 152);
             --ok-degraded: oklch(0.76 0.16 78);
@@ -54,23 +59,129 @@
             color: #E2E8F0;
         }
 
-        /* Obsidian Glass Panels with Specular 1px Top Highlight */
+        /* 11. Solid Drawing in 3D: Obsidian Glass Panels with Specular 1px Top Highlight */
         .obsidian-panel {
-            background: linear-gradient(180deg, rgba(17, 20, 28, 0.75) 0%, rgba(11, 13, 19, 0.85) 100%);
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: linear-gradient(180deg, rgba(17, 20, 28, 0.78) 0%, rgba(11, 13, 19, 0.88) 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.10);
             border-left: 1px solid rgba(255, 255, 255, 0.04);
             border-right: 1px solid rgba(255, 255, 255, 0.04);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.6);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.65);
             box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02), 0 4px 20px -2px rgba(0, 0, 0, 0.6), 0 12px 32px -4px rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(16px);
         }
 
         .obsidian-subpanel {
-            background: rgba(8, 10, 15, 0.65);
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            border-left: 1px solid rgba(255, 255, 255, 0.025);
-            border-right: 1px solid rgba(255, 255, 255, 0.025);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+            background: rgba(8, 10, 15, 0.7);
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            border-left: 1px solid rgba(255, 255, 255, 0.03);
+            border-right: 1px solid rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+        }
+
+        /* 11. Solid Drawing in 3D: Inset Chiseled Input Wells */
+        .input-inset-3d {
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        /* 1. Squash & Stretch for Buttons & Interactive Gauges */
+        .pressable-squash {
+            transition: transform 90ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 90ms ease, border-color 90ms ease;
+            touch-action: manipulation;
+        }
+        .pressable-squash:active {
+            transform: scale(0.97, 0.94) translateY(1px);
+        }
+
+        /* 2. Anticipation Wind-Up Keyframes */
+        @keyframes anticipationDip {
+            0% { transform: scale(1) translateY(0); }
+            40% { transform: scale(0.98, 0.96) translateY(2px); filter: brightness(0.92); }
+            100% { transform: scale(1) translateY(0); filter: brightness(1); }
+        }
+        .windup-active {
+            animation: anticipationDip 90ms cubic-bezier(0.7, 0, 0.84, 0) forwards;
+        }
+
+        /* 3. Staging the Focus: Dimming Non-Essential Regions */
+        .staged-dimmed {
+            opacity: 0.32 !important;
+            filter: blur(0.5px) grayscale(25%);
+            pointer-events: none;
+            transition: all 260ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* 10. Exaggerated Feedback: Critical Breach Spotlight */
+        .critical-spotlight {
+            box-shadow: 0 0 60px -5px rgba(244, 63, 94, 0.35), 0 0 0 1px rgba(244, 63, 94, 0.5) !important;
+            animation: pulseSpotlight 2s infinite ease-in-out;
+        }
+        @keyframes pulseSpotlight {
+            0%, 100% { box-shadow: 0 0 50px -10px rgba(244, 63, 94, 0.25), 0 0 0 1px rgba(244, 63, 94, 0.35); }
+            50% { box-shadow: 0 0 75px -5px rgba(244, 63, 94, 0.5), 0 0 0 1px rgba(244, 63, 94, 0.65); }
+        }
+
+        /* 10. Exaggerated Feedback: Counter Pop */
+        @keyframes counterPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.24); color: #FDA4AF; }
+            100% { transform: scale(1); }
+        }
+        .counter-popped {
+            animation: counterPop 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* 8. Secondary Action: Specular Border Beam Sweep */
+        @keyframes borderBeamSweep {
+            0% { background-position: -200% 0; opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { background-position: 300% 0; opacity: 0; }
+        }
+        .border-beam-active {
+            position: relative;
+        }
+        .border-beam-active::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, #10B981 50%, #34D399 75%, transparent 100%);
+            background-size: 50% 100%;
+            animation: borderBeamSweep 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            pointer-events: none;
+        }
+
+        /* 14. Bigger Hit Areas (Invisible Hitbox Extension) */
+        .hit-area-expand {
+            position: relative;
+        }
+        .hit-area-expand::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            bottom: -8px;
+            left: -8px;
+            right: -8px;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        /* 13. Fitts's Law: Primary Action Button with 3D Tactile Lip */
+        .btn-primary-3d {
+            background: linear-gradient(180deg, #10B981 0%, #059669 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 3px 0 #047857, 0 8px 18px rgba(16, 185, 129, 0.25);
+            transition: transform 90ms ease, box-shadow 90ms ease, filter 90ms ease;
+        }
+        .btn-primary-3d:hover {
+            background: linear-gradient(180deg, #34D399 0%, #059669 100%);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 3px 0 #047857, 0 10px 24px rgba(16, 185, 129, 0.35);
+        }
+        .btn-primary-3d:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset, 0 1px 0 #047857, 0 2px 6px rgba(0, 0, 0, 0.4);
         }
 
         /* Tabular Mono for Numbers */
@@ -93,34 +204,14 @@
             animation: shimmer 1.5s infinite;
         }
 
-        /* Tactile Press State */
-        .pressable {
-            transition: transform 100ms ease, box-shadow 100ms ease, border-color 100ms ease;
-            touch-action: manipulation;
-        }
-        .pressable:active {
-            transform: scale(0.985) translateY(1px);
-        }
-
-        /* Primary Action Button Refined Glow */
-        .btn-primary-glow {
-            background: linear-gradient(180deg, #10B981 0%, #059669 100%);
-            border-top: 1px solid rgba(255, 255, 255, 0.28);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 0 16px rgba(16, 185, 129, 0.22);
-        }
-        .btn-primary-glow:hover {
-            background: linear-gradient(180deg, #34D399 0%, #059669 100%);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 0 22px rgba(16, 185, 129, 0.35);
-        }
-
         /* Staggered Items Animation */
         @keyframes fadeSlideUp {
             from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .stagger-item {
-            animation: fadeSlideUp 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
-            animation-delay: calc(var(--stagger-index, 0) * 30ms);
+            animation: fadeSlideUp 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+            animation-delay: calc(var(--stagger-index, 0) * 25ms);
         }
 
         /* Safe Area Padding */
@@ -138,7 +229,7 @@
 
         /* View Transitions */
         ::view-transition-old(root), ::view-transition-new(root) {
-            animation-duration: 200ms;
+            animation-duration: 180ms;
             animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
         }
     </style>
@@ -181,8 +272,8 @@
                     <span id="live-ist-clock" class="font-mono text-slate-300 tabular-nums text-[11px]">--:--:-- IST</span>
                 </div>
 
-                <!-- Sync Airtable Button with Vector Icon -->
-                <button id="btn-sync-airtable" class="min-h-[36px] px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] transition-all flex items-center space-x-2 pressable focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-400">
+                <!-- 14. Bigger Hit Areas: Sync Airtable Button with Vector Icon -->
+                <button id="btn-sync-airtable" class="hit-area-expand min-h-[36px] px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] transition-all flex items-center space-x-2 pressable-squash focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-400">
                     <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
                         <path d="M3 3v5h5"/>
@@ -198,7 +289,7 @@
     <!-- Main Mission Control Shell -->
     <main class="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5">
 
-        <!-- KPI Metric Strip (High Density, 4 Compact Cards with SVG Vectors) -->
+        <!-- 16. Miller's Law: 4 Compact Chunked KPI Cards -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
             <!-- Metric 1: Courtrooms -->
             <div class="obsidian-panel rounded-xl p-3.5 flex items-center justify-between">
@@ -248,7 +339,7 @@
                 </div>
             </div>
 
-            <!-- Metric 4: Incident Feed -->
+            <!-- Metric 4: Incident Feed (with Exaggerated Feedback pop) -->
             <div class="obsidian-panel rounded-xl p-3.5 flex items-center justify-between">
                 <div>
                     <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Incidents Handled</p>
@@ -269,8 +360,8 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
             <!-- LEFT PANE: Pre-Flight Diagnostic Command Center (7 cols) -->
-            <div class="lg:col-span-7 space-y-4">
-                <div class="obsidian-panel rounded-xl p-5 space-y-4">
+            <div id="left-pane" class="lg:col-span-7 space-y-4">
+                <div id="diagnostic-console" class="obsidian-panel rounded-xl p-5 space-y-4">
                     
                     <!-- Console Header & Operational Guarantee Integration -->
                     <div class="flex items-center justify-between border-b border-white/[0.06] pb-3.5">
@@ -289,14 +380,14 @@
                         </span>
                     </div>
 
-                    <!-- Row 1: Bench Selection & Level 4 Golden Profile Target -->
+                    <!-- 16. Miller's Law Chunk 1: Courtroom Identity & Golden Benchmark -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <!-- Courtroom Combobox / Search -->
                         <div class="relative space-y-1">
                             <label class="block text-[11px] font-medium uppercase tracking-wider text-slate-400">Courtroom Bench</label>
                             <div class="relative">
-                                <input id="input-courtroom-id" type="text" value="DL-HC-CRT04" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="courtroom-combo-list" class="w-full h-9 bg-black/40 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/80 font-mono tracking-wide" placeholder="Type bench or ID...">
-                                <button id="btn-combo-toggle" type="button" aria-label="Toggle list" class="absolute right-2 top-2 h-5 w-5 flex items-center justify-center text-slate-400 hover:text-white">
+                                <input id="input-courtroom-id" type="text" value="DL-HC-CRT04" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="courtroom-combo-list" class="w-full h-9 bg-black/40 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/80 font-mono tracking-wide input-inset-3d" placeholder="Type bench or ID...">
+                                <button id="btn-combo-toggle" type="button" aria-label="Toggle list" class="hit-area-expand absolute right-2 top-2 h-5 w-5 flex items-center justify-center text-slate-400 hover:text-white">
                                     <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                                 </button>
                             </div>
@@ -315,7 +406,7 @@
                                 </label>
                                 <span id="golden-align-tag" class="text-[10px] font-mono text-emerald-400 tabular-nums">100% Target</span>
                             </div>
-                            <select id="select-golden-profile" class="w-full h-9 bg-black/40 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-purple-500/80 font-sans">
+                            <select id="select-golden-profile" class="w-full h-9 bg-black/40 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-purple-500/80 font-sans input-inset-3d">
                                 <option value="GOLDEN-HC-FIBER" selected>High Court Dedicated Leased Line (35ms, 0% Loss, 28 dB)</option>
                                 <option value="GOLDEN-DC-HYBRID">District Court Dual-ISP Hybrid (70ms, 0.2% Loss, 22 dB)</option>
                                 <option value="GOLDEN-TL-EDGE">Rural Taluka Edge 4G Dongle (110ms, 0.5% Loss, 18 dB)</option>
@@ -327,12 +418,12 @@
                     <input id="input-state" type="hidden" value="DL">
                     <input id="input-bench-name" type="hidden" value="Delhi High Court Bench 04 (Civil Division)">
 
-                    <!-- Row 2: Inset Unit Input Cluster (Network Telemetry) -->
+                    <!-- 16. Miller's Law Chunk 2: Inset Unit Input Cluster (Network Transport) -->
                     <div class="obsidian-subpanel rounded-xl p-3.5 space-y-3">
                         <div class="flex items-center justify-between">
                             <span class="text-[11px] font-semibold text-slate-300 uppercase tracking-wider flex items-center space-x-1.5">
                                 <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
-                                <span>Network Diagnostics (Koyal Quality Gates)</span>
+                                <span>Network Transport (Koyal Quality Gates)</span>
                             </span>
                             <span class="text-[10px] font-mono text-slate-500">WebSocket /ws/probe</span>
                         </div>
@@ -342,7 +433,7 @@
                             <div class="space-y-1">
                                 <label class="text-[10px] font-mono uppercase text-slate-400">Latency</label>
                                 <div class="relative flex items-center">
-                                    <input id="in-latency" type="number" step="0.1" value="42.0" class="w-full h-8 bg-black/50 border border-white/10 rounded-md pl-2.5 pr-8 text-xs text-white font-mono tabular-nums focus:outline-none focus:border-emerald-500">
+                                    <input id="in-latency" type="text" value="42.0" class="input-inset-3d w-full h-8 bg-black/50 border border-white/10 rounded-md pl-2.5 pr-8 text-xs text-white font-mono tabular-nums focus:outline-none focus:border-emerald-500">
                                     <span class="absolute right-2 text-[10px] font-mono text-slate-500">ms</span>
                                 </div>
                             </div>
@@ -350,7 +441,7 @@
                             <div class="space-y-1">
                                 <label class="text-[10px] font-mono uppercase text-slate-400">Packet Loss</label>
                                 <div class="relative flex items-center">
-                                    <input id="in-loss" type="number" step="0.1" value="0.1" class="w-full h-8 bg-black/50 border border-white/10 rounded-md pl-2.5 pr-7 text-xs text-white font-mono tabular-nums focus:outline-none focus:border-emerald-500">
+                                    <input id="in-loss" type="text" value="0.1" class="input-inset-3d w-full h-8 bg-black/50 border border-white/10 rounded-md pl-2.5 pr-7 text-xs text-white font-mono tabular-nums focus:outline-none focus:border-emerald-500">
                                     <span class="absolute right-2 text-[10px] font-mono text-slate-500">%</span>
                                 </div>
                             </div>
@@ -358,7 +449,7 @@
                             <div class="space-y-1">
                                 <label class="text-[10px] font-mono uppercase text-slate-400">Jitter</label>
                                 <div class="relative flex items-center">
-                                    <input id="in-jitter" type="number" step="0.1" value="5.2" class="w-full h-8 bg-black/50 border border-white/10 rounded-md pl-2.5 pr-8 text-xs text-white font-mono tabular-nums focus:outline-none focus:border-emerald-500">
+                                    <input id="in-jitter" type="text" value="5.2" class="input-inset-3d w-full h-8 bg-black/50 border border-white/10 rounded-md pl-2.5 pr-8 text-xs text-white font-mono tabular-nums focus:outline-none focus:border-emerald-500">
                                     <span class="absolute right-2 text-[10px] font-mono text-slate-500">ms</span>
                                 </div>
                             </div>
@@ -366,29 +457,29 @@
                             <div class="space-y-1">
                                 <label class="text-[10px] font-mono uppercase text-slate-400">WS Keepalive</label>
                                 <div class="relative flex items-center">
-                                    <input id="in-ws-rtt" type="number" step="0.1" value="55.0" class="w-full h-8 bg-black/50 border border-white/10 rounded-md pl-2.5 pr-8 text-xs text-white font-mono tabular-nums focus:outline-none focus:border-emerald-500">
+                                    <input id="in-ws-rtt" type="text" value="55.0" class="input-inset-3d w-full h-8 bg-black/50 border border-white/10 rounded-md pl-2.5 pr-8 text-xs text-white font-mono tabular-nums focus:outline-none focus:border-emerald-500">
                                     <span class="absolute right-2 text-[10px] font-mono text-slate-500">ms</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Row 3: Acoustic Noise Floor & Microphone FFT -->
+                    <!-- 16. Miller's Law Chunk 3: Acoustic Hardware & Noise Floor -->
                     <div class="obsidian-subpanel rounded-xl p-3.5 space-y-2.5">
                         <div class="flex items-center justify-between text-xs">
                             <div class="flex items-center space-x-1.5">
                                 <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
-                                <span class="font-semibold text-slate-300 uppercase tracking-wider text-[11px]">Hardware &amp; FFT Audio Sampling</span>
+                                <span class="font-semibold text-slate-300 uppercase tracking-wider text-[11px]">Acoustic Hardware &amp; FFT Sampling</span>
                             </div>
                             <span id="mic-status-label" class="font-mono text-[11px] text-slate-400 truncate max-w-[200px]">Default Audio Device</span>
                         </div>
 
                         <div class="grid grid-cols-2 gap-3 text-xs font-mono tabular-nums">
-                            <div class="bg-black/40 px-3 py-2 rounded-lg border border-white/[0.06] flex justify-between items-center">
+                            <div class="bg-black/40 px-3 py-2 rounded-lg border border-white/[0.06] flex justify-between items-center input-inset-3d">
                                 <span class="text-slate-400 text-[11px]">Sample Rate:</span>
                                 <span id="live-sample-rate" class="text-white font-semibold">48000 Hz</span>
                             </div>
-                            <div class="bg-black/40 px-3 py-2 rounded-lg border border-white/[0.06] flex justify-between items-center">
+                            <div class="bg-black/40 px-3 py-2 rounded-lg border border-white/[0.06] flex justify-between items-center input-inset-3d">
                                 <span class="text-slate-400 text-[11px]">Noise Floor (SNR):</span>
                                 <span id="live-snr-db" class="text-emerald-400 font-semibold">26.5 dB</span>
                             </div>
@@ -400,26 +491,26 @@
                         </div>
                     </div>
 
-                    <!-- Row 4: Professional Segmented Field Scenario Switcher (Replaces toy buttons) -->
+                    <!-- 15. Hick's Law: Segmented Field Simulation Switcher -->
                     <div class="space-y-1.5">
                         <label class="text-[11px] font-medium text-slate-400 uppercase tracking-wider block">Field Baseline Simulation QA</label>
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-black/40 p-1 rounded-lg border border-white/[0.06]">
-                            <button type="button" data-preset="optimal" class="preset-btn py-1.5 px-2 rounded-md text-xs font-medium text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all text-center pressable">
+                            <button type="button" data-preset="optimal" class="preset-btn py-1.5 px-2 rounded-md text-xs font-medium text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all text-center pressable-squash">
                                 Fiber Optimal
                             </button>
-                            <button type="button" data-preset="monsoon" class="preset-btn py-1.5 px-2 rounded-md text-xs font-medium text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all text-center pressable">
+                            <button type="button" data-preset="monsoon" class="preset-btn py-1.5 px-2 rounded-md text-xs font-medium text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all text-center pressable-squash">
                                 Monsoon (3.8% Drop)
                             </button>
-                            <button type="button" data-preset="fan_noise" class="preset-btn py-1.5 px-2 rounded-md text-xs font-medium text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all text-center pressable">
+                            <button type="button" data-preset="fan_noise" class="preset-btn py-1.5 px-2 rounded-md text-xs font-medium text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all text-center pressable-squash">
                                 Fan Noise (15.5 dB)
                             </button>
-                            <button type="button" data-preset="edge_lag" class="preset-btn py-1.5 px-2 rounded-md text-xs font-medium text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all text-center pressable">
+                            <button type="button" data-preset="edge_lag" class="preset-btn py-1.5 px-2 rounded-md text-xs font-medium text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all text-center pressable-squash">
                                 4G Lag (340ms)
                             </button>
                         </div>
                     </div>
 
-                    <!-- Primary Action Trigger & Progress Bar -->
+                    <!-- 13. Fitts's Law & 1. Squash & Stretch: Primary Action Trigger -->
                     <div class="pt-1">
                         <!-- Progress state during 5s diagnostic -->
                         <div id="progress-container" class="hidden mb-3 space-y-1.5">
@@ -432,15 +523,15 @@
                             </div>
                         </div>
 
-                        <!-- Refined Action Trigger -->
-                        <button id="btn-run-diagnostic" class="w-full h-11 rounded-lg font-semibold text-xs text-white btn-primary-glow transition-all flex items-center justify-center space-x-2 pressable focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
+                        <!-- 13. Fitts's Law Full-Span Trigger with 3D Lip & Keyboard Hint (Jakob's Law) -->
+                        <button id="btn-run-diagnostic" class="btn-primary-3d w-full h-11 rounded-lg font-semibold text-xs text-white flex items-center justify-center space-x-2 pressable-squash focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
                             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                             <span>Run 5-Second Pre-Flight Check</span>
-                            <span class="text-[10px] font-mono text-emerald-200/70 border border-emerald-400/30 px-1.5 py-0.5 rounded ml-2">↵ Enter</span>
+                            <span class="text-[10px] font-mono text-emerald-200/80 border border-emerald-400/30 px-1.5 py-0.5 rounded ml-2">↵ Enter</span>
                         </button>
                     </div>
 
-                    <!-- Results Section (Zero CLS with smooth expansion) -->
+                    <!-- 4. Pose to Pose Results Section (Zero CLS with smooth expansion) -->
                     <div id="verdict-container-slot" class="space-y-3">
                         <!-- Shimmer Skeleton -->
                         <div id="verdict-skeleton" class="hidden obsidian-subpanel rounded-xl p-4 space-y-3">
@@ -468,7 +559,7 @@
                                 </span>
                             </div>
 
-                            <!-- Golden Alignment Score Gauge -->
+                            <!-- 5. Follow Through: Golden Alignment Score Gauge -->
                             <div id="golden-alignment-widget" class="bg-black/40 p-3 rounded-lg border border-purple-500/20 space-y-1.5">
                                 <div class="flex justify-between items-center text-xs">
                                     <span class="font-medium text-purple-300 text-[11px] flex items-center space-x-1.5">
@@ -505,7 +596,7 @@
 
                             <!-- Level 3: Guided Technician Interview Trigger -->
                             <div id="interview-trigger-box" class="hidden pt-1">
-                                <button id="btn-open-interview" type="button" class="w-full h-9 px-3 rounded-lg text-xs font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30 hover:bg-amber-500/20 transition-all flex items-center justify-center space-x-2 pressable">
+                                <button id="btn-open-interview" type="button" class="w-full h-9 px-3 rounded-lg text-xs font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30 hover:bg-amber-500/20 transition-all flex items-center justify-center space-x-2 pressable-squash">
                                     <svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                                     <span>Resolve via Guided Technician Interview</span>
                                 </button>
@@ -531,7 +622,7 @@
             </div>
 
             <!-- RIGHT PANE: Operational Matrix & Incidents (5 cols) -->
-            <div class="lg:col-span-5 space-y-4">
+            <div id="right-pane" class="lg:col-span-5 space-y-4 transition-all duration-300">
 
                 <!-- 11-State Telemetry Matrix -->
                 <div class="obsidian-panel rounded-xl p-4 space-y-3">
@@ -583,7 +674,8 @@
                         <p class="text-[11px] text-slate-400">Level 3 Interactive Prompt Pyramid Dialogue</p>
                     </div>
                 </div>
-                <button id="btn-close-interview" class="min-h-[36px] min-w-[36px] flex items-center justify-center text-slate-400 hover:text-white rounded-lg hover:bg-white/[0.05] pressable" aria-label="Close">
+                <!-- 14. Bigger Hit Areas: Modal Close Button -->
+                <button id="btn-close-interview" class="hit-area-expand min-h-[36px] min-w-[36px] flex items-center justify-center text-slate-400 hover:text-white rounded-lg hover:bg-white/[0.05] pressable-squash" aria-label="Close">
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
@@ -597,10 +689,10 @@
             </div>
 
             <div class="flex justify-end space-x-2.5 pt-2">
-                <button id="btn-cancel-interview" type="button" class="min-h-[38px] px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 pressable">
+                <button id="btn-cancel-interview" type="button" class="min-h-[38px] px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 pressable-squash">
                     Cancel
                 </button>
-                <button id="btn-submit-interview" type="button" class="min-h-[38px] px-4 py-1.5 rounded-lg text-xs font-semibold text-white btn-primary-glow pressable">
+                <button id="btn-submit-interview" type="button" class="min-h-[38px] px-4 py-1.5 rounded-lg text-xs font-semibold text-white btn-primary-3d pressable-squash">
                     Apply Remediation &amp; Re-Evaluate
                 </button>
             </div>

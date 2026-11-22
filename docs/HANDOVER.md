@@ -30,6 +30,9 @@
   - *100% SVG Micro-Vectors:* Eradication of all system emojis in favor of crisp 14-16px monochrome inline SVGs.
   - *Balanced Viewport Layout:* High-density 2-pane command console with zero bottom void.
   - *Inset Unit Inputs & Segmented QA:* Integrated `[ 42.0 | ms ]` badges and segmented field simulation controls.
+- **20-Principle Motion & Cognitive Psychology Architecture:** Fully implemented (ADR-008):
+  - *12 Animation Principles:* Squash & stretch, anticipation wind-up (70ms), focus staging, follow-through cascades, custom slow-in/out cubic beziers, secondary border-beam sweeps, <300ms timing budgets, exaggerated breach shockwaves, and solid 3D specular depth.
+  - *8 Cognitive UX Laws:* Fitts's law trigger sizing, 44px+ hit areas (`::before`), Hick's law smart defaults, Miller's law 3-chunk telemetry grouping, Doherty sub-100ms optimistic handling, Postel's law lenient input normalization, Jakob's law keyboard conventions (`↵`/`Esc`), and frequency-of-use motion budgeting.
 - **Automated Verification:** 30 out of 30 unit and integration tests passing in `tests/` in 10.43s.
 - **Git Repository & Remote Push:** Public repository created and synced at `https://github.com/AllenFletcherAI/adalat-pulse`.
 - **Containerization:** Multi-stage production `Dockerfile` and `docker-compose.yml`.
