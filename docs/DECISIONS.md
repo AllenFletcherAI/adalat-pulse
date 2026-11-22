@@ -304,5 +304,28 @@
 * **Rejected Alternative:** Unlabeled canvases, raw editable inputs, and disconnected widget displays.
 * **When to Reconsider:** Never.
 
+---
+
+## ADR-018: Delight-Driven Primary CTA, Strict Chronological Hierarchy & WCAG Accessibility Overhaul
+* **Date:** November 2026
+* **Decision:** Implement senior-grade design engineering, delight choreography, and WCAG accessibility across Adalat Pulse:
+  1. *Primary CTA Delight & Victory Choreography:* Replaced the static button icon with a vector flight/send icon that loops continuously on hover (accelerating 45 degrees, fading out, resetting, and gliding home). Cross-faded button text on hover from `"Run 5-second pre-flight check"` to the victory-oriented `"Authorize Proceeding — All Systems Ready"`.
+  2. *Strict 5-Stage Order of Operations:* Re-architected the left diagnostic workstation into a chronological sequence:
+     - Stage 1: Bench & Profile Binding
+     - Stage 2: Physical Acoustic Hardware Certification
+     - Stage 3: Live Network Telemetry Stream (/ws/probe)
+     - Stage 4: ASR Quality Gate Calibration (Progressive Disclosure Accordion)
+     - Stage 5: Executive Go/No-Go Verification CTA & Clearance Banner
+  3. *Progressive Disclosure Accordion:* Enclosed the technical benchmark comparison matrix, delta readouts, and simulation overrides within a collapsible accordion with an instant 1-line glanceable summary (`4/4 GATES PASS`), preserving clean default screen space.
+  4. *Top-Nav Global Search Widget:* Replaced overbearing search fields with a compact search pill in the header displaying a lens icon, `"Search benches, states or diagnostics..."`, and a `<kbd>Cmd+K</kbd>` shortcut triggering the Quick Actions modal.
+  5. *Layout Collision Eradication:* Fixed the two-letter state code and name smash bug (`DLDelhi`, `RJRajasthan`, etc.) by widening column 1 in `.state-grid-row` to 42px and adding explicit cell padding. Separated `<kbd>Space</kbd>` into an independent, styled element. Removed arbitrary device label truncation.
+  6. *Light Theme WCAG AA Overhaul:* Replaced washed-out 400-level neon text with deep institutional tokens (`text-emerald-800`, `text-amber-800`, `text-rose-700`) and tinted badge containers, achieving contrast ratios exceeding 4.5:1. Configured audio visualizer canvases to dynamically render light slate backgrounds (`#F1F5F9`) in light theme.
+  7. *Adaptive Dynamic Telemetry Scaling:* Introduced smart zoom on the WebSocket strip-chart: normal low-latency connections (5ms - 35ms) scale to 100ms max height, producing responsive visible waveforms and jitter dynamics instead of a flat floor line; automatically expands to 400ms on latency spikes. Added threshold micro-labels (`< 200ms Limit`, `< 2.0% Critical`, `< 30ms Bound`, `< 250ms Timeout`).
+  8. *Readiness Stepper & Data Normalization:* Step 3 remains disabled and muted until Step 2 is certified. Displayed pending SNR while in standby. Deduplicated incident feed cache and standardized all timestamps to 24-hour IST (`HH:MM:SS IST`).
+* **Why:** In mission-critical judicial courtrooms, software must combine authoritative physical telemetry with ergonomic restraint, high-contrast accessibility, and delight engineering that commands user trust.
+* **Rejected Alternative:** Static non-interactive buttons, flat floor-line graphs, and low-contrast bleached palettes.
+* **When to Reconsider:** Never.
+
+
 
 

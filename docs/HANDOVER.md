@@ -8,6 +8,15 @@
 ---
 
 ## 1. What Is Done
+- **Delight-Driven Primary CTA, Strict Chronological Hierarchy & WCAG Accessibility (ADR-018):**
+  - **Flying Send Icon Loop Animation & Win Copy:** Primary action button features a looping paper plane animation on hover and cross-fades text to `"Authorize Proceeding — All Systems Ready"`.
+  - **Strict 5-Stage Operator Flow:** Re-architected diagnostic instruments into a chronological sequence (Stage 1: Bench & Profile Binding -> Stage 2: Acoustic Certification -> Stage 3: Live Network Telemetry -> Stage 4: Quality Gate Calibration -> Stage 5: Executive Clearance).
+  - **Progressive Disclosure Accordion:** Folded technical calibration meters and simulation overrides into an on-demand collapsible disclosure with a glanceable `4/4 GATES PASS` summary badge.
+  - **Top-Nav Search Widget:** Replaced heavy search inputs with a compact header search pill (`Cmd+K`) summoning the Quick Actions modal.
+  - **Layout Collision Fixes:** Fixed `DLDelhi`, `RJRajasthan`, etc. smashed text bug by widening column 1 to 42px and adding cell padding. Separated `<kbd>Space</kbd>` from `Start Mic Test`. Removed arbitrary audio hardware label truncation.
+  - **Light Theme WCAG AA Compliance:** Eradicated washed-out pastel text, applying deep institutional tones (`text-emerald-800`, `text-amber-800`, `text-rose-700`) with contrast exceeding 4.5:1. Visualizer canvases now render dynamic light slate backgrounds (`#F1F5F9`) in light mode.
+  - **Adaptive Telemetry Scaling:** WebSocket strip-chart dynamically auto-scales (0-100ms for healthy low-latency lines to reveal visible waves, auto-expanding to 400ms on spikes). Added threshold micro-labels (`< 200ms Limit`, `< 2.0% Critical`, `< 30ms Bound`, `< 250ms Timeout`).
+  - **Stepper & Data Normalization:** Step 3 disabled until microphone calibration is certified. Standardized timestamps to 24-hour IST (`HH:MM:SS IST`) and deduplicated incident seed records.
 - **Comprehensive Alignment with 20 Psychological and UX Laws (ADR-017):**
   - **Aesthetic-Usability Effect:** Eliminated canvas text slicing, structured the 11-state table with strict CSS grid, and eradicated empty black voids with live telemetry and dispatch health monitors.
   - **Law of Proximity:** Formatted button labels and `<kbd>` shortcuts with clear gap spacing (`Start Mic Test` cleanly separated from `Space`).
