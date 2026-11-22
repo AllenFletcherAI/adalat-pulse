@@ -50,3 +50,38 @@
 * **Rejected Alternative:** Rigid binary cutoff alerts or automated hard drops without operator remediation. Rejected because cancelling live hearings over minor remediable noise (e.g. an oscillating fan) damages court schedules.
 * **When to Reconsider:** If autonomous edge acoustic filtering hardware is deployed at 100% of physical courtrooms, eliminating environmental variance.
 
+---
+
+## ADR-006: 20-Point Ergonomic Design System (Typographic, Motion, and Perceptual OKLCH Standards)
+* **Date:** November 2026
+* **Decision:** Enforce a comprehensive 20-point ergonomic design system across the operational frontend (`src/static/index.html` and `src/static/app.js`):
+  1. *Typography & Spatial Hierarchy:*
+     - **Kerning:** Explicit `font-feature-settings: "kern" 1, "liga" 1; text-rendering: optimizeLegibility;` on courtroom identifiers and headers.
+     - **Tracking:** Loose tracking on uppercase micro-labels (`tracking-wider`); snug tracking on display headings (`tracking-tight`).
+     - **Leading:** Contextual line-height (`leading-relaxed` on legal outcome prose; `leading-tight` on verdict titles).
+     - **X-Height:** Inter font stack prioritizing tall lowercase x-height for readability on legacy 720p courtroom monitors.
+     - **Line Length:** Optimal reading measure constrained to 55–65 characters (`max-w-[65ch]`).
+     - **Widow Control:** CSS `text-wrap: balance` on headings, `text-wrap: pretty` on paragraphs, and non-breaking spaces (`&nbsp;`) before final words.
+  2. *Geometry & Viewport Bounds:*
+     - **Optical Center:** Vertically offsetting modals to 38% from the top (`optical-center-modal`) rather than mathematical 50%.
+     - **Zero Cumulative Layout Shift (CLS):** Pre-allocated minimum height (`min-h-[320px]`) with shimmer skeleton loader during probing.
+     - **Safe Area Insets:** CSS `env(safe-area-inset-*)` padding for edge tablets and ruggedized courtroom kiosks.
+     - **Touch Targets:** Minimum 44px × 44px interactive hitboxes meeting WCAG 2.2 AA standards.
+  3. *Color Physics & Numerical Integrity:*
+     - **OKLCH Color Space:** Perceptually uniform status colors (`--ok-optimal`, `--ok-degraded`, `--ok-critical`, `--ok-golden`) ensuring equal perceived luminance in high-contrast dark mode.
+     - **Tabular Numbers:** `font-variant-numeric: tabular-nums;` on all clocks, latency, loss, SNR, and golden scores to stop horizontal number jitter.
+  4. *Interaction Architecture & UX:*
+     - **Affordance:** Tactile press states (`active:scale-[0.985]`), border highlights, focus-visible rings, and explicit cursors.
+     - **Accessible Combo Box:** Keyboard-first courtroom bench search and selection (`ArrowDown`, `ArrowUp`, `Enter`, `Escape`) with WAI-ARIA attributes.
+     - **Progressive Disclosure:** 3-tier presentation (At-a-Glance verdict -> Key metrics -> Deep diagnostic accordion revealing raw telemetry JSON).
+     - **Optimistic Updates:** Instant UI upgrade upon technician remediation with automatic rollback safety on network failure.
+  5. *Motion Choreography & Transitions:*
+     - **Origin-Aware Animation:** Modal expands directly from the clicked trigger button's bounding coordinates.
+     - **Interruptible Animation:** Cancelable interval loops and Web Animations API transitions allowing instant reversal without visual glitches.
+     - **Stagger Dynamics:** Choreographed cascade (`--stagger-index`) on fleet cards and interview options.
+     - **Shared Element Transitions:** Native browser View Transitions API support (`document.startViewTransition`) during courtroom selection.
+* **Why:** Courtroom technical officers frequently work under stressful conditions during active hearings on diverse hardware (from 4K CTO displays to 10-year-old CRT/LCD district terminals). The 20-point standard eliminates cognitive friction, prevents misclicks, and ensures complete accessibility across all 11 partner states.
+* **Rejected Alternative:** Generic ad-hoc styling with arbitrary Tailwind utilities. Rejected because inconsistent paddings, shifting layouts, and small touch targets lead to operator errors in high-stakes judicial environments.
+* **When to Reconsider:** If a dedicated native desktop client (e.g. Tauri / Electron) completely replaces the browser-based gateway dashboard.
+
+

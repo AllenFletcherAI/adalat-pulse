@@ -19,6 +19,12 @@
 - **Bi-Directional Airtable Sync:** Live REST client in `src/airtable_sync.py` syncing courtroom health to base `appviUqZAQGGD2ILo`. Verified with live record `recMbWX6eUaV3pnOD` (`typecast: True` enabled).
 - **FastAPI Gateway & WebSocket Probe:** REST endpoints (`/report`, `/interview`, `/golden-profiles`, `/courtrooms/status`, `/health`) and live `/ws/probe` endpoint in `src/main.py`.
 - **Operational Dashboard:** Vanilla ES6 single-page application in `src/static/` with live Web Audio API microphone sampling, 11-state fleet grid, Golden Standard comparison gauge, and Guided Interview modal.
+- **20-Point Ergonomic Design System:** Fully implemented across `src/static/index.html` and `src/static/app.js` (ADR-006):
+  - *Typography:* Kerning (`font-feature-settings: "kern"`), tracking hierarchy, relaxed leading, Inter high x-height, 65ch line length, and widow balancing (`text-wrap: balance/pretty` + `&nbsp;`).
+  - *Layout & Geometry:* Optical centering (38% vertical modal offset), zero CLS pre-allocated slots with shimmer skeletons, safe area insets (`env(safe-area-inset-*)`), and min 44px × 44px touch targets.
+  - *Color & Numbers:* Perceptually uniform OKLCH status palette and `tabular-nums` on all telemetry readings.
+  - *Interaction:* Accessible keyboard combobox, 3-tier progressive disclosure accordion, tactile press affordances, and optimistic updates with rollback safety.
+  - *Motion:* Origin-aware modal zoom, interruptible Web Animations API, choreographed waterfall stagger (`--stagger-index`), and View Transitions API integration.
 - **Automated Verification:** 30 out of 30 unit and integration tests passing in `tests/` in 10.43s.
 - **Git Repository & Remote Push:** Public repository created and synced at `https://github.com/AllenFletcherAI/adalat-pulse`.
 - **Containerization:** Multi-stage production `Dockerfile` and `docker-compose.yml`.
@@ -26,9 +32,9 @@
 ---
 
 ## 2. Working On Now
-- Finalizing documentation synchronization for Prompt Pyramid deployment.
-- Pushing latest commits to GitHub `origin/main`.
-- Relaunching local gateway background daemon.
+- Verifying complete 20-point UI system in live browser session.
+- Synchronizing GitHub commits on `main`.
+- Verifying background Uvicorn daemon health.
 
 ---
 
@@ -40,9 +46,10 @@
 ---
 
 ## 4. What To Do Next
-1. Commit all Prompt Pyramid artifacts to git.
+1. Commit all 20-point UI/UX artifacts to git.
 2. Push main branch to `https://github.com/AllenFletcherAI/adalat-pulse`.
 3. Keep the background server daemon active on port 8000.
+4. Verify end-to-end dashboard accessibility at `http://localhost:8000`.
 4. Verify end-to-end dashboard accessibility at `http://localhost:8000`.
 
 ---
