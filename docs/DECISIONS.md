@@ -36,3 +36,17 @@
 * **Decision:** Implement real hardware inspection using the browser's Web Audio API and real WebSocket round-trips over `/ws/probe`.
 * **Why:** Synthetic dummy data gives false confidence. Real courtrooms fail because of hardware mismatch (e.g. 8 kHz analogue PA jacks) or acoustic noise (unbalanced ceiling fans). Using `navigator.mediaDevices.getUserMedia` and `AnalyserNode` FFT allows real courtroom testing on actual edge hardware.
 * **Rejected Alternative:** Static sliders with fake random numbers. Rejected because simulated data masks physical courtroom hardware defects.
+
+---
+
+## ADR-005: 4-Tier Prompt Pyramid Architecture (Golden Exemplars & Interactive Interviews vs Rigid Linear Scripts)
+* **Date:** November 2026
+* **Decision:** Implement the 4-tier Prompt Pyramid operational model:
+  1. *Level 1 (Outcome First):* Establish a single non-negotiable legal outcome ("100% Zero-Word-Drop Koyal Indic ASR Guarantee").
+  2. *Level 2 (Autonomous Edge Research):* Collect real-world ground truth via browser Web Audio FFT analysis and WebSocket burst probing.
+  3. *Level 3 (Interactive Interview):* Generate interactive technician dialogues for degraded telemetry (`Q-AUDIO-FAN`, `Q-NET-UPLINK`) to resolve gray areas with direct remediation before raising false-alarm session cancellations.
+  4. *Level 4 (Golden Exemplars):* Benchmark live measurements against 3 certified hardware/network baselines (`GOLDEN-HC-FIBER`, `GOLDEN-DC-HYBRID`, `GOLDEN-TL-EDGE`) with a 0–100% Alignment Score and deltas.
+* **Why:** In field deployments across 6,000+ courtrooms, rigid procedural scripts fail when rural broadband fluctuates or ceiling fans create acoustic noise. The Prompt Pyramid mirrors the engineering paradigm practiced at top AI labs: anchor on the outcome, research physical reality, interview operators to disambiguate edge cases, and anchor to a concrete exemplar of excellence.
+* **Rejected Alternative:** Rigid binary cutoff alerts or automated hard drops without operator remediation. Rejected because cancelling live hearings over minor remediable noise (e.g. an oscillating fan) damages court schedules.
+* **When to Reconsider:** If autonomous edge acoustic filtering hardware is deployed at 100% of physical courtrooms, eliminating environmental variance.
+

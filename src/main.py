@@ -22,6 +22,8 @@ from src.models import (
     CourtroomStatusSummary,
     FleetStatusOverview,
     RegionalStats,
+    InterviewResponseRequest,
+    GoldenBaselineProfile,
 )
 from src.database import (
     init_db,
@@ -29,6 +31,10 @@ from src.database import (
     get_latest_courtrooms,
     get_courtroom_history,
     get_recent_incidents,
+    get_golden_profiles,
+    get_golden_profile,
+    save_interview_interaction,
+    get_courtroom_interviews,
 )
 from src.evaluator import evaluate_telemetry
 from src.alerts import dispatch_critical_incident
@@ -210,6 +216,60 @@ async def get_fleet_courtroom_status():
         regions=regions,
         recent_critical_incidents=len(incidents),
         last_updated=datetime.now(timezone.utc).isoformat(),
+    )
+
+
+@app.get("/api/v1/golden-profiles")
+async def list_golden_profiles():
+    """Returns certified Golden Standard baseline profiles for Level 4 exemplar benchmarking."""
+    profiles = get_golden_profiles()
+    return {"count": len(profiles), "profiles": profiles}
+
+
+@app.post("/api/v1/telemetry/interview", response_model=TelemetryResponse)
+async def submit_operator_interview(feedback: InterviewResponseRequest):
+    """Processes technician responses to diagnostic interview questions and applies remediations."""
+    report = feedback.original_report
+    if not report.interview_responses:
+        report.interview_responses = {}
+    report.interview_responses[feedback.question_id] = feedback.selected_option
+
+    # Re-evaluate with remediation applied
+    evaluation = evaluate_telemetry(report)
+
+    # Persist technician interaction
+    save_interview_interaction(
+        courtroom_id=feedback.courtroom_id,
+        question_id=feedback.question_id,
+        selected_option=feedback.selected_option,
+        remediation_applied=feedback.remediation_applied,
+        result_verdict=evaluation.verdict.value,
+    )
+
+    incident_id: Optional[str] = None
+    slack_sent = False
+    linear_created = False
+
+    if evaluation.verdict == Verdict.CRITICAL:
+        incident_id, slack_sent, linear_created, _ = await dispatch_critical_incident(report, evaluation)
+
+    snapshot_id = save_telemetry_snapshot(report, evaluation, incident_id)
+    airtable_synced = await sync_courtroom_to_airtable(report, evaluation)
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    return TelemetryResponse(
+        success=True,
+        snapshot_id=snapshot_id,
+        courtroom_id=report.courtroom_id,
+        state=report.state,
+        verdict=evaluation.verdict,
+        can_start_session=evaluation.can_start_session,
+        evaluation=evaluation,
+        incident_id=incident_id,
+        airtable_synced=airtable_synced,
+        slack_alert_sent=slack_sent,
+        linear_ticket_created=linear_created,
+        created_at=now_iso,
     )
 
 

@@ -1,4 +1,11 @@
-"""Pydantic v2 data models, validations, and schemas for Adalat-Pulse."""
+"""Pydantic v2 data models, validations, and schemas for Adalat-Pulse.
+
+Incorporates the 4-tier Prompt Pyramid architecture:
+1. Level 1: Operational Outcome Guarantee (Zero-Word-Drop Koyal Transcription)
+2. Level 2: Autonomous Environmental Telemetry Survey
+3. Level 3: Interactive Operator Interview & Remediation Dialogue
+4. Level 4: Golden Standard Exemplar Comparison
+"""
 
 from enum import Enum
 from typing import List, Dict, Any, Optional
@@ -24,6 +31,12 @@ class StateCode(str, Enum):
     GJ = "GJ"  # Gujarat
     RJ = "RJ"  # Rajasthan
     MP = "MP"  # Madhya Pradesh
+
+
+class CourtroomTier(str, Enum):
+    HIGH_COURT = "HIGH_COURT"
+    DISTRICT_COURT = "DISTRICT_COURT"
+    TALUKA_COURT = "TALUKA_COURT"
 
 
 class IncidentSeverity(str, Enum):
@@ -63,6 +76,51 @@ class HardwareMetrics(BaseModel):
         return cleaned[:100]
 
 
+# Level 4: Golden Standard Exemplar Profile
+class GoldenBaselineProfile(BaseModel):
+    """Certified 'What Good Looks Like' exemplar benchmark profile."""
+    profile_id: str
+    title: str
+    courtroom_tier: CourtroomTier
+    target_latency_ms: float
+    target_packet_loss_pct: float
+    target_jitter_ms: float
+    target_ws_rtt_ms: float
+    target_snr_db: float
+    required_sample_rate_hz: int
+    hardware_stack: str
+
+
+class GoldenAlignmentScore(BaseModel):
+    """Comparison metric scoring live telemetry against a certified Golden Exemplar."""
+    profile_id: str
+    profile_title: str
+    alignment_pct: float = Field(..., ge=0.0, le=100.0, description="Percentage match to Golden Standard")
+    latency_delta_ms: float
+    packet_loss_delta_pct: float
+    snr_delta_db: float
+    summary: str
+
+
+# Level 3: Interactive Operator Interview & Remediation Dialogue
+class OperatorInterviewQuestion(BaseModel):
+    """Targeted clarifying question generated when telemetry is degraded or ambiguous."""
+    question_id: str
+    prompt: str
+    category: str  # ACOUSTIC_NOISE, NETWORK_UPLINK, HARDWARE_SELECTION
+    options: List[str]
+    remediation_advice: str
+
+
+class InterviewResponseRequest(BaseModel):
+    """Technician feedback submitted during pre-flight interview wizard."""
+    courtroom_id: str
+    question_id: str
+    selected_option: str
+    remediation_applied: bool = False
+    original_report: "TelemetryReportRequest"
+
+
 class TelemetryReportRequest(BaseModel):
     """Courtroom Pre-Flight Diagnostic Report payload submitted to gateway."""
     courtroom_id: str = Field(..., min_length=3, max_length=64, description="Unique courtroom identifier (e.g. DL-HC-CRT04)")
@@ -70,6 +128,8 @@ class TelemetryReportRequest(BaseModel):
     bench_name: str = Field(..., min_length=2, max_length=128, description="Court bench description")
     network: NetworkMetrics
     hardware: HardwareMetrics
+    golden_profile_id: Optional[str] = "GOLDEN-HC-FIBER"
+    interview_responses: Optional[Dict[str, str]] = None
     client_timestamp: Optional[datetime] = None
     app_version: str = Field(default="1.0.0", max_length=16)
 
@@ -80,12 +140,14 @@ class TelemetryReportRequest(BaseModel):
 
 
 class EvaluationResult(BaseModel):
-    """Deterministic evaluation verdict and plain-language reasoning."""
+    """Deterministic evaluation verdict, reasoning, golden alignment, and pending questions."""
     verdict: Verdict
     can_start_session: bool
     reason_codes: List[str] = Field(default_factory=list)
     summary: str
     metrics: Dict[str, Any] = Field(default_factory=dict)
+    golden_alignment: Optional[GoldenAlignmentScore] = None
+    pending_questions: List[OperatorInterviewQuestion] = Field(default_factory=list)
 
 
 class TelemetryResponse(BaseModel):

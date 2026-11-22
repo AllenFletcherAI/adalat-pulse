@@ -1,6 +1,10 @@
 /**
  * Adalat-Pulse: Frontend Diagnostic Engine & Operations Visualizer
- * Zero external bloat: Pure Vanilla ES6 + Web Audio API + WebSockets
+ * Implements Prompt Pyramid Architecture:
+ * - Level 1: Outcome-Driven Guarantee
+ * - Level 2: Web Audio API FFT & WebSocket Probing
+ * - Level 3: Guided Technician Interview Modal & Remediation
+ * - Level 4: Golden Standard Baseline Comparison
  */
 
 let audioContext = null;
@@ -9,6 +13,8 @@ let micStream = null;
 let currentSampleRate = 48000;
 let currentSnrDb = 26.5;
 let micDeviceLabel = "Default Audio Device";
+let lastReportPayload = null;
+let pendingInterviewQuestions = [];
 
 // 1. Live IST Clock
 function updateClock() {
@@ -109,6 +115,7 @@ function applyPreset(preset) {
         document.getElementById('input-courtroom-id').value = "KL-HC-CRT01";
         document.getElementById('input-state').value = "KL";
         document.getElementById('input-bench-name').value = "Kerala High Court Bench 01 (Digital Benches)";
+        document.getElementById('select-golden-profile').value = "GOLDEN-HC-FIBER";
     } else if (preset === 'monsoon') {
         latIn.value = 380.0;
         lossIn.value = 3.8;
@@ -119,16 +126,18 @@ function applyPreset(preset) {
         document.getElementById('input-courtroom-id').value = "RJ-DC-JPR02";
         document.getElementById('input-state').value = "RJ";
         document.getElementById('input-bench-name').value = "Jaipur District & Sessions Court 02";
+        document.getElementById('select-golden-profile').value = "GOLDEN-DC-HYBRID";
     } else if (preset === 'fan_noise') {
         latIn.value = 65.0;
         lossIn.value = 0.1;
         jitIn.value = 7.5;
         rttIn.value = 75.0;
         currentSampleRate = 16000;
-        currentSnrDb = 9.2; // Critical SNR (< 12 dB)
+        currentSnrDb = 15.5; // Degraded noise floor (15.5 dB) -> Triggers Interview!
         document.getElementById('input-courtroom-id').value = "UP-DC-LKO05";
         document.getElementById('input-state').value = "UP";
         document.getElementById('input-bench-name').value = "Lucknow District Court Hall 05";
+        document.getElementById('select-golden-profile').value = "GOLDEN-DC-HYBRID";
     } else if (preset === 'edge_lag') {
         latIn.value = 340.0; // Critical Latency (> 300 ms)
         lossIn.value = 1.4;
@@ -139,6 +148,7 @@ function applyPreset(preset) {
         document.getElementById('input-courtroom-id').value = "MP-DC-BPL03";
         document.getElementById('input-state').value = "MP";
         document.getElementById('input-bench-name').value = "Bhopal District Court Room 03";
+        document.getElementById('select-golden-profile').value = "GOLDEN-TL-EDGE";
     }
 
     document.getElementById('live-sample-rate').textContent = `${currentSampleRate} Hz`;
@@ -188,6 +198,7 @@ async function submitDiagnosticReport() {
     const courtroomId = document.getElementById('input-courtroom-id').value.trim();
     const state = document.getElementById('input-state').value;
     const benchName = document.getElementById('input-bench-name').value.trim();
+    const goldenProfileId = document.getElementById('select-golden-profile').value;
 
     const latency = parseFloat(document.getElementById('in-latency').value) || 45.0;
     const loss = parseFloat(document.getElementById('in-loss').value) || 0.0;
@@ -209,8 +220,11 @@ async function submitDiagnosticReport() {
             snr_db: currentSnrDb,
             mic_device_name: micDeviceLabel
         },
+        golden_profile_id: goldenProfileId,
         app_version: "1.0.0"
     };
+
+    lastReportPayload = payload;
 
     try {
         const res = await fetch('/api/v1/telemetry/report', {
@@ -247,6 +261,14 @@ function renderVerdict(data) {
     const receiptSlack = document.getElementById('receipt-slack');
     const receiptLinear = document.getElementById('receipt-linear');
 
+    // Level 4: Golden alignment elements
+    const goldenScorePct = document.getElementById('golden-score-pct');
+    const goldenProgressBar = document.getElementById('golden-progress-bar');
+    const goldenSummaryText = document.getElementById('golden-summary-text');
+
+    // Level 3: Interview elements
+    const interviewBox = document.getElementById('interview-trigger-box');
+
     card.classList.remove('hidden');
 
     if (data.verdict === 'OPTIMAL') {
@@ -258,6 +280,7 @@ function renderVerdict(data) {
         title.className = "text-base font-bold text-emerald-400";
         verdictBadge.textContent = "SESSION CLEARED";
         verdictBadge.className = "px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+        interviewBox.classList.add('hidden');
     } else if (data.verdict === 'DEGRADED') {
         card.className = "mt-6 border border-amber-500/40 bg-amber-950/20 rounded-xl p-5 space-y-3";
         badge.className = "px-2.5 py-1 text-xs font-mono font-medium rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30";
@@ -267,6 +290,14 @@ function renderVerdict(data) {
         title.className = "text-base font-bold text-amber-400";
         verdictBadge.textContent = "MONITORING ACTIVE";
         verdictBadge.className = "px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30";
+
+        // Show interview wizard button if questions exist
+        if (data.evaluation.pending_questions && data.evaluation.pending_questions.length > 0) {
+            pendingInterviewQuestions = data.evaluation.pending_questions;
+            interviewBox.classList.remove('hidden');
+        } else {
+            interviewBox.classList.add('hidden');
+        }
     } else {
         card.className = "mt-6 border border-rose-500/40 bg-rose-950/20 rounded-xl p-5 space-y-3";
         badge.className = "px-2.5 py-1 text-xs font-mono font-medium rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30";
@@ -276,11 +307,20 @@ function renderVerdict(data) {
         title.className = "text-base font-bold text-rose-400";
         verdictBadge.textContent = "GATE BLOCKED";
         verdictBadge.className = "px-3 py-1 rounded-full text-xs font-mono font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30";
+        interviewBox.classList.add('hidden');
     }
 
     crText.textContent = `${data.courtroom_id} (${data.state}) • Snapshot #${data.snapshot_id}`;
     summary.innerHTML = `<strong>${data.evaluation.summary}</strong><br>` +
         data.evaluation.reason_codes.map(r => `• ${r}`).join('<br>');
+
+    // Level 4: Render Golden Alignment Score
+    if (data.evaluation.golden_alignment) {
+        const align = data.evaluation.golden_alignment;
+        goldenScorePct.textContent = `${align.alignment_pct}%`;
+        goldenProgressBar.style.width = `${align.alignment_pct}%`;
+        goldenSummaryText.textContent = `${align.summary} (Latency: ${align.latency_delta_ms >= 0 ? '+' : ''}${align.latency_delta_ms}ms, Loss: ${align.packet_loss_delta_pct >= 0 ? '+' : ''}${align.packet_loss_delta_pct}%, SNR: ${align.snr_delta_db >= 0 ? '+' : ''}${align.snr_delta_db} dB)`;
+    }
 
     // Update Receipts
     receiptAirtable.querySelector('span:last-child').textContent = data.airtable_synced ? "✅ Synced" : "Pending";
@@ -293,7 +333,74 @@ function renderVerdict(data) {
     receiptLinear.querySelector('span:last-child').className = data.linear_ticket_created ? "font-semibold text-blue-400" : "font-semibold text-slate-400";
 }
 
-// 5. Poll Fleet Status Overview
+// 5. Level 3: Guided Technician Interview Modal Workflow
+document.getElementById('btn-open-interview').addEventListener('click', () => {
+    if (!pendingInterviewQuestions || pendingInterviewQuestions.length === 0) return;
+    const q = pendingInterviewQuestions[0];
+    const modal = document.getElementById('interview-modal');
+    const container = document.getElementById('interview-question-container');
+    const adviceBox = document.getElementById('interview-remediation-box');
+
+    container.innerHTML = `
+        <p class="text-sm font-semibold text-slate-200">${q.prompt}</p>
+        <div class="space-y-2 pt-2">
+            ${q.options.map((opt, idx) => `
+                <label class="flex items-center space-x-2.5 p-2.5 rounded-lg bg-slate-950 border border-slate-800 hover:border-slate-700 cursor-pointer">
+                    <input type="radio" name="interview-option" value="${opt}" ${idx === 0 ? 'checked' : ''} class="text-emerald-500 focus:ring-emerald-500">
+                    <span class="text-xs text-slate-300">${opt}</span>
+                </label>
+            `).join('')}
+        </div>
+    `;
+
+    adviceBox.innerHTML = `<strong>💡 Recommended Operator Action:</strong> ${q.remediation_advice}`;
+    modal.classList.remove('hidden');
+});
+
+document.getElementById('btn-close-interview').addEventListener('click', () => {
+    document.getElementById('interview-modal').classList.add('hidden');
+});
+document.getElementById('btn-cancel-interview').addEventListener('click', () => {
+    document.getElementById('interview-modal').classList.add('hidden');
+});
+
+document.getElementById('btn-submit-interview').addEventListener('click', async () => {
+    if (!pendingInterviewQuestions || pendingInterviewQuestions.length === 0) return;
+    const q = pendingInterviewQuestions[0];
+    const selected = document.querySelector('input[name="interview-option"]:checked')?.value || q.options[0];
+
+    const interviewPayload = {
+        courtroom_id: lastReportPayload.courtroom_id,
+        question_id: q.question_id,
+        selected_option: selected,
+        remediation_applied: true,
+        original_report: lastReportPayload
+    };
+
+    try {
+        const res = await fetch('/api/v1/telemetry/interview', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(interviewPayload)
+        });
+
+        if (!res.ok) {
+            const err = await res.json();
+            alert("Interview submission error: " + JSON.stringify(err));
+            return;
+        }
+
+        const data = await res.json();
+        document.getElementById('interview-modal').classList.add('hidden');
+        renderVerdict(data);
+        pollFleetOverview();
+        pollIncidents();
+    } catch (err) {
+        alert("Failed to apply interview remediation: " + err.message);
+    }
+});
+
+// 6. Poll Fleet Status Overview
 async function pollFleetOverview() {
     try {
         const res = await fetch('/api/v1/courtrooms/status');
@@ -339,7 +446,7 @@ async function pollFleetOverview() {
     }
 }
 
-// 6. Poll Incidents Feed
+// 7. Poll Incidents Feed
 async function pollIncidents() {
     try {
         const res = await fetch('/api/v1/incidents?limit=10');
@@ -370,7 +477,7 @@ async function pollIncidents() {
     }
 }
 
-// 7. Manual Airtable Sync Button
+// 8. Manual Airtable Sync Button
 document.getElementById('btn-sync-airtable').addEventListener('click', async () => {
     const btn = document.getElementById('btn-sync-airtable');
     btn.disabled = true;
