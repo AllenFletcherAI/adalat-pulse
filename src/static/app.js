@@ -1,16 +1,31 @@
 /**
  * Adalat-Pulse: Frontend Diagnostic Engine & Operations Gateway
- * Implements 10 Universal Animation & Physical Motion Standards:
- * 1. Entrances: start from scale 0.97 with opacity 0, never from scale 0
- * 2. Buttons: scale to 0.97 while pressed, with button:active { scale: 0.97 } and transition: scale 150ms ease-out
- * 3. Wrong inputs: shake the field (translateX 0, -10, 10, -6, 6, -3, 0px over 360ms) and turn red
- * 4. Steppers: slide next step in from direction of travel instead of crossfading
- * 5. Accordions: :root { interpolate-size: allow-keywords }, so height: auto animates smoothly
- * 6. Moving things: animate transform, never top or left (GPU-composited scaleX & translate3d)
- * 7. Theme switches: turn transitions off while theme changes (.theme-switching * { transition: none !important })
- * 8. Tooltips: delay only the first one (350ms); once one is open, show the rest instantly (0ms)
- * 9. Flicks and drags: on release, hand off to spring that keeps release velocity
- * 10. Carousels/bounded scroll: past either end, add resistance growing with pull distance, then spring back
+ * Implements Master Craftsmanship, Typographic & Physical Motion Standards:
+ * - Font Stacks: Switzer (Swiss Sans) + IBM Plex Mono (Tech Mono)
+ * - Tabs: Zero-shift with reserved bold width via inline-grid
+ * - Labels & Buttons: text-box-trim: trim-both for dead-center alignment
+ * - Links: text-underline-offset: 0.2em
+ * - Superscripts: sup line-height 0
+ * - Acronyms: all-small-caps (ASR, SNR, RTT, WS, WAL, P0)
+ * - Quotes & apostrophes: Typographic curly (“ ” ’)
+ * - Middle truncation: device & snapshot filenames
+ * - Narrow columns: hyphens: auto with lang="en"
+ * - Card titles: 2-line clamp (-webkit-line-clamp: 2)
+ * - Concentric radii: R_inner = R_outer - P
+ * - Alpha borders: rgb(255 255 255 / 0.08)
+ * - OKLCH perceptually uniform status palette (L = 0.72)
+ * - Gradients in OKLCH
+ * - Matched icon stroke weights to adjacent text
+ * - Edge masking in OKLCH
+ * - Icon swaps with blur(4px) and scale(0.85)
+ * - Dark mode depth with lighter surfaces (L0 canvas -> L1 panel -> L2 input -> L3 modal)
+ * - Viewport: 100dvh dynamic height lock
+ * - Dropdowns: 150–250ms (180ms entrance, 144ms exit)
+ * - Popovers: start scale 0.95 from trigger bounding box, exit to trigger 20% shorter
+ * - Moving knobs: stretch by 12% in direction of travel
+ * - List rows: 30ms stagger cascade
+ * - Single-shot harmonic success pulse
+ * - No spring bounce for everyday UI transitions
  */
 
 let audioContext = null;
@@ -18,7 +33,7 @@ let analyser = null;
 let micStream = null;
 let currentSampleRate = 48000;
 let currentSnrDb = 26.5;
-let micDeviceLabel = "Default Audio Device";
+let micDeviceLabel = "Integrated Audio Device";
 let lastReportPayload = null;
 let pendingInterviewQuestions = [];
 let probeIntervalId = null;
@@ -33,11 +48,29 @@ function preventWidow(text) {
     return `${words.join(' ')} ${secondLast}&nbsp;${lastWord}`;
 }
 
-// Rule 3: Wrong inputs: shake the field (translateX 0, -10, 10, -6, 6, -3, 0px over 360ms) and turn red
+// Middle File/Device Name Truncation
+function truncateMiddle(str, maxLength = 26) {
+    if (!str || str.length <= maxLength) return str;
+    const charsToShow = maxLength - 1;
+    const front = Math.ceil(charsToShow / 2);
+    const back = Math.floor(charsToShow / 2);
+    return `${str.substring(0, front)}…${str.substring(str.length - back)}`;
+}
+
+// Single-Shot Harmonic Success Pulse
+function triggerSuccessPulse(element) {
+    if (!element) return;
+    element.classList.remove('pulse-success');
+    void element.offsetWidth; // Force CSS repaint
+    element.classList.add('pulse-success');
+    setTimeout(() => element.classList.remove('pulse-success'), 250);
+}
+
+// Input Rejection Shake over 360ms
 function triggerInputErrorShake(element) {
     if (!element) return;
     element.classList.remove('input-invalid');
-    void element.offsetWidth; // Force CSS repaint
+    void element.offsetWidth;
     element.classList.add('input-invalid');
     element.focus();
     setTimeout(() => {
@@ -45,7 +78,7 @@ function triggerInputErrorShake(element) {
     }, 360);
 }
 
-// Rule 4: Directional Stepper Sliding (Forward / Backward)
+// Directional Stepper Sliding (Forward / Backward)
 function slideStepTransition(oldEl, newEl, direction = 'forward') {
     if (!oldEl || !newEl) return;
     const outX = direction === 'forward' ? '-24px' : '24px';
@@ -59,12 +92,37 @@ function slideStepTransition(oldEl, newEl, direction = 'forward') {
     animOut.onfinish = () => {
         oldEl.classList.add('hidden');
         newEl.classList.remove('hidden');
-        // Rule 1: Entrance starts scale 0.97 opacity 0
+        // Entrance: start scale 0.97 opacity 0
         newEl.animate([
             { transform: `translateX(${inX}) scale(0.97)`, opacity: 0 },
             { transform: 'translateX(0) scale(1)', opacity: 1 }
-        ], { duration: 200, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
+        ], { duration: 180, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
     };
+}
+
+// Crossfade Icon Swap with Scale & Blur
+function swapIconWithBlur(container, newSvgHtml) {
+    if (!container) return;
+    const oldSvg = container.querySelector('svg');
+    if (oldSvg) {
+        const animOut = oldSvg.animate([
+            { filter: 'blur(0px)', opacity: 1, transform: 'scale(1)' },
+            { filter: 'blur(4px)', opacity: 0, transform: 'scale(0.85)' }
+        ], { duration: 100, easing: 'ease-in', fill: 'forwards' });
+
+        animOut.onfinish = () => {
+            container.innerHTML = newSvgHtml;
+            const newSvg = container.querySelector('svg');
+            if (newSvg) {
+                newSvg.animate([
+                    { filter: 'blur(4px)', opacity: 0, transform: 'scale(0.85)' },
+                    { filter: 'blur(0px)', opacity: 1, transform: 'scale(1)' }
+                ], { duration: 150, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
+            }
+        };
+    } else {
+        container.innerHTML = newSvgHtml;
+    }
 }
 
 // Postel's Law: Robust Input Normalizers
@@ -99,19 +157,19 @@ function updateClock() {
     const istOptions = { timeZone: 'Asia/Kolkata', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' };
     const istString = now.toLocaleTimeString('en-GB', istOptions);
     const clockEl = document.getElementById('live-ist-clock');
-    if (clockEl) clockEl.textContent = `${istString} IST`;
+    if (clockEl) clockEl.innerHTML = `${istString} <abbr class="acronym">IST</abbr>`;
 }
 setInterval(updateClock, 1000);
 updateClock();
 
-// Rule 7: Theme switches: turn transitions off while theme changes
+// Theme Switch Guard (.theme-switching * { transition: none !important })
 const btnToggleTheme = document.getElementById('btn-toggle-theme');
 if (btnToggleTheme) {
     btnToggleTheme.addEventListener('click', () => {
         document.documentElement.classList.add('theme-switching');
         document.documentElement.classList.toggle('high-contrast');
 
-        // Force layout evaluation so styles commit instantly without transition lag
+        // Force browser layout commit
         void document.documentElement.offsetHeight;
 
         requestAnimationFrame(() => {
@@ -120,7 +178,7 @@ if (btnToggleTheme) {
     });
 }
 
-// Rule 8: Warm Tooltip Engine (First has 350ms delay; subsequent open instantly at 0ms)
+// Warm Tooltip Pool (First hover delays 350ms; once warm, subsequent open at 0ms)
 let isTooltipWarm = false;
 let warmCooldownTimer = null;
 let tooltipOpenTimer = null;
@@ -157,7 +215,6 @@ function hideTooltip() {
         }
     }, 120);
 
-    // Keep tooltip warm for 500ms after leave
     isTooltipWarm = true;
     if (warmCooldownTimer) clearTimeout(warmCooldownTimer);
     warmCooldownTimer = setTimeout(() => {
@@ -173,10 +230,8 @@ function initWarmTooltips() {
         if (tooltipOpenTimer) clearTimeout(tooltipOpenTimer);
 
         if (isTooltipWarm) {
-            // Already warm: instant 0ms appearance
             showTooltip(target);
         } else {
-            // First tooltip: 350ms delay
             tooltipOpenTimer = setTimeout(() => {
                 showTooltip(target);
                 isTooltipWarm = true;
@@ -193,7 +248,7 @@ function initWarmTooltips() {
 }
 initWarmTooltips();
 
-// Rules 9 & 10: Spring Velocity Release & Boundary Resistance Physics Engine
+// Velocity-Preserving Spring Hand-off & Boundary Resistance
 function attachSpringDrag(element, onDismiss = null) {
     if (!element) return;
     let startY = 0;
@@ -223,7 +278,7 @@ function attachSpringDrag(element, onDismiss = null) {
         lastY = e.clientY;
         lastTime = now;
 
-        // Rule 10: Logarithmic Boundary Resistance: past either end, resistance grows
+        // Logarithmic boundary resistance past ends
         const resistanceD = 160;
         currentY = rawDeltaY / (1 + (Math.abs(rawDeltaY) / resistanceD));
         element.style.transform = `translate3d(0, ${currentY}px, 0)`;
@@ -234,16 +289,14 @@ function attachSpringDrag(element, onDismiss = null) {
         isDragging = false;
         try { element.releasePointerCapture(e.pointerId); } catch (_) {}
 
-        // Rule 9: Flicks and drags: hand off to velocity-preserving spring
         if (onDismiss && (velocity > 0.55 || currentY > 110)) {
             element.animate([
                 { transform: `translate3d(0, ${currentY}px, 0)`, opacity: 1 },
                 { transform: `translate3d(0, ${currentY + velocity * 180 + 80}px, 0)`, opacity: 0 }
-            ], { duration: 180, easing: 'cubic-bezier(0.32, 0, 0.67, 0)' }).onfinish = onDismiss;
+            ], { duration: 160, easing: 'cubic-bezier(0.32, 0, 0.67, 0)' }).onfinish = onDismiss;
             return;
         }
 
-        // Bounded snapback spring
         const springDuration = Math.min(480, Math.max(220, 360 + Math.abs(velocity) * 80));
         element.animate([
             { transform: `translate3d(0, ${currentY}px, 0)` },
@@ -318,10 +371,11 @@ function sampleAudioLoop() {
     const snrEl = document.getElementById('live-snr-db');
     if (snrEl) snrEl.textContent = currentSnrDb.toFixed(1);
 
-    // Rule 6: Animate transform scaleX, never width/left/top
+    // Rule: Stretch moving meter by 12% in direction of travel (GPU scaleX)
     const levelBar = document.getElementById('audio-level-bar');
     if (levelBar) {
-        levelBar.style.transform = `scaleX(${normalized})`;
+        const stretched = Math.min(1.0, normalized * 1.12);
+        levelBar.style.transform = `scaleX(${stretched})`;
     }
 
     requestAnimationFrame(sampleAudioLoop);
@@ -362,12 +416,12 @@ function initCourtroomComboBox() {
         }
 
         listbox.innerHTML = matches.map((item, idx) => `
-            <div role="option" data-id="${item.id}" data-state="${item.state}" data-bench="${item.bench}" data-golden="${item.golden}" class="combo-option px-2.5 py-1.5 hover:bg-[#171B26] cursor-pointer flex items-center justify-between text-xs transition-colors ${idx === highlightedIndex ? 'bg-[#171B26]' : ''}">
+            <div role="option" data-id="${item.id}" data-state="${item.state}" data-bench="${item.bench}" data-golden="${item.golden}" class="combo-option px-2.5 py-1.5 hover:bg-[#181D2A] cursor-pointer flex items-center justify-between text-xs transition-colors ${idx === highlightedIndex ? 'bg-[#181D2A]' : ''}">
                 <div>
                     <span class="font-mono font-semibold text-white tracking-wide">${item.id}</span>
                     <p class="text-[10px] text-slate-400 truncate max-w-[200px]">${item.bench}</p>
                 </div>
-                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-300 bg-[#0A0C10] border border-[#222634]">${item.state}</span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-300 bg-[#0A0C10] border border-[rgb(255_255_255_/_0.08)]">${item.state}</span>
             </div>
         `).join('');
 
@@ -380,6 +434,7 @@ function initCourtroomComboBox() {
     }
 
     function selectCourtroomOption(data) {
+        // Shared layout transition arc
         input.value = data.id;
         document.getElementById('input-state').value = data.state;
         document.getElementById('input-bench-name').value = data.bench;
@@ -395,18 +450,20 @@ function initCourtroomComboBox() {
         input.setAttribute('aria-expanded', 'true');
         renderOptions(input.value);
 
-        // Rule 1: Entrance starts scale 0.97 opacity 0
+        // Popovers start at scale 0.95 from trigger bounding box (180ms ease-out)
+        listbox.style.transformOrigin = 'top center';
         listbox.animate([
-            { transform: 'scale(0.97) translateY(-4px)', opacity: 0 },
+            { transform: 'scale(0.95) translateY(-4px)', opacity: 0 },
             { transform: 'scale(1) translateY(0)', opacity: 1 }
-        ], { duration: 150, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
+        ], { duration: 180, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
     }
 
     function closeComboBox() {
+        // Exits 20% shorter (180ms * 0.8 = 144ms) back to trigger
         const anim = listbox.animate([
             { transform: 'scale(1)', opacity: 1 },
-            { transform: 'scale(0.97) translateY(-4px)', opacity: 0 }
-        ], { duration: 100, easing: 'ease-in', fill: 'forwards' });
+            { transform: 'scale(0.95) translateY(-4px)', opacity: 0 }
+        ], { duration: 144, easing: 'ease-in', fill: 'forwards' });
 
         anim.onfinish = () => {
             listbox.classList.add('hidden');
@@ -444,12 +501,12 @@ function initCourtroomComboBox() {
         if (e.key === 'ArrowDown') {
             e.preventDefault();
             highlightedIndex = Math.min(highlightedIndex + 1, options.length - 1);
-            options.forEach((opt, idx) => opt.classList.toggle('bg-[#171B26]', idx === highlightedIndex));
+            options.forEach((opt, idx) => opt.classList.toggle('bg-[#181D2A]', idx === highlightedIndex));
             if (options[highlightedIndex]) options[highlightedIndex].scrollIntoView({ block: 'nearest' });
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
             highlightedIndex = Math.max(highlightedIndex - 1, 0);
-            options.forEach((opt, idx) => opt.classList.toggle('bg-[#171B26]', idx === highlightedIndex));
+            options.forEach((opt, idx) => opt.classList.toggle('bg-[#181D2A]', idx === highlightedIndex));
             if (options[highlightedIndex]) options[highlightedIndex].scrollIntoView({ block: 'nearest' });
         } else if (e.key === 'Enter') {
             e.preventDefault();
@@ -473,15 +530,15 @@ function initCourtroomComboBox() {
 }
 initCourtroomComboBox();
 
-// 4. Baseline Field Presets (Instant Clean Toggle)
+// 4. Baseline Field Presets (Instant Clean Toggle with Zero Layout Shift)
 document.querySelectorAll('.preset-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
         const preset = e.currentTarget.getAttribute('data-preset');
         document.querySelectorAll('.preset-btn').forEach(b => {
-            b.classList.remove('bg-[#171B26]', 'text-emerald-400', 'font-semibold', 'border', 'border-emerald-500/40');
+            b.classList.remove('bg-[#181D2A]', 'text-[oklch(0.72_0.17_155)]', 'font-semibold', 'border', 'border-[oklch(0.72_0.17_155_/_0.4)]');
             b.classList.add('text-slate-300');
         });
-        e.currentTarget.classList.add('bg-[#171B26]', 'text-emerald-400', 'font-semibold', 'border', 'border-emerald-500/40');
+        e.currentTarget.classList.add('bg-[#181D2A]', 'text-[oklch(0.72_0.17_155)]', 'font-semibold', 'border', 'border-[oklch(0.72_0.17_155_/_0.4)]');
         e.currentTarget.classList.remove('text-slate-300');
         applyPreset(preset);
     });
@@ -545,13 +602,12 @@ function applyPreset(preset) {
     if (snrEl) snrEl.textContent = currentSnrDb.toFixed(1);
 }
 
-// 5. Pre-Flight Diagnostic Check with Rule 4 Directional Sliding
+// 5. Pre-Flight Diagnostic Check with Directional Steppers
 document.getElementById('btn-run-diagnostic').addEventListener('click', async () => {
     await executePreFlightCheck();
 });
 
 async function executePreFlightCheck() {
-    // Input validation with Rule 3 Error Shake
     const latIn = document.getElementById('in-latency');
     const lossIn = document.getElementById('in-loss');
     const jitIn = document.getElementById('in-jitter');
@@ -563,6 +619,7 @@ async function executePreFlightCheck() {
     const jitVal = parseFloat(jitIn.value);
     const rttVal = parseFloat(rttIn.value);
 
+    // Rule: Error Shake on Invalid Inputs
     if (isNaN(latVal) || latVal < 0 || latVal > 3000) {
         triggerInputErrorShake(latIn);
         return;
@@ -603,7 +660,6 @@ async function executePreFlightCheck() {
     btn.classList.add('opacity-50', 'cursor-not-allowed');
     progressContainer.classList.remove('hidden');
 
-    // Rule 4: Directional Stepper Slide Standby -> Skeleton/Probing
     if (!standby.classList.contains('hidden')) {
         slideStepTransition(standby, skeleton, 'forward');
     } else if (!verdictCard.classList.contains('hidden')) {
@@ -619,7 +675,7 @@ async function executePreFlightCheck() {
         currentStep++;
         const pct = Math.round((currentStep / totalSteps) * 100);
 
-        // Rule 6: Animate transform scaleX, never width
+        // Compositor scaleX animation
         progressBar.style.transform = `scaleX(${pct / 100})`;
         progressPct.textContent = `${pct}%`;
 
@@ -694,7 +750,7 @@ async function submitDiagnosticReport() {
     }
 }
 
-// 6. In-Place Verdict Rendering with Rule 1 & Rule 4
+// 6. In-Place Verdict Rendering with Staggered Detail Settling
 function renderVerdictWithFollowThrough(data) {
     const skeleton = document.getElementById('verdict-skeleton');
     const card = document.getElementById('verdict-card');
@@ -713,26 +769,31 @@ function renderVerdictWithFollowThrough(data) {
     const goldenSummaryText = document.getElementById('golden-summary-text');
     const interviewBox = document.getElementById('interview-trigger-box');
 
-    // Rule 4: Directional Stepper Probing -> Verdict
+    // Directional Stepper Probing -> Verdict
     slideStepTransition(skeleton, card, 'forward');
 
+    let newIconSvg = '';
+
     if (data.verdict === 'OPTIMAL') {
-        card.className = "h-full bg-[#0A0C10] border border-[#222634] border-l-4 border-l-emerald-500 rounded-md p-3 flex flex-col justify-between space-y-2";
-        iconContainer.className = "h-5 w-5 rounded bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20";
-        iconContainer.innerHTML = `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
+        card.className = "h-full bg-[#0A0C10] border border-[rgb(255_255_255_/_0.08)] border-l-4 border-l-[oklch(0.72_0.17_155)] rounded-md p-3 flex flex-col justify-between space-y-2";
+        iconContainer.className = "h-5 w-5 rounded bg-[oklch(0.72_0.17_155_/_0.15)] text-[oklch(0.72_0.17_155)] flex items-center justify-center border border-[oklch(0.72_0.17_155_/_0.3)]";
+        newIconSvg = `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
         title.textContent = "Optimal: session cleared";
         title.className = "text-xs font-bold text-white tracking-tight";
         verdictBadge.textContent = "Cleared";
-        verdictBadge.className = "px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+        verdictBadge.className = "px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-[oklch(0.72_0.17_155_/_0.15)] text-[oklch(0.72_0.17_155)] border border-[oklch(0.72_0.17_155_/_0.3)]";
         interviewBox.classList.add('hidden');
+
+        // Single-shot harmonic pulse to confirm success
+        triggerSuccessPulse(card);
     } else if (data.verdict === 'DEGRADED') {
-        card.className = "h-full bg-[#0A0C10] border border-[#222634] border-l-4 border-l-amber-500 rounded-md p-3 flex flex-col justify-between space-y-2";
-        iconContainer.className = "h-5 w-5 rounded bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20";
-        iconContainer.innerHTML = `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+        card.className = "h-full bg-[#0A0C10] border border-[rgb(255_255_255_/_0.08)] border-l-4 border-l-[oklch(0.72_0.16_75)] rounded-md p-3 flex flex-col justify-between space-y-2";
+        iconContainer.className = "h-5 w-5 rounded bg-[oklch(0.72_0.16_75_/_0.15)] text-[oklch(0.72_0.16_75)] flex items-center justify-center border border-[oklch(0.72_0.16_75_/_0.3)]";
+        newIconSvg = `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
         title.textContent = "Degraded: monitoring active";
         title.className = "text-xs font-bold text-white tracking-tight";
         verdictBadge.textContent = "Attention";
-        verdictBadge.className = "px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20";
+        verdictBadge.className = "px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-[oklch(0.72_0.16_75_/_0.15)] text-[oklch(0.72_0.16_75)] border border-[oklch(0.72_0.16_75_/_0.3)]";
 
         if (data.evaluation.pending_questions && data.evaluation.pending_questions.length > 0) {
             pendingInterviewQuestions = data.evaluation.pending_questions;
@@ -741,49 +802,56 @@ function renderVerdictWithFollowThrough(data) {
             interviewBox.classList.add('hidden');
         }
     } else {
-        card.className = "h-full bg-[#0A0C10] border border-[#222634] border-l-4 border-l-rose-500 rounded-md p-3 flex flex-col justify-between space-y-2";
-        iconContainer.className = "h-5 w-5 rounded bg-rose-500/10 text-rose-400 flex items-center justify-center border border-rose-500/20";
-        iconContainer.innerHTML = `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
+        card.className = "h-full bg-[#0A0C10] border border-[rgb(255_255_255_/_0.08)] border-l-4 border-l-[oklch(0.72_0.20_25)] rounded-md p-3 flex flex-col justify-between space-y-2";
+        iconContainer.className = "h-5 w-5 rounded bg-[oklch(0.72_0.20_25_/_0.15)] text-[oklch(0.72_0.20_25)] flex items-center justify-center border border-[oklch(0.72_0.20_25_/_0.3)]";
+        newIconSvg = `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
         title.textContent = "Critical breach: session halted";
         title.className = "text-xs font-bold text-white tracking-tight";
         verdictBadge.textContent = "Blocked";
-        verdictBadge.className = "px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20";
+        verdictBadge.className = "px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-[oklch(0.72_0.20_25_/_0.15)] text-[oklch(0.72_0.20_25)] border border-[oklch(0.72_0.20_25_/_0.3)]";
         interviewBox.classList.add('hidden');
     }
 
+    // Icon crossfade with blur(4px) and scale(0.85)
+    swapIconWithBlur(iconContainer, newIconSvg);
+
     crText.textContent = `${data.courtroom_id} (${data.state}) • #${data.snapshot_id}`;
-    summary.innerHTML = `<span class="font-semibold text-slate-200">${preventWidow(data.evaluation.summary)}</span> ` +
+
+    // Typographic curly quotes in summary reasons
+    summary.innerHTML = `<span class="font-semibold text-slate-200">“${preventWidow(data.evaluation.summary)}”</span> ` +
         data.evaluation.reason_codes.map(r => `<span class="text-slate-400 inline-block mr-2">• ${preventWidow(r)}</span>`).join('');
 
-    // Rule 6: Animate golden bar via transform scaleX
+    // Stagger details settlement (+60ms alignment, +120ms reasons, +180ms receipts)
     if (data.evaluation.golden_alignment) {
         const align = data.evaluation.golden_alignment;
         goldenScorePct.textContent = `${align.alignment_pct}%`;
-        goldenProgressBar.style.transform = `scaleX(${align.alignment_pct / 100})`;
+        setTimeout(() => {
+            goldenProgressBar.style.transform = `scaleX(${align.alignment_pct / 100})`;
+        }, 60);
         goldenSummaryText.innerHTML = preventWidow(`${align.summary} (Δ Latency: ${align.latency_delta_ms >= 0 ? '+' : ''}${align.latency_delta_ms}ms, Δ Loss: ${align.packet_loss_delta_pct >= 0 ? '+' : ''}${align.packet_loss_delta_pct}%, Δ SNR: ${align.snr_delta_db >= 0 ? '+' : ''}${align.snr_delta_db} dB)`);
     }
 
-    // Receipts Status Update
-    if (receiptAirtable) {
-        receiptAirtable.textContent = data.airtable_synced ? "Airtable: Synced" : "Airtable: Pending";
-        receiptAirtable.className = data.airtable_synced 
-            ? "px-1.5 py-0.5 rounded bg-[#12151E] text-emerald-400 border border-emerald-500/30" 
-            : "px-1.5 py-0.5 rounded bg-[#12151E] text-slate-400 border border-[#222634]";
-    }
-    if (receiptSlack) {
-        receiptSlack.textContent = data.slack_alert_sent ? "Slack: Dispatched" : "Slack: Standby";
-        receiptSlack.className = data.slack_alert_sent 
-            ? "px-1.5 py-0.5 rounded bg-[#12151E] text-rose-400 border border-rose-500/30" 
-            : "px-1.5 py-0.5 rounded bg-[#12151E] text-slate-400 border border-[#222634]";
-    }
-    if (receiptLinear) {
-        receiptLinear.textContent = data.linear_ticket_created ? "Linear: P0 Created" : "Linear: None";
-        receiptLinear.className = data.linear_ticket_created 
-            ? "px-1.5 py-0.5 rounded bg-[#12151E] text-blue-400 border border-blue-500/30" 
-            : "px-1.5 py-0.5 rounded bg-[#12151E] text-slate-400 border border-[#222634]";
-    }
+    setTimeout(() => {
+        if (receiptAirtable) {
+            receiptAirtable.textContent = data.airtable_synced ? "Airtable: Synced" : "Airtable: Pending";
+            receiptAirtable.className = data.airtable_synced 
+                ? "px-1.5 py-0.5 rounded bg-[#12151E] text-[oklch(0.72_0.17_155)] border border-[oklch(0.72_0.17_155_/_0.3)]" 
+                : "px-1.5 py-0.5 rounded bg-[#12151E] text-slate-400 border border-[rgb(255_255_255_/_0.08)]";
+        }
+        if (receiptSlack) {
+            receiptSlack.textContent = data.slack_alert_sent ? "Slack: Dispatched" : "Slack: Standby";
+            receiptSlack.className = data.slack_alert_sent 
+                ? "px-1.5 py-0.5 rounded bg-[#12151E] text-[oklch(0.72_0.20_25)] border border-[oklch(0.72_0.20_25_/_0.3)]" 
+                : "px-1.5 py-0.5 rounded bg-[#12151E] text-slate-400 border border-[rgb(255_255_255_/_0.08)]";
+        }
+        if (receiptLinear) {
+            receiptLinear.textContent = data.linear_ticket_created ? "Linear: P0 Created" : "Linear: None";
+            receiptLinear.className = data.linear_ticket_created 
+                ? "px-1.5 py-0.5 rounded bg-[#12151E] text-blue-400 border border-blue-500/30" 
+                : "px-1.5 py-0.5 rounded bg-[#12151E] text-slate-400 border border-[rgb(255_255_255_/_0.08)]";
+        }
+    }, 180);
 
-    // Update Deep Diagnostics JSON
     const rawPre = document.getElementById('raw-telemetry-json');
     if (rawPre) {
         rawPre.textContent = JSON.stringify({
@@ -799,7 +867,7 @@ function renderVerdictWithFollowThrough(data) {
     }
 }
 
-// Rule 5: Smooth height: auto Accordions via interpolate-size: allow-keywords
+// Accordion Drawer via interpolate-size: allow-keywords
 const btnToggleDeep = document.getElementById('btn-toggle-deep-diagnostics');
 if (btnToggleDeep) {
     btnToggleDeep.addEventListener('click', () => {
@@ -810,24 +878,28 @@ if (btnToggleDeep) {
     });
 }
 
-// 8. Guided Technician Interview Modal Workflow with Rule 1 & Rule 9
+// 8. Guided Technician Interview Modal (Popovers: start scale 0.95 from trigger; exit 20% shorter)
 const btnOpenInterview = document.getElementById('btn-open-interview');
 const interviewModal = document.getElementById('interview-modal');
 const interviewDialog = document.getElementById('interview-modal-dialog');
 
 if (btnOpenInterview) {
-    btnOpenInterview.addEventListener('click', () => {
+    btnOpenInterview.addEventListener('click', (e) => {
         if (!pendingInterviewQuestions || pendingInterviewQuestions.length === 0) return;
         const q = pendingInterviewQuestions[0];
         const container = document.getElementById('interview-question-container');
         const adviceBox = document.getElementById('interview-remediation-box');
 
+        // Directional origin pinned to trigger button
+        const triggerRect = e.currentTarget.getBoundingClientRect();
+        interviewDialog.style.transformOrigin = `${triggerRect.left + triggerRect.width / 2}px ${triggerRect.top + triggerRect.height / 2}px`;
+
         container.innerHTML = `
-            <p class="text-xs font-semibold text-slate-200">${preventWidow(q.prompt)}</p>
+            <p class="text-xs font-semibold text-slate-200">“${preventWidow(q.prompt)}”</p>
             <div class="space-y-1.5 pt-1">
                 ${q.options.map((opt, idx) => `
-                    <label class="flex items-center space-x-2.5 p-2 rounded-md bg-[#0A0C10] border border-[#222634] hover:border-slate-600 cursor-pointer transition-colors pressable">
-                        <input type="radio" name="interview-option" value="${opt}" ${idx === 0 ? 'checked' : ''} class="w-3.5 h-3.5 text-emerald-500 focus:ring-emerald-500 bg-[#0A0C10] border-[#222634]">
+                    <label style="--stagger-index: ${idx}" class="stagger-item flex items-center space-x-2.5 p-2 rounded-md bg-[#0A0C10] border border-[rgb(255_255_255_/_0.08)] hover:border-slate-500 cursor-pointer transition-colors pressable">
+                        <input type="radio" name="interview-option" value="${opt}" ${idx === 0 ? 'checked' : ''} class="w-3.5 h-3.5 text-emerald-500 focus:ring-emerald-500 bg-[#0A0C10] border-[rgb(255_255_255_/_0.15)]">
                         <span class="text-xs text-slate-300 font-medium">${preventWidow(opt)}</span>
                     </label>
                 `).join('')}
@@ -837,20 +909,20 @@ if (btnOpenInterview) {
         adviceBox.innerHTML = `<strong>Action Advice:</strong> ${preventWidow(q.remediation_advice)}`;
         interviewModal.classList.remove('hidden');
 
-        // Rule 1: Entrance starts from scale 0.97 opacity 0
+        // Popover entrance: 200ms ease-out from scale 0.95
         interviewDialog.animate([
-            { transform: 'scale(0.97) translateY(8px)', opacity: 0 },
+            { transform: 'scale(0.95) translateY(8px)', opacity: 0 },
             { transform: 'scale(1) translateY(0)', opacity: 1 }
         ], { duration: 200, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
     });
 }
 
 function closeInterviewModal() {
-    // Rule 1: Exit smoothly
+    // Exit: 20% shorter (200ms * 0.8 = 160ms) collapsing toward trigger
     const anim = interviewDialog.animate([
         { transform: 'scale(1)', opacity: 1 },
-        { transform: 'scale(0.97) translateY(8px)', opacity: 0 }
-    ], { duration: 150, easing: 'ease-in', fill: 'forwards' });
+        { transform: 'scale(0.95) translateY(8px)', opacity: 0 }
+    ], { duration: 160, easing: 'ease-in', fill: 'forwards' });
 
     anim.onfinish = () => interviewModal.classList.add('hidden');
 }
@@ -858,7 +930,6 @@ function closeInterviewModal() {
 document.getElementById('btn-close-interview').addEventListener('click', closeInterviewModal);
 document.getElementById('btn-cancel-interview').addEventListener('click', closeInterviewModal);
 
-// Rule 9 & 10: Attach Spring Drag & Fling-to-Dismiss on modal
 attachSpringDrag(interviewDialog, closeInterviewModal);
 
 // 9. Optimistic UI Remediation Update with Immediate Feedback
@@ -882,12 +953,11 @@ document.getElementById('btn-submit-interview').addEventListener('click', async 
     const previousTitle = title.textContent;
     const previousClass = card.className;
 
-    // Sub-50ms Optimistic UI upgrade
-    card.className = "h-full bg-[#0A0C10] border border-[#222634] border-l-4 border-l-emerald-500 rounded-md p-3 flex flex-col justify-between space-y-2";
+    card.className = "h-full bg-[#0A0C10] border border-[rgb(255_255_255_/_0.08)] border-l-4 border-l-[oklch(0.72_0.17_155)] rounded-md p-3 flex flex-col justify-between space-y-2";
     title.textContent = "Optimal: remediation applied (+6.0 dB)";
     title.className = "text-xs font-bold text-white tracking-tight";
     verdictBadge.textContent = "Remediated";
-    verdictBadge.className = "px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+    verdictBadge.className = "px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-[oklch(0.72_0.17_155_/_0.15)] text-[oklch(0.72_0.17_155)] border border-[oklch(0.72_0.17_155_/_0.3)]";
 
     closeInterviewModal();
 
@@ -915,7 +985,7 @@ document.getElementById('btn-submit-interview').addEventListener('click', async 
     }
 });
 
-// 10. Poll 11-State Fleet Telemetry Matrix (Rule 10 Boundary Resistance)
+// 10. Poll 11-State Fleet Matrix with 30ms Row Stagger
 async function pollFleetOverview() {
     try {
         const res = await fetch('/api/v1/courtrooms/status');
@@ -934,19 +1004,20 @@ async function pollFleetOverview() {
 
         const container = document.getElementById('regions-container');
         if (container) {
-            container.innerHTML = data.regions.map((r) => {
-                let dotClass = "bg-emerald-500";
-                let statusColor = "text-emerald-400";
+            container.innerHTML = data.regions.map((r, idx) => {
+                let dotClass = "bg-[oklch(0.72_0.17_155)]";
+                let statusColor = "text-[oklch(0.72_0.17_155)]";
                 if (r.critical_count > 0) {
-                    dotClass = "bg-rose-500";
-                    statusColor = "text-rose-400";
+                    dotClass = "bg-[oklch(0.72_0.20_25)]";
+                    statusColor = "text-[oklch(0.72_0.20_25)]";
                 } else if (r.degraded_count > 0) {
-                    dotClass = "bg-amber-500";
-                    statusColor = "text-amber-400";
+                    dotClass = "bg-[oklch(0.72_0.16_75)]";
+                    statusColor = "text-[oklch(0.72_0.16_75)]";
                 }
 
+                // 30ms list row stagger via style variable
                 return `
-                <div data-tooltip="${r.state_name}: ${r.total_courtrooms} active benches (${r.healthy_pct}% healthy)" class="h-10 p-1.5 rounded-md bg-[#0A0C10] border border-[#222634] hover:border-slate-500 transition-colors cursor-pointer flex flex-col justify-between pressable" onclick="filterByState('${r.state}')">
+                <div style="--stagger-index: ${idx}" data-tooltip="${r.state_name}: ${r.total_courtrooms} active benches (${r.healthy_pct}% healthy)" class="stagger-item h-10 p-1.5 rounded-md bg-[#0A0C10] border border-[rgb(255_255_255_/_0.08)] hover:border-slate-500 transition-colors cursor-pointer flex flex-col justify-between pressable" onclick="filterByState('${r.state}')">
                     <div class="flex items-center justify-between">
                         <span class="font-mono font-bold text-[11px] text-white">${r.state}</span>
                         <span class="h-1.5 w-1.5 rounded-full ${dotClass}"></span>
@@ -978,7 +1049,7 @@ window.filterByState = function(stateCode) {
     }
 };
 
-// 11. Poll Live Incident Routing Stream (Attach Rule 10 Boundary Resistance)
+// 11. Poll Live Incident Routing Stream (30ms Stagger + 2-Line Clamp)
 async function pollIncidents() {
     try {
         const res = await fetch('/api/v1/incidents?limit=10');
@@ -987,18 +1058,18 @@ async function pollIncidents() {
         const container = document.getElementById('incidents-container');
 
         if (container && data.incidents && data.incidents.length > 0) {
-            container.innerHTML = data.incidents.map((inc) => {
+            container.innerHTML = data.incidents.map((inc, idx) => {
                 const dateStr = inc.created_at ? new Date(inc.created_at).toLocaleTimeString() : "--";
                 return `
-                <div data-tooltip="P0 Incident: ${inc.title}" class="bg-[#0A0C10] border border-[#222634] rounded-md p-2 space-y-1 text-[11px] pressable">
+                <div style="--stagger-index: ${idx}" data-tooltip="P0 Incident: “${inc.title}”" class="stagger-item bg-[#0A0C10] border border-[rgb(255_255_255_/_0.08)] rounded-md p-2 space-y-1 text-[11px] pressable">
                     <div class="flex justify-between items-center">
-                        <span class="font-mono font-bold text-rose-400 text-xs">${inc.courtroom_id}</span>
+                        <span class="font-mono font-bold text-[oklch(0.72_0.20_25)] text-xs">${inc.courtroom_id}</span>
                         <span class="text-[10px] font-mono text-slate-500 tabular-nums">${dateStr}</span>
                     </div>
-                    <p class="text-slate-300 font-medium truncate text-[11px]">${preventWidow(inc.title)}</p>
+                    <p class="text-slate-300 font-medium clamp-2 text-[11px]">“${preventWidow(inc.title)}”</p>
                     <div class="flex items-center space-x-1.5 text-[10px] font-mono pt-0.5">
-                        <span class="px-1.5 py-0.2 rounded bg-[#12151E] text-slate-400 border border-[#222634]">Slack: ${inc.slack_status}</span>
-                        <span class="px-1.5 py-0.2 rounded bg-[#12151E] text-slate-400 border border-[#222634]">Linear: ${inc.linear_status}</span>
+                        <span class="px-1.5 py-0.2 rounded bg-[#12151E] text-slate-400 border border-[rgb(255_255_255_/_0.08)]">Slack: ${inc.slack_status}</span>
+                        <span class="px-1.5 py-0.2 rounded bg-[#12151E] text-slate-400 border border-[rgb(255_255_255_/_0.08)]">Linear: ${inc.linear_status}</span>
                     </div>
                 </div>
                 `;
@@ -1009,7 +1080,6 @@ async function pollIncidents() {
     }
 }
 
-// Attach spring drag & boundary resistance to incident feed
 const incidentContainer = document.getElementById('incidents-container');
 if (incidentContainer) {
     attachSpringDrag(incidentContainer);
@@ -1019,7 +1089,7 @@ if (incidentContainer) {
 document.getElementById('btn-sync-airtable').addEventListener('click', async () => {
     const btn = document.getElementById('btn-sync-airtable');
     btn.disabled = true;
-    btn.textContent = "Syncing...";
+    btn.textContent = "Syncing…";
 
     try {
         const res = await fetch('/api/v1/sync/airtable', { method: 'POST' });
@@ -1030,7 +1100,7 @@ document.getElementById('btn-sync-airtable').addEventListener('click', async () 
     } finally {
         btn.disabled = false;
         btn.innerHTML = `
-            <svg class="w-3 h-3 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg class="w-3 h-3 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/>
             </svg>
             <span>Sync Airtable</span>
@@ -1038,7 +1108,7 @@ document.getElementById('btn-sync-airtable').addEventListener('click', async () 
     }
 });
 
-// 13. Global Keyboard Shortcuts (Enter to Run, Escape to Close)
+// 13. Global Keyboard Shortcuts
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
         const activeEl = document.activeElement;

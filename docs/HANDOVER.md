@@ -19,23 +19,25 @@
 - **Bi-Directional Airtable Sync:** Live REST client in `src/airtable_sync.py` syncing courtroom health to base `appviUqZAQGGD2ILo`. Verified with live record `recMbWX6eUaV3pnOD` (`typecast: True` enabled).
 - **FastAPI Gateway & WebSocket Probe:** REST endpoints (`/report`, `/interview`, `/golden-profiles`, `/courtrooms/status`, `/health`) and live `/ws/probe` endpoint in `src/main.py`.
 - **Zero-Scroll Single-Viewport Architecture (ADR-010):**
-  - Viewport strictly locked to 100vh (`h-screen overflow-hidden`): zero browser window scrolling on any screen $\ge 1280 \times 800$.
+  - Viewport strictly locked to 100dvh (`h-[100dvh] overflow-hidden`): zero browser window scrolling on any screen $\ge 1280 \times 800$.
   - Eradicated all introductory/marketing copy (no giant H2 hero or explanatory paragraphs).
   - Consolidated 4 oversized KPI cards into a clean 44px top header micro-stat strip (`Active`, `Fleet`, `Optimal`, `Incidents`).
   - Unified all 6 telemetry parameters into a single compact horizontal grid with an integrated 4px hairline audio level bar.
   - In-place pre-allocated verdict container (zero layout shift; standby $\rightarrow$ progress $\rightarrow$ verdict without page height expansion).
   - Compact 4-column regional matrix (38px cards) and strictly contained incident feed (internal scroll only).
-- **Physical Motion Architecture & Micro-Interaction Physics (ADR-011):**
-  - Entrances: Elements enter from `scale(0.97)` with `opacity: 0` over 180–200ms (never `scale: 0`).
-  - Buttons: Press state scales to `0.97` (`button:active { scale: 0.97 }`) with `transition: scale 150ms ease-out`.
-  - Input Error Shake: Invalid inputs trigger a 360ms 6-step horizontal shake (`0, -10, 10, -6, 6, -3, 0px`) and red highlight.
-  - Directional Steppers: Transitions translate directionally along path of travel rather than crossfading.
-  - Accordions: Native `interpolate-size: allow-keywords;` enables smooth `height: auto` transitions without JS height loops.
-  - Compositor-Only Motion: Progress and level bars animate purely via GPU `scaleX(...)`, zero repaints on top/left/width.
-  - Theme Transition Suppression: Attached `.theme-switching * { transition: none !important }` during palette toggles.
-  - Warm Tooltip Pool: First tooltip delays 350ms; once warm, subsequent tooltips appear instantly with 0ms delay.
-  - Velocity-Preserving Springs: Pointer dismiss gestures preserve velocity on release via spring momentum dampening.
-  - Boundary Resistance: Overflow containers apply logarithmic rubber-band resistance when pulled past ends.
+- **Typographic Craftsmanship & OKLCH Micro-Interactions (ADR-012):**
+  - Font stacks: Standardized on `Switzer` (Clean Swiss Sans) and `IBM Plex Mono` (Tech Mono). Purged `Inter`, `Roboto`, `Geist`, `JetBrains Mono`.
+  - Zero-shift tabs: Reserved bold width via `inline-grid` stacking with hidden `::after` copy.
+  - Centered labels/buttons: `text-box-trim: trim-both` and `text-box-edge: cap alphabetic`.
+  - Small-caps acronyms: `font-variant-caps: all-small-caps` on `ASR`, `SNR`, `RTT`, `WS`, `WAL`, `P0`.
+  - Typographic curly quotes: `“`, `”`, `’` applied across all copy and generated reason codes.
+  - Alpha borders: `rgb(255 255 255 / 0.08)` blending seamlessly across surface depth levels (L0 to L3).
+  - OKLCH status palette: Matched lightness $L = 0.72$ for optimal, degraded, and critical indicators.
+  - Gradients & edge masks in OKLCH: Eliminates muddy gray dead zones.
+  - Popovers & exits: Start at `scale: 0.95` from trigger bounding box; exits 20% shorter (160ms vs 200ms) collapsing toward trigger.
+  - Icon swaps: Blurs to 4px and scales to 0.85 on exit; sharpens and scales to 1.0 on entrance.
+  - Staggered settlements: 30ms list row cascade; +60ms/+120ms/+180ms verdict detail settlements.
+  - Single-shot harmonic success pulse on clearance and sync completion.
 - **Automated Verification:** 30 out of 30 unit and integration tests passing in `tests/` in 12.25s.
 - **Git Repository & Remote Push:** Public repository created and synced at `https://github.com/AllenFletcherAI/adalat-pulse`.
 - **Containerization:** Multi-stage production `Dockerfile` and `docker-compose.yml`.
@@ -43,7 +45,7 @@
 ---
 
 ## 2. Working On Now
-- System operating with 10 universal animation rules in production zero-scroll mode.
+- System operating with full craftsmanship, typography, and motion standards in production zero-scroll mode.
 - Uvicorn daemon running healthy on port 8000.
 
 ---
@@ -56,7 +58,7 @@
 ---
 
 ## 4. What To Do Next
-1. Commit all 10-rule physical motion updates to git.
+1. Commit all craftsmanship and typographic updates to git.
 2. Push main branch to `https://github.com/AllenFletcherAI/adalat-pulse`.
 3. Keep background server daemon active on port 8000.
 

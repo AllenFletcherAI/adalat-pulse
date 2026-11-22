@@ -176,3 +176,28 @@
 * **Why:** Software deployed in high-pressure judicial courtrooms must feel physically grounded, predictable, and instantaneous. Physical feedback models build muscular intuition and prevent operator input errors.
 * **Rejected Alternative:** Arbitrary CSS keyframes with hardcoded durations and linear easings. Rejected because unprincipled animations create visual noise and cognitive fatigue.
 * **When to Reconsider:** Never. Physics-based motion standards apply universally across computing touchpoints.
+---
+
+## ADR-012: Typographic Craftsmanship, OKLCH Color Physics, and Micro-Interaction Standards
+* **Date:** November 2026
+* **Decision:** Enforce master-level craftsmanship and interaction rules across `src/static/index.html` and `src/static/app.js`:
+  1. *Font Stacks:* Purged generic AI-slop fonts (`Inter`, `Roboto`, `Geist`, `JetBrains Mono`). Standardized on `Switzer` (Clean Swiss Sans) for all UI typography and `IBM Plex Mono` for technical metrics and courtroom identifiers.
+  2. *Zero-Shift Tabs:* Implemented `.tab-reserved` with `inline-grid` stacking a hidden bold copy (`::after { content: attr(data-text); font-weight: 700; visibility: hidden; }`) ensuring active tab selection causes zero layout shift.
+  3. *Text Box Trim:* Enforced `text-box-trim: trim-both` and `text-box-edge: cap alphabetic` across all buttons and inputs to remove font half-leading and achieve dead-center alignment.
+  4. *Acronyms & Quotes:* Set all acronyms (`ASR`, `SNR`, `RTT`, `WS`, `WAL`, `P0`) in small-caps (`font-variant-caps: all-small-caps; letter-spacing: 0.04em;`). Enforced typographic curly quotes (`“`, `”`, `’`) across all UI copy and generated reason codes.
+  5. *Alpha Borders:* Replaced solid hex borders with alpha colors (`rgb(255 255 255 / 0.08)`) for seamless blending across surface elevations.
+  6. *OKLCH Status Palette:* Standardized status colors to identical perceptual lightness ($L = 0.72$):
+     - Optimal: `oklch(0.72 0.17 155)`
+     - Degraded: `oklch(0.72 0.16 75)`
+     - Critical: `oklch(0.72 0.20 25)`
+     Interpolated all gradient fills and edge masks `in oklch` to prevent muddy gray dead zones.
+  7. *Dark Mode Depth:* Structured surface depth through lightness stepping (L0 `#0A0C10` $\rightarrow$ L1 `#12151E` $\rightarrow$ L2 `#181D2A` $\rightarrow$ L3 `#202636`) rather than relying on invisible dark shadows.
+  8. *Viewport Unit:* Standardized on `100dvh` to ensure zero overflow across mobile and Safari address bars.
+  9. *Matched Icon Strokes:* Aligned SVG stroke widths directly with adjacent font weights (2.25 for 600 weight; 1.75 for 500 weight).
+  10. *Popovers & Exits:* Popovers begin at `scale: 0.95` pinned to the trigger element's bounding box. Exits are strictly 20% shorter than entrances (200ms $\rightarrow$ 160ms) and collapse back toward the trigger.
+  11. *Icon Swaps:* Outgoing icons blur to 4px and scale to 0.85 as incoming icons sharpen into view.
+  12. *Staggered Settlements:* Cascaded list rows by 30ms (`calc(var(--stagger-index) * 30ms)`); staggered verdict detail settlements (+60ms alignment, +120ms reasons, +180ms receipts).
+  13. *Success Confirmation:* Triggered single-shot harmonic pulse (`pulse-success`) on optimal verdicts and sync completions.
+* **Why:** Judicial software deployed for the Supreme Court, High Courts, and 6,000+ judges must command institutional trust and aesthetic sobriety. Master-level micro-interactions eliminate layout shifts and cognitive friction during live court trials.
+* **Rejected Alternative:** Generic utility styling and standard browser font fallbacks. Rejected because uncalibrated typography and bouncy transitions distract courtroom technicians.
+* **When to Reconsider:** Never. Universal typographic and ergonomic principles endure.

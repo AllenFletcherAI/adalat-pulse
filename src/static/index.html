@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Adalat-Pulse | Courtroom Pre-Flight Gateway</title>
     
-    <!-- Clean System Fonts: Inter & JetBrains Mono -->
+    <!-- Authentic Craft Fonts: Switzer (Clean Swiss Sans) & IBM Plex Mono (Tech Mono) -->
+    <!-- AI-looking fonts purged: Inter, Roboto, Arial, Geist, JetBrains Mono, Space Grotesk -->
+    <link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -18,15 +20,15 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+                        sans: ['Switzer', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+                        mono: ['IBM Plex Mono', 'ui-monospace', 'monospace'],
                     },
                     colors: {
                         slate: {
                             950: '#0A0C10',
                             900: '#12151E',
-                            850: '#171B26',
-                            800: '#222634',
+                            850: '#181D2A',
+                            800: '#202636',
                             700: '#32384A',
                         }
                     }
@@ -35,34 +37,121 @@
         }
     </script>
     <style>
-        /* Rule 5: Accordions: interpolate-size: allow-keywords, so height: auto animates smoothly */
         :root {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Switzer', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             font-feature-settings: "kern" 1, "liga" 1;
             text-rendering: optimizeLegibility;
             -webkit-font-smoothing: antialiased;
-            interpolate-size: allow-keywords;
+            interpolate-size: allow-keywords; /* Rule: Smooth height: auto */
+
+            /* OKLCH Perceptually Uniform Status Palette (Matched Lightness L = 0.72) */
+            --color-optimal: oklch(0.72 0.17 155);
+            --color-degraded: oklch(0.72 0.16 75);
+            --color-critical: oklch(0.72 0.20 25);
+
+            /* Alpha Borders: Blends cleanly across all backgrounds */
+            --border-alpha: rgb(255 255 255 / 0.08);
+            --border-alpha-hover: rgb(255 255 255 / 0.16);
+
+            /* Dark Mode Lighter Surface Depth Hierarchy */
+            --surface-l0: #0A0C10; /* Canvas Level 0 */
+            --surface-l1: #12151E; /* Panels Level 1 */
+            --surface-l2: #181D2A; /* Inputs/Sub-Cards Level 2 */
+            --surface-l3: #202636; /* Modals/Hover Level 3 */
         }
 
-        /* Enforce Zero-Scroll Single-Page Viewport */
+        /* Rule: 100dvh instead of 100vh for dynamic mobile/Safari viewport */
         html, body {
-            height: 100vh;
+            height: 100dvh;
             width: 100vw;
             overflow: hidden;
-            background-color: #0A0C10;
+            background-color: var(--surface-l0);
             color: #F8FAFC;
+            hyphens: auto;
+            -webkit-hyphens: auto;
         }
 
-        /* Rule 7: Theme switches: turn transitions off while the theme changes */
+        /* Rule: Theme switches: turn transitions off while theme changes */
         .theme-switching,
         .theme-switching * {
             transition: none !important;
         }
 
-        /* Solid Matte Surface: R_outer = 12px */
+        /* Rule: Zero-Shift Tabs: Reserve bold width in inline-grid */
+        .tab-reserved {
+            display: inline-grid;
+            place-items: center;
+        }
+        .tab-reserved > span {
+            grid-area: 1 / 1;
+        }
+        .tab-reserved::after {
+            content: attr(data-text);
+            font-weight: 700;
+            grid-area: 1 / 1;
+            visibility: hidden;
+        }
+
+        /* Rule: Centered Button Text: text-box-trim */
+        button, .btn-action-primary, label, .tab-reserved, .preset-btn {
+            text-box-trim: trim-both;
+            text-box-edge: cap alphabetic;
+        }
+
+        /* Rule: Link Underline Offset */
+        a, .underline-link {
+            text-underline-offset: 0.2em;
+            text-decoration-skip-ink: auto;
+        }
+
+        /* Rule: Zero-Disruption Superscripts */
+        sup {
+            line-height: 0;
+            position: relative;
+            vertical-align: baseline;
+            top: -0.5em;
+        }
+
+        /* Rule: Acronyms in Small-Caps */
+        .acronym, abbr {
+            font-variant-caps: all-small-caps;
+            letter-spacing: 0.04em;
+            text-decoration: none;
+        }
+
+        /* Rule: 2-Line Card Title Clamp */
+        .clamp-2 {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
+        }
+
+        /* Rule: Middle File/Device Truncation */
+        .file-middle-trunc {
+            display: flex;
+            align-items: center;
+            min-width: 0;
+        }
+        .file-name-base {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .file-name-ext {
+            flex-shrink: 0;
+        }
+
+        /* Rule: Edge Masking in OKLCH */
+        .edge-mask-x {
+            mask-image: linear-gradient(90deg in oklch, transparent, black 6% 94%, transparent);
+            -webkit-mask-image: linear-gradient(90deg in oklch, transparent, black 6% 94%, transparent);
+        }
+
+        /* Solid Matte Surface: R_outer = 12px with Alpha Border */
         .surface-panel {
-            background-color: #12151E;
-            border: 1px solid #222634;
+            background-color: var(--surface-l1);
+            border: 1px solid var(--border-alpha);
             border-radius: 12px;
         }
 
@@ -72,20 +161,20 @@
             font-feature-settings: "tnum" 1;
         }
 
-        /* Concentric Radius: R_inner = 6px */
+        /* Concentric Radius: R_inner = 6px with Alpha Border */
         .clean-input {
-            background-color: #0A0C10;
-            border: 1px solid #222634;
+            background-color: var(--surface-l0);
+            border: 1px solid var(--border-alpha);
             border-radius: 6px;
             color: #F8FAFC;
             transition: border-color 100ms ease, box-shadow 100ms ease;
         }
         .clean-input:focus {
             outline: none;
-            border-color: #10B981;
+            border-color: var(--color-optimal);
         }
 
-        /* Rule 3: Wrong input shake: translateX 0, -10, 10, -6, 6, -3, 0px over 360ms + red */
+        /* Rule: Input Error Shake over 360ms */
         @keyframes field-shake {
             0% { transform: translateX(0); }
             16% { transform: translateX(-10px); }
@@ -97,11 +186,11 @@
         }
         .input-invalid {
             animation: field-shake 360ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-            border-color: #EF4444 !important;
-            box-shadow: 0 0 0 1px #EF4444 !important;
+            border-color: var(--color-critical) !important;
+            box-shadow: 0 0 0 1px var(--color-critical) !important;
         }
 
-        /* Rule 2: Buttons: scale to 0.97 while pressed, with button:active { scale: 0.97 } and transition: scale 150ms ease-out */
+        /* Rule: Button Press Scale 0.97 with 150ms ease-out */
         button, .pressable {
             transition: scale 150ms ease-out, background-color 100ms ease, border-color 100ms ease;
             transform-origin: center center;
@@ -111,19 +200,19 @@
             scale: 0.97;
         }
 
-        /* Solid Emerald Action Trigger */
+        /* Solid Action Trigger */
         .btn-action-primary {
-            background-color: #10B981;
+            background-color: var(--color-optimal);
             color: #FFFFFF;
-            border: 1px solid #059669;
+            border: 1px solid rgb(255 255 255 / 0.12);
             border-radius: 6px;
             font-weight: 600;
         }
         .btn-action-primary:hover {
-            background-color: #059669;
+            filter: brightness(1.08);
         }
 
-        /* Rule 5: Smooth height: auto Accordions */
+        /* Rule: Smooth height: auto Accordions */
         .accordion-drawer {
             display: block;
             overflow: hidden;
@@ -136,7 +225,7 @@
             opacity: 1;
         }
 
-        /* Rule 6: Moving things: animate transform (scaleX), never width/top/left */
+        /* Rule: Compositor scaleX Meters with OKLCH Gradients */
         .meter-fill {
             transform: scaleX(0);
             transform-origin: left center;
@@ -144,13 +233,44 @@
             transition: transform 100ms linear;
         }
 
-        /* Rule 8: Warm Tooltips: delay first, rest instant */
+        /* Rule: 30ms Staggered List Cascade */
+        .stagger-item {
+            animation: stagger-in 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+            animation-delay: calc(var(--stagger-index, 0) * 30ms);
+        }
+        @keyframes stagger-in {
+            from {
+                opacity: 0;
+                transform: translateY(4px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Rule: Single-Shot Harmonic Success Pulse */
+        @keyframes harmonic-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.025); }
+            100% { transform: scale(1); }
+        }
+        .pulse-success {
+            animation: harmonic-pulse 240ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Rule: Multiply Blend Mode */
+        .blend-multiply {
+            mix-blend-mode: multiply;
+        }
+
+        /* Rule: Warm Tooltip Engine */
         #global-tooltip {
             position: fixed;
             z-index: 100;
             pointer-events: none;
             opacity: 0;
-            scale: 0.97;
+            scale: 0.95;
             transform-origin: top center;
             transition: opacity 120ms ease-out, scale 120ms cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -159,41 +279,42 @@
             scale: 1;
         }
 
-        /* Custom Scrollbar for Inner Containers Only */
+        /* Scrollbar for Inner Containers */
         ::-webkit-scrollbar {
             width: 4px;
             height: 4px;
         }
         ::-webkit-scrollbar-track {
-            background: #0A0C10;
+            background: var(--surface-l0);
         }
         ::-webkit-scrollbar-thumb {
-            background: #222634;
+            background: rgb(255 255 255 / 0.1);
             border-radius: 2px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #32384A;
+            background: rgb(255 255 255 / 0.2);
         }
 
-        /* Shimmer Loading State */
-        @keyframes shimmer {
+        /* Shimmer in OKLCH */
+        @keyframes shimmer-oklch {
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
         }
         .skeleton-shimmer {
-            background: linear-gradient(90deg, #12151E 25%, #222634 50%, #12151E 75%);
+            background: linear-gradient(90deg in oklch, var(--surface-l1) 25%, rgb(255 255 255 / 0.08) 50%, var(--surface-l1) 75%);
             background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
+            animation: shimmer-oklch 1.5s infinite;
         }
     </style>
 </head>
-<body class="h-screen w-screen overflow-hidden flex flex-col justify-between selection:bg-emerald-600/30">
+<body class="h-[100dvh] w-screen overflow-hidden flex flex-col justify-between selection:bg-emerald-600/30">
 
     <!-- Top Navigation & Micro-Stats: Compact 44px Bar -->
-    <header class="h-11 flex-none border-b border-[#222634] bg-[#0A0C10] px-4 sm:px-6 flex items-center justify-between z-30">
+    <header class="h-11 flex-none border-b border-[rgb(255_255_255_/_0.08)] bg-[#0A0C10] px-4 sm:px-6 flex items-center justify-between z-30">
         <div class="flex items-center space-x-2.5">
-            <div class="h-6 w-6 rounded-md bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <div class="h-6 w-6 rounded-md bg-[oklch(0.72_0.17_155_/_0.15)] border border-[oklch(0.72_0.17_155_/_0.3)] flex items-center justify-center text-[oklch(0.72_0.17_155)]">
+                <!-- Icon: Matched stroke width 2.25 for semi-bold brand -->
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
                     <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
                     <path d="M7 21h10"/>
@@ -207,47 +328,47 @@
             </div>
         </div>
 
-        <!-- Center: Fleet Micro-KPIs with Tooltips -->
-        <div class="hidden md:flex items-center space-x-3 text-xs bg-[#12151E] px-3 py-1 rounded-md border border-[#222634]">
-            <div class="flex items-center space-x-1.5" data-tooltip="Total courtrooms monitored across 11 partner state jurisdictions">
+        <!-- Center: Fleet Micro-KPIs with Small-Caps & Tooltips -->
+        <div class="hidden md:flex items-center space-x-3 text-xs bg-[#12151E] px-3 py-1 rounded-md border border-[rgb(255_255_255_/_0.08)]">
+            <div class="flex items-center space-x-1.5" data-tooltip="Total active courtrooms across 11 partner state jurisdictions">
                 <span class="text-slate-400 text-[11px]">Active:</span>
                 <span id="stat-total-courtrooms" class="font-mono font-semibold text-white tabular-nums text-xs">--</span>
             </div>
             <span class="text-slate-700">•</span>
-            <div class="flex items-center space-x-1.5" data-tooltip="Percentage of fleet meeting 16kHz audio & <2.0% loss quality gate">
+            <div class="flex items-center space-x-1.5" data-tooltip="Fleet readiness meeting Koyal ASR quality gates">
                 <span class="text-slate-400 text-[11px]">Fleet:</span>
-                <span id="stat-fleet-health" class="font-mono font-semibold text-emerald-400 tabular-nums text-xs">--%</span>
+                <span id="stat-fleet-health" class="font-mono font-semibold text-[oklch(0.72_0.17_155)] tabular-nums text-xs">--%</span>
             </div>
             <span class="text-slate-700">•</span>
-            <div class="flex items-center space-x-1.5" data-tooltip="Courtrooms fully approved for live Koyal ASR transcription">
+            <div class="flex items-center space-x-1.5" data-tooltip="Courtrooms fully approved for live judicial transcription">
                 <span class="text-slate-400 text-[11px]">Optimal:</span>
                 <span id="stat-optimal-sessions" class="font-mono font-semibold text-white tabular-nums text-xs">--</span>
             </div>
             <span class="text-slate-700">•</span>
             <div class="flex items-center space-x-1.5" data-tooltip="Critical hardware or packet-loss breaches routed to Slack & Linear">
                 <span class="text-slate-400 text-[11px]">Incidents:</span>
-                <span id="stat-incidents-count" class="font-mono font-semibold text-rose-400 tabular-nums text-xs">--</span>
+                <span id="stat-incidents-count" class="font-mono font-semibold text-[oklch(0.72_0.20_25)] tabular-nums text-xs">--</span>
             </div>
         </div>
 
         <!-- Right: Theme Switch, Status, IST Clock, Airtable Sync -->
         <div class="flex items-center space-x-2.5">
-            <!-- Rule 7: Theme Switch Toggle Button -->
-            <button id="btn-toggle-theme" type="button" aria-label="Toggle High-Contrast Courtroom Palette" data-tooltip="Toggle High-Contrast Courtroom Mode" class="h-7 w-7 rounded-md text-slate-400 hover:text-white bg-[#12151E] hover:bg-[#171B26] border border-[#222634] flex items-center justify-center pressable">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Theme Toggle Button -->
+            <button id="btn-toggle-theme" type="button" aria-label="Toggle High-Contrast Mode" data-tooltip="Toggle High-Contrast Courtroom Mode" class="h-7 w-7 rounded-md text-slate-400 hover:text-white bg-[#12151E] hover:bg-[#181D2A] border border-[rgb(255_255_255_/_0.08)] flex items-center justify-center pressable">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
                 </svg>
             </button>
 
-            <div class="flex items-center space-x-2 text-xs" data-tooltip="SQLite Write-Ahead Logging active; local non-blocking persistence">
-                <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span id="gateway-status" class="font-mono text-emerald-400 text-[11px]">WAL</span>
+            <div class="flex items-center space-x-2 text-xs" data-tooltip="SQLite Write-Ahead Logging active for non-blocking concurrent writes">
+                <span class="inline-block w-2 h-2 rounded-full bg-[oklch(0.72_0.17_155)]"></span>
+                <span id="gateway-status" class="font-mono text-[oklch(0.72_0.17_155)] text-[11px]"><abbr class="acronym">WAL</abbr></span>
                 <span class="text-slate-700">•</span>
-                <span id="live-ist-clock" class="font-mono text-slate-300 tabular-nums text-[11px]">--:--:-- IST</span>
+                <span id="live-ist-clock" class="font-mono text-slate-300 tabular-nums text-[11px]">--:--:-- <abbr class="acronym">IST</abbr></span>
             </div>
 
-            <button id="btn-sync-airtable" data-tooltip="Sync all active courtroom telemetry snapshots to Airtable base" class="h-7 px-2.5 rounded-md text-[11px] font-medium text-slate-200 bg-[#12151E] hover:bg-[#171B26] border border-[#222634] hover:border-slate-600 transition-colors flex items-center space-x-1.5 pressable focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-400">
-                <svg class="w-3 h-3 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <button id="btn-sync-airtable" data-tooltip="Sync all courtroom telemetry snapshots to Airtable base" class="h-7 px-2.5 rounded-md text-[11px] font-medium text-slate-200 bg-[#12151E] hover:bg-[#181D2A] border border-[rgb(255_255_255_/_0.08)] hover:border-slate-500 transition-colors flex items-center space-x-1.5 pressable focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-400">
+                <svg class="w-3 h-3 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
                     <path d="M3 3v5h5"/>
                     <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
@@ -258,7 +379,7 @@
         </div>
     </header>
 
-    <!-- Main Viewport: Strict 1-Screen Container (Zero Page Scroll) -->
+    <!-- Main Viewport: Strict 100dvh Single-Screen Workstation -->
     <main class="flex-1 w-full max-w-[1400px] mx-auto p-3 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 overflow-hidden">
 
         <!-- LEFT WORKSTATION: The Core Diagnostic Console (7 cols) -->
@@ -272,11 +393,11 @@
                     <div class="relative">
                         <input id="input-courtroom-id" type="text" value="DL-HC-CRT04" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="courtroom-combo-list" class="clean-input w-full h-8 px-2.5 text-xs font-mono font-medium text-white placeholder-slate-500" placeholder="Type bench or ID...">
                         <button id="btn-combo-toggle" type="button" aria-label="Toggle list" class="absolute right-2 top-2 h-4 w-4 flex items-center justify-center text-slate-400 hover:text-white pressable">
-                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><polyline points="6 9 12 15 18 9"/></svg>
                         </button>
                     </div>
-                    <!-- Rule 1: Combobox Listbox starts scale 0.97 opacity 0 -->
-                    <div id="courtroom-combo-list" role="listbox" class="hidden absolute left-0 right-0 top-full mt-1 bg-[#12151E] border border-[#222634] rounded-md shadow-2xl max-h-40 overflow-y-auto z-40 divide-y divide-[#222634]">
+                    <!-- Combobox Dropdown Popover: scale 0.95 from trigger -->
+                    <div id="courtroom-combo-list" role="listbox" class="hidden absolute left-0 right-0 top-full mt-1 bg-[#12151E] border border-[rgb(255_255_255_/_0.08)] rounded-md shadow-2xl max-h-40 overflow-y-auto z-40 divide-y divide-[rgb(255_255_255_/_0.06)]">
                         <!-- Populated dynamically -->
                     </div>
                 </div>
@@ -284,7 +405,7 @@
                 <!-- Certified Golden Baseline -->
                 <div class="space-y-1">
                     <label class="block text-[11px] font-medium text-slate-400">Certified golden profile</label>
-                    <select id="select-golden-profile" data-tooltip="Verified hardware baseline against which current metrics are compared" class="clean-input w-full h-8 px-2 text-xs text-slate-200">
+                    <select id="select-golden-profile" data-tooltip="Certified hardware baseline for delta comparison" class="clean-input w-full h-8 px-2 text-xs text-slate-200">
                         <option value="GOLDEN-HC-FIBER" selected>High Court Leased Line (35ms, 0% Loss, 28 dB)</option>
                         <option value="GOLDEN-DC-HYBRID">District Court Dual-ISP (70ms, 0.2% Loss, 22 dB)</option>
                         <option value="GOLDEN-TL-EDGE">Rural Taluka Edge 4G (110ms, 0.5% Loss, 18 dB)</option>
@@ -295,27 +416,27 @@
                 <input id="input-bench-name" type="hidden" value="Delhi High Court Bench 04 (Civil Division)">
             </div>
 
-            <!-- 2. Field Simulation Presets (Compact Segmented Strip) -->
-            <div class="grid grid-cols-4 gap-1.5 bg-[#0A0C10] p-1 rounded-md border border-[#222634] flex-none">
-                <button type="button" data-preset="optimal" data-tooltip="Test with optimal fiber baseline (35ms, 0% loss, 28.5 dB SNR)" class="preset-btn py-1 px-2 rounded text-[11px] font-medium text-slate-300 hover:text-white hover:bg-[#171B26] transition-colors text-center pressable truncate">
-                    Fiber optimal
+            <!-- 2. Zero-Shift Segmented Baseline Presets with Edge Masking -->
+            <div class="grid grid-cols-4 gap-1.5 bg-[#0A0C10] p-1 rounded-md border border-[rgb(255_255_255_/_0.08)] flex-none edge-mask-x">
+                <button type="button" data-preset="optimal" data-text="Fiber optimal" data-tooltip="Inject optimal fiber telemetry (35ms, 0% loss, 28.5 dB SNR)" class="preset-btn tab-reserved py-1 px-2 rounded text-[11px] font-medium text-slate-300 hover:text-white hover:bg-[#181D2A] transition-colors text-center pressable truncate">
+                    <span>Fiber optimal</span>
                 </button>
-                <button type="button" data-preset="monsoon" data-tooltip="Test monsoon broadband degradation (380ms, 3.8% loss, 21.0 dB)" class="preset-btn py-1 px-2 rounded text-[11px] font-medium text-slate-300 hover:text-white hover:bg-[#171B26] transition-colors text-center pressable truncate">
-                    Monsoon
+                <button type="button" data-preset="monsoon" data-text="Monsoon" data-tooltip="Inject monsoon broadband loss (380ms, 3.8% loss, 21.0 dB)" class="preset-btn tab-reserved py-1 px-2 rounded text-[11px] font-medium text-slate-300 hover:text-white hover:bg-[#181D2A] transition-colors text-center pressable truncate">
+                    <span>Monsoon</span>
                 </button>
-                <button type="button" data-preset="fan_noise" data-tooltip="Test courtroom ceiling fan acoustic noise (65ms, 15.5 dB SNR)" class="preset-btn py-1 px-2 rounded text-[11px] font-medium text-slate-300 hover:text-white hover:bg-[#171B26] transition-colors text-center pressable truncate">
-                    Fan noise
+                <button type="button" data-preset="fan_noise" data-text="Fan noise" data-tooltip="Inject ceiling fan noise floor (65ms, 15.5 dB SNR)" class="preset-btn tab-reserved py-1 px-2 rounded text-[11px] font-medium text-slate-300 hover:text-white hover:bg-[#181D2A] transition-colors text-center pressable truncate">
+                    <span>Fan noise</span>
                 </button>
-                <button type="button" data-preset="edge_lag" data-tooltip="Test edge 4G dongle latency breach (340ms, 1.4% loss, 17.5 dB)" class="preset-btn py-1 px-2 rounded text-[11px] font-medium text-slate-300 hover:text-white hover:bg-[#171B26] transition-colors text-center pressable truncate">
-                    4G lag
+                <button type="button" data-preset="edge_lag" data-text="4G lag" data-tooltip="Inject edge 4G dongle latency breach (340ms, 1.4% loss, 17.5 dB)" class="preset-btn tab-reserved py-1 px-2 rounded text-[11px] font-medium text-slate-300 hover:text-white hover:bg-[#181D2A] transition-colors text-center pressable truncate">
+                    <span>4G lag</span>
                 </button>
             </div>
 
-            <!-- 3. Unified 6-Metric Telemetry Grid (Network + Audio in One Compact Cluster) -->
+            <!-- 3. Unified 6-Metric Telemetry Grid -->
             <div class="space-y-1.5 flex-none">
                 <div class="grid grid-cols-3 sm:grid-cols-6 gap-2">
                     <!-- Latency -->
-                    <div class="space-y-0.5" data-tooltip="One-way network latency (Koyal ASR threshold: < 200 ms)">
+                    <div class="space-y-0.5" data-tooltip="One-way latency to gateway (Threshold: &lt; 200 ms)">
                         <label class="text-[10px] text-slate-400 block truncate">Latency</label>
                         <div class="relative flex items-center">
                             <input id="in-latency" type="text" value="42.0" class="clean-input w-full h-8 pl-2 pr-6 text-xs font-mono font-medium text-white tabular-nums">
@@ -324,7 +445,7 @@
                     </div>
 
                     <!-- Packet Loss -->
-                    <div class="space-y-0.5" data-tooltip="RTP/UDP packet loss (Koyal ASR critical limit: < 2.0%)">
+                    <div class="space-y-0.5" data-tooltip="RTP/UDP packet loss (Critical limit: &lt; 2.0%)">
                         <label class="text-[10px] text-slate-400 block truncate">Packet loss</label>
                         <div class="relative flex items-center">
                             <input id="in-loss" type="text" value="0.1" class="clean-input w-full h-8 pl-2 pr-5 text-xs font-mono font-medium text-white tabular-nums">
@@ -333,7 +454,7 @@
                     </div>
 
                     <!-- Jitter -->
-                    <div class="space-y-0.5" data-tooltip="Network packet arrival variation (Threshold: < 30 ms)">
+                    <div class="space-y-0.5" data-tooltip="Packet arrival jitter (Threshold: &lt; 30 ms)">
                         <label class="text-[10px] text-slate-400 block truncate">Jitter</label>
                         <div class="relative flex items-center">
                             <input id="in-jitter" type="text" value="5.2" class="clean-input w-full h-8 pl-2 pr-6 text-xs font-mono font-medium text-white tabular-nums">
@@ -342,8 +463,8 @@
                     </div>
 
                     <!-- WS Keepalive -->
-                    <div class="space-y-0.5" data-tooltip="WebSocket round-trip ping/pong time (Threshold: < 250 ms)">
-                        <label class="text-[10px] text-slate-400 block truncate">WS RTT</label>
+                    <div class="space-y-0.5" data-tooltip="WebSocket round-trip ping time (Threshold: &lt; 250 ms)">
+                        <label class="text-[10px] text-slate-400 block truncate"><abbr class="acronym">WS</abbr> <abbr class="acronym">RTT</abbr></label>
                         <div class="relative flex items-center">
                             <input id="in-ws-rtt" type="text" value="55.0" class="clean-input w-full h-8 pl-2 pr-6 text-xs font-mono font-medium text-white tabular-nums">
                             <span class="absolute right-1.5 text-[10px] text-slate-500 font-mono">ms</span>
@@ -351,27 +472,27 @@
                     </div>
 
                     <!-- Audio Sample Rate -->
-                    <div class="space-y-0.5" data-tooltip="Microphone sample rate (Koyal Indic ASR requires >= 16000 Hz)">
+                    <div class="space-y-0.5" data-tooltip="Audio hardware sample rate (Koyal Indic ASR requires &gt;= 16000 Hz)">
                         <label class="text-[10px] text-slate-400 block truncate">Sample rate</label>
-                        <div class="h-8 px-2 bg-[#0A0C10] border border-[#222634] rounded-md flex items-center justify-between text-xs font-mono text-white">
+                        <div class="h-8 px-2 bg-[#0A0C10] border border-[rgb(255_255_255_/_0.08)] rounded-md flex items-center justify-between text-xs font-mono text-white">
                             <span id="live-sample-rate" class="truncate">48k</span>
                             <span class="text-[10px] text-slate-500">Hz</span>
                         </div>
                     </div>
 
                     <!-- Ambient Noise Floor -->
-                    <div class="space-y-0.5" data-tooltip="Signal-to-Noise Ratio (Optimal: >= 24 dB, Critical: < 12 dB)">
-                        <label class="text-[10px] text-slate-400 block truncate">Noise (SNR)</label>
-                        <div class="h-8 px-2 bg-[#0A0C10] border border-[#222634] rounded-md flex items-center justify-between text-xs font-mono text-emerald-400">
+                    <div class="space-y-0.5" data-tooltip="Signal-to-Noise Ratio (Optimal: &gt;= 24 dB, Critical: &lt; 12 dB)">
+                        <label class="text-[10px] text-slate-400 block truncate">Noise (<abbr class="acronym">SNR</abbr>)</label>
+                        <div class="h-8 px-2 bg-[#0A0C10] border border-[rgb(255_255_255_/_0.08)] rounded-md flex items-center justify-between text-xs font-mono text-[oklch(0.72_0.17_155)]">
                             <span id="live-snr-db" class="tabular-nums">26.5</span>
                             <span class="text-[10px] text-slate-500 font-mono">dB</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Rule 6: Hairline VU Audio Bar (scaleX GPU transform) -->
-                <div class="w-full bg-[#0A0C10] h-1.5 rounded-full overflow-hidden border border-[#222634]">
-                    <div id="audio-level-bar" class="h-full bg-emerald-500 meter-fill w-full"></div>
+                <!-- Hairline VU Audio Bar (GPU scaleX) -->
+                <div class="w-full bg-[#0A0C10] h-1.5 rounded-full overflow-hidden border border-[rgb(255_255_255_/_0.08)]">
+                    <div id="audio-level-bar" class="h-full bg-[oklch(0.72_0.17_155)] meter-fill w-full"></div>
                 </div>
             </div>
 
@@ -379,30 +500,29 @@
             <div class="space-y-1.5 flex-none">
                 <div id="progress-container" class="hidden space-y-1">
                     <div class="flex justify-between text-[11px] text-slate-400 font-mono">
-                        <span>Executing hardware &amp; network probe...</span>
-                        <span id="progress-pct" class="text-emerald-400 font-semibold tabular-nums">0%</span>
+                        <span>Executing hardware &amp; network probe…</span>
+                        <span id="progress-pct" class="text-[oklch(0.72_0.17_155)] font-semibold tabular-nums">0%</span>
                     </div>
-                    <!-- Rule 6: GPU scaleX progress bar -->
-                    <div class="w-full bg-[#0A0C10] h-1.5 rounded-full overflow-hidden border border-[#222634]">
-                        <div id="progress-bar" class="h-full bg-emerald-500 meter-fill w-full"></div>
+                    <!-- GPU scaleX progress bar -->
+                    <div class="w-full bg-[#0A0C10] h-1.5 rounded-full overflow-hidden border border-[rgb(255_255_255_/_0.08)]">
+                        <div id="progress-bar" class="h-full bg-[oklch(0.72_0.17_155)] meter-fill w-full"></div>
                     </div>
                 </div>
 
-                <!-- Rule 2: Button scales to 0.97 while pressed -->
                 <button id="btn-run-diagnostic" class="btn-action-primary w-full h-9 flex items-center justify-center space-x-2 text-xs shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 pressable">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                     <span>Run 5-second pre-flight check</span>
-                    <span class="text-[10px] font-mono text-emerald-100 bg-emerald-700/60 px-1 py-0.5 rounded ml-1">↵ Enter</span>
+                    <span class="text-[10px] font-mono text-emerald-100 bg-emerald-800/60 px-1 py-0.5 rounded ml-1">↵ Enter</span>
                 </button>
             </div>
 
-            <!-- 5. In-Place Pre-Allocated Verdict Container (Zero Page Growth, Zero-CLS) -->
+            <!-- 5. In-Place Pre-Allocated Verdict Container (Zero Layout Shift) -->
             <div id="verdict-container-slot" class="flex-1 min-h-[170px] max-h-[220px] overflow-hidden flex flex-col justify-between">
                 
                 <!-- Standby State when Idle -->
-                <div id="verdict-standby" class="h-full bg-[#0A0C10] border border-[#222634] rounded-md p-3 flex flex-col items-center justify-center text-center space-y-1.5">
-                    <div class="h-7 w-7 rounded-full bg-[#12151E] border border-[#222634] flex items-center justify-center text-slate-400">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                <div id="verdict-standby" class="h-full bg-[#0A0C10] border border-[rgb(255_255_255_/_0.08)] rounded-md p-3 flex flex-col items-center justify-center text-center space-y-1.5">
+                    <div class="h-7 w-7 rounded-full bg-[#12151E] border border-[rgb(255_255_255_/_0.08)] flex items-center justify-center text-slate-400">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
                     </div>
                     <div>
                         <p class="text-xs font-semibold text-slate-300">Ready for Pre-Flight Evaluation</p>
@@ -410,8 +530,8 @@
                     </div>
                 </div>
 
-                <!-- Shimmer Skeleton -->
-                <div id="verdict-skeleton" class="hidden h-full bg-[#0A0C10] border border-[#222634] rounded-md p-3 space-y-2.5">
+                <!-- Shimmer Skeleton in OKLCH -->
+                <div id="verdict-skeleton" class="hidden h-full bg-[#0A0C10] border border-[rgb(255_255_255_/_0.08)] rounded-md p-3 space-y-2.5">
                     <div class="flex items-center justify-between">
                         <div class="w-28 h-3.5 rounded skeleton-shimmer"></div>
                         <div class="w-16 h-4 rounded skeleton-shimmer"></div>
@@ -420,8 +540,8 @@
                     <div class="w-3/4 h-3.5 rounded skeleton-shimmer"></div>
                 </div>
 
-                <!-- Rule 1: Verdict Card enters from scale 0.97 opacity 0 -->
-                <div id="verdict-card" class="hidden h-full bg-[#0A0C10] border border-[#222634] rounded-md p-3 flex flex-col justify-between space-y-2 border-l-4">
+                <!-- Verdict Card (Rule: Entrance starts scale 0.97 opacity 0) -->
+                <div id="verdict-card" class="hidden h-full bg-[#0A0C10] border border-[rgb(255_255_255_/_0.08)] rounded-md p-3 flex flex-col justify-between space-y-2 border-l-4">
                     <div class="flex items-center justify-between flex-none">
                         <div class="flex items-center space-x-2">
                             <div id="verdict-icon-container" class="h-5 w-5 rounded flex items-center justify-center"></div>
@@ -439,21 +559,21 @@
                             <span class="text-slate-400">Golden profile alignment</span>
                             <span id="golden-score-pct" class="font-mono font-semibold text-white tabular-nums text-xs">--%</span>
                         </div>
-                        <div class="w-full bg-[#12151E] h-1.5 rounded-full overflow-hidden border border-[#222634]">
-                            <div id="golden-progress-bar" class="h-full bg-emerald-500 meter-fill w-full"></div>
+                        <div class="w-full bg-[#12151E] h-1.5 rounded-full overflow-hidden border border-[rgb(255_255_255_/_0.08)]">
+                            <div id="golden-progress-bar" class="h-full bg-[oklch(0.72_0.17_155)] meter-fill w-full"></div>
                         </div>
                         <p id="golden-summary-text" class="text-[10px] text-slate-400 font-mono truncate">--</p>
                     </div>
 
-                    <!-- Bulleted Reason Summary -->
-                    <div id="verdict-summary" class="text-[11px] text-slate-300 leading-snug space-y-0.5 overflow-hidden line-clamp-2"></div>
+                    <!-- Bulleted Reason Summary with 2-Line Clamp -->
+                    <div id="verdict-summary" class="text-[11px] text-slate-300 leading-snug space-y-0.5 clamp-2"></div>
 
                     <!-- Bottom Bar: Receipts & Actions -->
-                    <div class="flex items-center justify-between pt-1 border-t border-[#222634] text-[10px] font-mono flex-none">
+                    <div class="flex items-center justify-between pt-1 border-t border-[rgb(255_255_255_/_0.08)] text-[10px] font-mono flex-none">
                         <div class="flex items-center space-x-2">
-                            <span id="receipt-airtable" class="px-1.5 py-0.5 rounded bg-[#12151E] text-slate-300 border border-[#222634]">Airtable: Synced</span>
-                            <span id="receipt-slack" class="px-1.5 py-0.5 rounded bg-[#12151E] text-slate-300 border border-[#222634]">Slack: Standby</span>
-                            <span id="receipt-linear" class="px-1.5 py-0.5 rounded bg-[#12151E] text-slate-300 border border-[#222634]">Linear: None</span>
+                            <span id="receipt-airtable" class="px-1.5 py-0.5 rounded bg-[#12151E] text-slate-300 border border-[rgb(255_255_255_/_0.08)]">Airtable: Synced</span>
+                            <span id="receipt-slack" class="px-1.5 py-0.5 rounded bg-[#12151E] text-slate-300 border border-[rgb(255_255_255_/_0.08)]">Slack: Standby</span>
+                            <span id="receipt-linear" class="px-1.5 py-0.5 rounded bg-[#12151E] text-slate-300 border border-[rgb(255_255_255_/_0.08)]">Linear: None</span>
                         </div>
                         
                         <div id="interview-trigger-box" class="hidden">
@@ -463,13 +583,13 @@
                         </div>
 
                         <button id="btn-toggle-deep-diagnostics" type="button" class="text-slate-500 hover:text-slate-300 transition-colors pressable">
-                            JSON <span id="deep-diag-arrow">▾</span>
+                            <abbr class="acronym">JSON</abbr> <span id="deep-diag-arrow">▾</span>
                         </button>
                     </div>
 
-                    <!-- Rule 5: Accordion drawer with interpolate-size: allow-keywords -->
+                    <!-- Smooth height: auto Accordion Drawer -->
                     <div id="deep-diagnostics-panel" class="accordion-drawer">
-                        <pre id="raw-telemetry-json" class="p-2 bg-[#0A0C10] rounded border border-[#222634] text-emerald-400 text-[10px] font-mono overflow-x-auto max-h-24"></pre>
+                        <pre id="raw-telemetry-json" class="p-2 bg-[#0A0C10] rounded border border-[rgb(255_255_255_/_0.08)] text-[oklch(0.72_0.17_155)] text-[10px] font-mono overflow-x-auto max-h-24"></pre>
                     </div>
                 </div>
 
@@ -487,7 +607,6 @@
                     <span class="text-[10px] text-slate-500 font-mono">Live fleet</span>
                 </div>
 
-                <!-- Rule 10: Boundary Resistance on swipe/drag -->
                 <div id="regions-container" class="grid grid-cols-4 gap-1.5">
                     <!-- Populated dynamically with compact 38px micro-cards -->
                 </div>
@@ -497,12 +616,11 @@
             <div class="surface-panel p-3 flex-1 flex flex-col min-h-0 overflow-hidden space-y-2">
                 <div class="flex items-center justify-between flex-none">
                     <h3 class="text-xs font-semibold text-white tracking-tight">Live incident routing</h3>
-                    <span class="text-[10px] text-slate-500 font-mono">Automated P0</span>
+                    <span class="text-[10px] text-slate-500 font-mono">Automated <abbr class="acronym">P0</abbr></span>
                 </div>
 
-                <!-- Rule 9 & 10: Spring handoff on drag release + resistance -->
                 <div id="incidents-container" class="flex-1 overflow-y-auto space-y-1.5 pr-1">
-                    <p class="text-xs text-slate-500 text-center py-6 font-mono">No active P0 incidents logged.</p>
+                    <p class="text-xs text-slate-500 text-center py-6 font-mono">No active <abbr class="acronym">P0</abbr> incidents logged.</p>
                 </div>
             </div>
 
@@ -510,26 +628,26 @@
 
     </main>
 
-    <!-- Technician Diagnostic Interview Modal (Rule 1: Scale 0.97 Entrance; Rule 9: Spring Drag Dismiss) -->
+    <!-- Technician Diagnostic Interview Modal (Optical Center Overlay) -->
     <div id="interview-modal" class="fixed inset-0 bg-[#0A0C10]/80 z-50 hidden flex items-center justify-center p-4">
         <div id="interview-modal-dialog" class="surface-panel max-w-md w-full p-4 space-y-3 shadow-2xl">
-            <div class="flex justify-between items-start border-b border-[#222634] pb-2">
+            <div class="flex justify-between items-start border-b border-[rgb(255_255_255_/_0.08)] pb-2">
                 <div>
                     <h3 class="text-xs font-bold text-white tracking-tight">Technician diagnostic interview</h3>
-                    <p class="text-[10px] text-slate-400">Resolve degraded telemetry before hearing commences</p>
+                    <p class="text-[10px] text-slate-400">Resolve degraded telemetry before proceedings commence</p>
                 </div>
-                <button id="btn-close-interview" class="h-6 w-6 flex items-center justify-center text-slate-400 hover:text-white rounded hover:bg-[#171B26] pressable" aria-label="Close">
-                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                <button id="btn-close-interview" class="h-6 w-6 flex items-center justify-center text-slate-400 hover:text-white rounded hover:bg-[#181D2A] pressable" aria-label="Close">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
 
-            <!-- Rule 4: Directional Stepper Container -->
+            <!-- Directional Stepper Container -->
             <div id="interview-question-container" class="space-y-2 overflow-hidden"></div>
 
             <div class="bg-[#0A0C10] border border-amber-500/30 rounded-md p-2.5 text-[11px] text-amber-200" id="interview-remediation-box"></div>
 
             <div class="flex justify-end space-x-2 pt-1">
-                <button id="btn-cancel-interview" type="button" class="h-8 px-3 rounded-md text-xs font-semibold bg-[#0A0C10] hover:bg-[#171B26] text-slate-300 border border-[#222634] pressable">
+                <button id="btn-cancel-interview" type="button" class="h-8 px-3 rounded-md text-xs font-semibold bg-[#0A0C10] hover:bg-[#181D2A] text-slate-300 border border-[rgb(255_255_255_/_0.08)] pressable">
                     Cancel
                 </button>
                 <button id="btn-submit-interview" type="button" class="btn-action-primary h-8 px-3 text-xs pressable">
@@ -539,8 +657,8 @@
         </div>
     </div>
 
-    <!-- Rule 8: Global Warm Tooltip Element -->
-    <div id="global-tooltip" class="px-2 py-1 rounded bg-[#171B26] border border-[#222634] text-slate-200 text-[11px] font-mono shadow-2xl"></div>
+    <!-- Warm Tooltip Element -->
+    <div id="global-tooltip" class="px-2 py-1 rounded bg-[#181D2A] border border-[rgb(255_255_255_/_0.12)] text-slate-200 text-[11px] font-mono shadow-2xl"></div>
 
     <!-- Vanilla JS App Engine -->
     <script src="/static/app.js"></script>
