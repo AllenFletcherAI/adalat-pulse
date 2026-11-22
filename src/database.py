@@ -164,6 +164,45 @@ def init_db() -> None:
             'Bonded Cellular Dongles (Jio + Airtel) + Directional Noise-Canceling Mic'
         )
         """)
+
+        # Seed Baseline Telemetry Snapshots
+        cursor = conn.execute("SELECT COUNT(*) FROM telemetry_snapshots WHERE courtroom_id = 'RJ-DC-JPR02'")
+        if cursor.fetchone()[0] == 0:
+            conn.execute("""
+            INSERT INTO telemetry_snapshots (
+                courtroom_id, state, bench_name,
+                latency_ms, jitter_ms, packet_loss_pct, ws_rtt_ms,
+                mic_sample_rate_hz, snr_db, mic_device_name,
+                verdict, can_start_session, reasons, incident_id,
+                golden_profile_id, alignment_pct, airtable_synced
+            ) VALUES
+            ('DL-HC-CRT04', 'DL', 'Delhi High Court Bench 04 (Civil Division)', 35.0, 4.0, 0.0, 42.0, 16000, 28.0, 'Shure MX393 Judicial Boundary Mic', 'OPTIMAL', 1, '[]', NULL, 'GOLDEN-HC-FIBER', 96.5, 1),
+            ('UP-DC-LKO01', 'UP', 'Lucknow District Court Commercial Bench 01', 68.0, 7.5, 0.1, 74.0, 16000, 24.0, 'Shure MX393 Judicial Boundary Mic', 'OPTIMAL', 1, '[]', NULL, 'GOLDEN-DC-HYBRID', 92.0, 1),
+            ('KA-HC-BLR02', 'KA', 'Karnataka High Court Bench 02 (Commercial Division)', 38.0, 4.2, 0.0, 44.0, 16000, 26.5, 'Judicial DSP Line-Out (Biamp Tesira)', 'OPTIMAL', 1, '[]', NULL, 'GOLDEN-HC-FIBER', 95.0, 1),
+            ('RJ-DC-JPR02', 'RJ', 'Jaipur District Court Room 02', 395.0, 45.0, 4.2, 410.0, 16000, 19.5, 'Shure MX393 Judicial Boundary Mic', 'CRITICAL', 0, '["PACKET_LOSS_CRITICAL", "LATENCY_EXCEEDED"]', 'INC-RJ-RJ-DC-JPR02-261122-143731', 'GOLDEN-DC-HYBRID', 42.0, 1)
+            """)
+
+        # Seed Baseline Incidents if table is empty
+        cursor = conn.execute("SELECT COUNT(*) FROM incidents WHERE id = 'INC-RJ-RJ-DC-JPR02-261122-143731'")
+        if cursor.fetchone()[0] == 0:
+            conn.execute("""
+            INSERT INTO incidents (
+                id, courtroom_id, state, severity, verdict,
+                title, details, slack_status, linear_status, linear_issue_id
+            ) VALUES
+            ('INC-RJ-RJ-DC-JPR02-261122-143731', 'RJ-DC-JPR02', 'RJ', 'CRITICAL', 'CRITICAL',
+             '[Courtroom P0 Alert] RJ-DC-JPR02 (RJ) - Pre-Flight Diagnostic Failed',
+             'Packet loss of 4.2% exceeds critical limit of 2.0%. Koyal ASR WebSocket drops live Indic speech frames.',
+             'DELIVERED', 'CREATED_ALL-7', 'ALL-7'),
+            ('INC-UP-HC-ALD01-261122-131405', 'UP-HC-ALD01', 'UP', 'DEGRADED', 'DEGRADED',
+             '[Courtroom Alert] UP-HC-ALD01 (UP) - High Network Jitter Resolved',
+             'Network jitter reached 34.0ms on secondary ISP. Auto-routed to dedicated leased line.',
+             'DELIVERED', 'RESOLVED_ALL-6', 'ALL-6'),
+            ('INC-KA-HC-BLR02-261122-114219', 'KA-HC-BLR02', 'KA', 'DEGRADED', 'DEGRADED',
+             '[Quality Warning] KA-HC-BLR02 (KA) - High Room Ambient Noise',
+             'Acoustic room SNR dropped to 17.5 dB due to ceiling fans. Micro-interview triggered remediation.',
+             'DELIVERED', 'CLOSED_ALL-8', 'ALL-8')
+            """)
         conn.commit()
 
 

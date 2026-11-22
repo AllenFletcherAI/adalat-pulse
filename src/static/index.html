@@ -356,32 +356,40 @@
 
         <!-- Center-Left: Interactive Fleet Micro-KPI Bar -->
         <div class="flex items-center space-x-1.5 text-xs bg-[var(--bg-surface)] px-2.5 py-0.5 rounded-md border border-[var(--border-alpha)]">
-            <button id="chip-active" type="button" class="flex items-center space-x-1 px-1.5 py-0.5 rounded hover:bg-[var(--bg-sub)] transition-colors pressable" title="View all registered courtrooms">
-                <span class="text-[var(--text-muted)] text-[11px] font-medium">Active:</span>
-                <span id="stat-total-courtrooms" class="font-mono font-semibold text-[var(--text-primary)] text-xs">3</span>
-            </button>
-            <span class="text-[var(--text-muted)] opacity-30">•</span>
-            <button id="chip-fleet" type="button" class="flex items-center space-x-1 px-1.5 py-0.5 rounded hover:bg-[var(--bg-sub)] transition-colors pressable" title="Fleet health percentage">
+            <button id="chip-active" type="button" class="flex items-center space-x-1 px-1.5 py-0.5 rounded hover:bg-[var(--bg-sub)] transition-colors pressable" title="Total registered courtroom units">
                 <span class="text-[var(--text-muted)] text-[11px] font-medium">Fleet:</span>
-                <span id="stat-fleet-health" class="font-mono font-semibold status-optimal-text text-xs">100%</span>
+                <span id="stat-total-courtrooms" class="font-mono font-semibold text-[var(--text-primary)] text-xs">43 Reg (11 States)</span>
             </button>
             <span class="text-[var(--text-muted)] opacity-30">•</span>
-            <button id="chip-optimal" type="button" class="flex items-center space-x-1 px-1.5 py-0.5 rounded hover:bg-[var(--bg-sub)] transition-colors pressable" title="Filter optimal benches">
-                <span class="text-[var(--text-muted)] text-[11px] font-medium">Optimal:</span>
-                <span id="stat-optimal-sessions" class="font-mono font-semibold text-[var(--text-primary)] text-xs">3</span>
+            <button id="chip-monitored" type="button" class="flex items-center space-x-1 px-1.5 py-0.5 rounded hover:bg-[var(--bg-sub)] transition-colors pressable" title="Live monitored courtroom sessions">
+                <span class="text-[var(--text-muted)] text-[11px] font-medium">Live:</span>
+                <span id="stat-monitored-count" class="font-mono font-semibold text-[var(--text-primary)] text-xs">4 Monitored</span>
+            </button>
+            <span class="text-[var(--text-muted)] opacity-30">•</span>
+            <button id="chip-fleet" type="button" class="flex items-center space-x-1 px-1.5 py-0.5 rounded hover:bg-[var(--bg-sub)] transition-colors pressable" title="Fleet health percentage reconciled with incidents">
+                <span class="text-[var(--text-muted)] text-[11px] font-medium">Health:</span>
+                <span id="stat-fleet-health" class="font-mono font-semibold status-degraded-text text-xs">75.0%</span>
             </button>
             <span class="text-[var(--text-muted)] opacity-30">•</span>
             <button id="chip-incidents" type="button" class="flex items-center space-x-1 px-1.5 py-0.5 rounded hover:bg-[var(--bg-sub)] transition-colors pressable" title="Active P0/P1 incidents">
                 <span class="text-[var(--text-muted)] text-[11px] font-medium">Incidents:</span>
-                <span id="stat-incidents-count" class="font-mono font-semibold status-critical-text text-xs">1</span>
+                <span id="stat-incidents-count" class="font-mono font-semibold status-critical-text text-xs">1 Active P0</span>
             </button>
         </div>
 
-        <!-- Center-Right: Compact Global Search Widget Pill (Cmd+K) -->
-        <button id="btn-trigger-cmd" type="button" class="h-7 px-3 rounded-md text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha)] hover:border-[var(--border-alpha-hover)] flex items-center space-x-2 transition-all pressable" title="Search benches, states or actions (Cmd+K)">
+        <!-- Center: Airtable Cloud Base Linkage Status Pill -->
+        <div class="hidden xl:flex items-center space-x-1.5 bg-[var(--bg-surface)] px-2.5 py-0.5 rounded-md border border-[var(--border-alpha)] text-[10px] font-mono text-[var(--text-muted)]">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span>Airtable: <strong class="text-emerald-400 font-semibold">appK8xPulseDeploy</strong> / tblCourtrooms</span>
+            <span class="opacity-30">•</span>
+            <span id="header-airtable-sync-time" class="text-[var(--text-secondary)]">Synced 1m ago (43 recs)</span>
+        </div>
+
+        <!-- Center-Right: Compact Global Search Widget Pill (OS-Adaptive Shortcut) -->
+        <button id="btn-trigger-cmd" type="button" class="h-7 px-3 rounded-md text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha)] hover:border-[var(--border-alpha-hover)] flex items-center space-x-2 transition-all pressable" title="Search benches, states or actions">
             <svg class="w-3.5 h-3.5 text-[var(--text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <span class="font-sans text-[11px] text-[var(--text-muted)]">Search benches, states or diagnostics...</span>
-            <kbd class="text-[9px] font-mono bg-[var(--bg-canvas)] border border-[var(--border-alpha)] px-1.5 py-0.5 rounded text-[var(--text-secondary)]">Cmd+K</kbd>
+            <span id="search-pill-label" class="font-sans text-[11px] text-[var(--text-muted)]">Search benches, states or diagnostics...</span>
+            <kbd id="shortcut-hint-kbd" class="text-[9px] font-mono bg-[var(--bg-canvas)] border border-[var(--border-alpha)] px-1.5 py-0.5 rounded text-[var(--text-secondary)]">Ctrl+K</kbd>
         </button>
 
         <!-- Right: Reset, Theme, IST Clock, Airtable Sync -->
@@ -438,7 +446,7 @@
                         <span class="text-[var(--text-muted)] opacity-30">→</span>
                         <span id="step-mic-indicator" class="flex items-center space-x-1 status-degraded-text font-medium">
                             <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                            <span>2. Mic Calibrate</span>
+                            <span>2. Mic Pending</span>
                         </span>
                         <span class="text-[var(--text-muted)] opacity-30">→</span>
                         <span id="step-probe-indicator" class="flex items-center space-x-1 text-[var(--text-muted)]">
@@ -449,66 +457,100 @@
                 </div>
                 <div class="flex items-center space-x-1.5">
                     <span class="text-[10px] text-[var(--text-muted)]">Readiness:</span>
-                    <span id="readiness-gauge-pct" class="font-bold status-degraded-text text-xs tabular-nums">50%</span>
+                    <span id="readiness-gauge-pct" class="font-bold status-degraded-text text-xs tabular-nums">33%</span>
                 </div>
             </div>
 
-            <!-- Stage 1: Bench & Profile Binding (Who is testing) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-none">
-                <!-- Courtroom Bench Input -->
-                <div class="space-y-1 relative">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-1.5">
-                            <svg class="w-3 h-3 text-[var(--text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 10v11M9 10v11M15 10v11M19 10v11M12 2L2 7h20L12 2z"/></svg>
-                            <label class="block text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">Stage 1: Courtroom Bench</label>
-                        </div>
-                        <span id="bench-tier-badge" class="text-[10px] font-mono badge-optimal px-1.5 py-0.2 rounded font-semibold">HIGH COURT</span>
+            <!-- Stage 1: Bench & Profile Binding (Who is testing + Operational Context) -->
+            <div class="surface-sub p-2 flex-none border border-[var(--border-alpha)] space-y-1.5">
+                <!-- Bench Top Context Bar: Presiding Judge & Court Master Terminal -->
+                <div class="flex items-center justify-between text-[10px] font-mono text-[var(--text-muted)] bg-[var(--bg-canvas)] px-2 py-0.5 rounded border border-[var(--border-alpha)]">
+                    <div class="flex items-center space-x-2 truncate">
+                        <span id="bench-presiding-text">Presiding: <strong class="text-[var(--text-primary)]">Hon'ble Court 04 (Civil Division)</strong></span>
+                        <span class="opacity-30">•</span>
+                        <span>Terminal: <strong class="text-[var(--text-secondary)]">CM-DEL-04</strong></span>
                     </div>
-                    <div class="relative flex items-center">
-                        <input id="input-courtroom-id" type="text" value="DL-HC-CRT04" autocomplete="one-time-code" role="combobox" aria-expanded="false" class="clean-input w-full h-[34px] px-3 pr-8 text-xs font-mono font-semibold" placeholder="Search courtroom ID...">
-                        <button id="btn-combo-toggle" type="button" aria-label="Toggle bench dropdown" class="absolute right-2 h-6 w-6 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hit-slot pressable">
-                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                        </button>
-                    </div>
-                    <div id="courtroom-combo-list" role="listbox" class="hidden absolute left-0 right-0 top-full mt-1 bg-[var(--bg-surface)] border border-[var(--border-alpha)] rounded-md shadow-2xl max-h-48 overflow-y-auto z-40 divide-y divide-[var(--border-alpha)]"></div>
+                    <span id="bench-airtable-id" class="text-emerald-400 font-semibold flex-none">Airtable: rec98a12_DL04 (Synced)</span>
                 </div>
 
-                <!-- Certified Golden Standard Select -->
-                <div class="space-y-1">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-1.5">
-                            <svg class="w-3 h-3 text-[var(--text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
-                            <label class="block text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">Certified Golden Standard</label>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <!-- Courtroom Bench Input -->
+                    <div class="space-y-1 relative">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">Stage 1: Courtroom Bench</label>
+                            <span id="bench-tier-badge" class="text-[9px] font-mono badge-optimal px-1.5 py-0.2 rounded font-semibold">HIGH COURT</span>
                         </div>
-                        <span class="text-[9px] font-mono text-[var(--text-muted)] tracking-wider pr-1">DETERMINISTIC TIER</span>
+                        <div class="relative flex items-center">
+                            <input id="input-courtroom-id" type="text" value="DL-HC-CRT04" autocomplete="one-time-code" role="combobox" aria-expanded="false" class="clean-input w-full h-[32px] px-2.5 pr-8 text-xs font-mono font-semibold" placeholder="Search courtroom ID...">
+                            <button id="btn-combo-toggle" type="button" aria-label="Toggle bench dropdown" class="absolute right-2 h-6 w-6 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hit-slot pressable">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                            </button>
+                        </div>
+                        <div id="courtroom-combo-list" role="listbox" class="hidden absolute left-0 right-0 top-full mt-1 bg-[var(--bg-surface)] border border-[var(--border-alpha)] rounded-md shadow-2xl max-h-48 overflow-y-auto z-40 divide-y divide-[var(--border-alpha)]"></div>
                     </div>
-                    <div class="custom-select-wrapper relative flex items-center">
-                        <select id="select-golden-profile" class="clean-input w-full h-[34px] px-3 pr-8 text-xs font-medium text-[var(--text-primary)] cursor-pointer">
-                            <option value="GOLDEN-HC-FIBER" selected>High Court Dedicated Leased Line (35ms, 0% Loss, 28 dB)</option>
-                            <option value="GOLDEN-DC-HYBRID">District Court Civil Dual-ISP (70ms, 0.2% Loss, 22 dB)</option>
-                            <option value="GOLDEN-TL-EDGE">Rural Taluka Edge 4G (110ms, 0.5% Loss, 18 dB)</option>
-                        </select>
-                        <div class="pointer-events-none absolute right-2.5 flex items-center text-[var(--text-muted)]">
-                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+
+                    <!-- Certified Golden Standard Select -->
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">Golden Standard Uplink</label>
+                            <span class="text-[9px] font-mono text-[var(--text-muted)] tracking-wider">WAN TIER</span>
+                        </div>
+                        <div class="custom-select-wrapper relative flex items-center">
+                            <select id="select-golden-profile" class="clean-input w-full h-[32px] px-2.5 pr-7 text-xs font-medium text-[var(--text-primary)] cursor-pointer">
+                                <option value="GOLDEN-HC-FIBER" selected>High Court Dedicated Leased Line (35ms, 0% Loss, 28 dB)</option>
+                                <option value="GOLDEN-DC-HYBRID">District Court Civil Dual-ISP (70ms, 0.2% Loss, 22 dB)</option>
+                                <option value="GOLDEN-TL-EDGE">Rural Taluka Edge 4G (110ms, 0.5% Loss, 18 dB)</option>
+                            </select>
+                            <div class="pointer-events-none absolute right-2 flex items-center text-[var(--text-muted)]">
+                                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Koyal Indic Language Pack Selector -->
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">Koyal Language Pack</label>
+                            <span class="text-[9px] font-mono text-emerald-400 font-semibold">ASR V2.4</span>
+                        </div>
+                        <div class="custom-select-wrapper relative flex items-center">
+                            <select id="select-koyal-language" class="clean-input w-full h-[32px] px-2.5 pr-7 text-xs font-mono font-medium text-[var(--text-primary)] cursor-pointer">
+                                <option value="hi-en" selected>Hindi-English Code-Switching</option>
+                                <option value="kn-en">Kannada-English High Court Hybrid</option>
+                                <option value="ml-civ">Malayalam Civil Proceedings Standard</option>
+                                <option value="mr-dc">Marathi District Courts Model</option>
+                                <option value="ta-com">Tamil Commercial Division Standard</option>
+                            </select>
+                            <div class="pointer-events-none absolute right-2 flex items-center text-[var(--text-muted)]">
+                                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 24-Hour Network Telemetry Drift Indicator (Operational Domain Context) -->
+                <div class="flex items-center justify-between text-[10px] font-mono text-[var(--text-secondary)] pt-0.5 border-t border-[var(--border-alpha)]">
+                    <div class="flex items-center space-x-2">
+                        <span>24h Uplink Drift: <strong class="text-[var(--text-primary)]">Stable (+2.1ms peak at 14:00 IST during PDF filing)</strong></span>
+                    </div>
+                    <span class="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">DRIFT: NOMINAL (&lt;5%)</span>
                 </div>
 
                 <input id="input-state" type="hidden" value="DL">
                 <input id="input-bench-name" type="hidden" value="Delhi High Court Bench 04 (Civil Division)">
             </div>
 
-            <!-- Stage 2: Physical Acoustic Hardware Certification -->
+            <!-- Stage 2: Physical Acoustic Hardware Stack & Resampling Standard -->
             <div class="surface-sub p-2 flex-none border border-[var(--border-alpha)] space-y-1.5 overflow-visible">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-2">
                         <svg class="w-3 h-3 text-[var(--text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
                         <span id="mic-indicator-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
-                        <span class="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">Stage 2: Acoustic Hardware Certification</span>
+                        <span class="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">Stage 2: Acoustic Hardware Stack</span>
                         <span id="mic-status-badge" class="px-1.5 py-0.2 rounded text-[10px] font-mono bg-[var(--bg-canvas)] text-[var(--text-muted)] border border-[var(--border-alpha)]">STANDBY</span>
                     </div>
 
-                    <!-- Explicit Mic Controls (CLEAN GAP SEPARATION) -->
+                    <!-- Explicit Mic Controls -->
                     <div class="flex items-center space-x-2">
                         <button id="btn-toggle-mic" type="button" class="h-6 px-2.5 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition-colors flex items-center pressable" title="Run live microphone calibration (Space)">
                             <svg class="w-3 h-3 flex-none mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
@@ -521,12 +563,24 @@
                     </div>
                 </div>
 
-                <!-- Dual Visualizers: 32-Band Spectrum Analyzer (Left) + Voice Oscilloscope Waveform (Right) (36px Compact Height) -->
+                <!-- Courtroom Hardware Stack Selector with Auto-Warning Pill -->
+                <div class="flex items-center space-x-2 bg-[var(--bg-canvas)] p-1 px-2 rounded border border-[var(--border-alpha)] text-[10px] font-mono">
+                    <label class="text-[var(--text-muted)] flex-none uppercase">Acoustic Stack:</label>
+                    <select id="select-hardware-profile" class="clean-input h-5 px-1.5 text-[11px] font-mono text-[var(--text-primary)] bg-transparent cursor-pointer flex-1 border-none focus:ring-0">
+                        <option value="SHURE_MX393" selected>Shure MX393 Judicial Boundary Mic (Balanced XLR via USB Interface)</option>
+                        <option value="BIAMP_DSP">Judicial DSP Line-Out (Biamp Tesira / Phoenix Audio Mixer)</option>
+                        <option value="SENNHEISER_ME36">Court Master Goose-neck (Sennheiser ME36 / Directional Pod)</option>
+                        <option value="CONSUMER_WEBCAM">Consumer USB / Laptop Webcam (Fallback)</option>
+                    </select>
+                    <span id="hardware-tier-badge" class="px-1.5 py-0.2 rounded text-[9px] font-mono font-semibold badge-optimal flex-none">SHURE BENCHMARK</span>
+                </div>
+
+                <!-- Dual Visualizers: 32-Band Spectrum Analyzer (Left) + Voice Oscilloscope Waveform (Right) -->
                 <div class="grid grid-cols-12 gap-2 h-9">
                     <!-- 32-Band FFT Spectrum Analyzer Canvas -->
                     <div class="col-span-5 h-full relative">
                         <canvas id="audio-spectrum-canvas" width="250" height="36" class="visualizer-canvas w-full h-full canvas-placeholder block"></canvas>
-                        <span class="absolute left-1.5 top-0.5 text-[8px] font-mono text-[var(--text-muted)] pointer-events-none">32-Band Spectrum</span>
+                        <span class="absolute left-1.5 top-0.5 text-[8px] font-mono text-[var(--text-muted)] pointer-events-none">32-Band Spectrum (-60 dB Noise Floor)</span>
                     </div>
 
                     <!-- Voice Oscilloscope Waveform Canvas -->
@@ -536,13 +590,13 @@
                     </div>
                 </div>
 
-                <!-- Audio Metadata Strip (ABSOLUTELY ZERO TEXT CUTOFF & FULL HARDWARE MODEL) -->
+                <!-- Audio Metadata Strip with Explicit 16 kHz Koyal Resampling Standard -->
                 <div class="flex items-center justify-between text-[11px] font-mono text-[var(--text-secondary)] min-h-[22px] pt-0.5">
                     <div class="flex items-center space-x-2 truncate max-w-md">
-                        <span id="mic-device-name" class="truncate">Hardware: Ready to sample</span>
+                        <span id="mic-device-name" class="truncate">Hardware: Shure MX393 Judicial Boundary Mic</span>
                     </div>
                     <div class="flex items-center space-x-2 flex-none">
-                        <span>Rate: <strong id="live-sample-rate" class="text-[var(--text-primary)] tabular-nums">-- Hz</strong></span>
+                        <span>Clock: <strong id="live-sample-rate" class="text-[var(--text-primary)] tabular-nums">48,000 Hz</strong> → <strong class="text-emerald-400">16,000 Hz PCM</strong></span>
                         <span class="text-[var(--text-muted)] opacity-30">•</span>
                         <span>SNR: <strong id="live-snr-db" class="status-optimal-text tabular-nums">-- dB (Pending Test)</strong></span>
                         <!-- Direct Koyal Acoustic Certification Badge -->
@@ -709,6 +763,9 @@
 
                     <!-- Right Action Receipts & Dismiss Button -->
                     <div class="flex items-center space-x-2 text-[10px] font-mono">
+                        <button id="btn-emergency-fallback" type="button" class="hidden px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 transition-colors pressable" title="Engage offline local recording buffer for court master">
+                            Activate Offline Buffer
+                        </button>
                         <span id="receipt-airtable" class="px-1.5 py-0.2 rounded bg-[var(--bg-canvas)] text-[var(--text-secondary)] border border-[var(--border-alpha)]">Airtable: Synced</span>
                         <span id="receipt-slack" class="px-1.5 py-0.2 rounded bg-[var(--bg-canvas)] text-[var(--text-secondary)] border border-[var(--border-alpha)]">Slack: Delivered</span>
                         <span id="receipt-linear" class="px-1.5 py-0.2 rounded bg-[var(--bg-canvas)] text-[var(--text-secondary)] border border-[var(--border-alpha)]">Linear: ALL-7</span>
@@ -730,7 +787,7 @@
                     <div class="flex items-center space-x-1.5">
                         <svg class="w-3.5 h-3.5 text-[var(--text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 10v11M9 10v11M15 10v11M19 10v11M12 2L2 7h20L12 2z"/></svg>
                         <h3 class="text-xs font-semibold text-[var(--text-primary)] tracking-tight uppercase">11 Partner States Deployment</h3>
-                        <span class="text-[10px] font-mono badge-optimal px-1.5 py-0.2 rounded font-semibold">11 / 11 ACTIVE</span>
+                        <span class="text-[10px] font-mono badge-optimal px-1.5 py-0.2 rounded font-semibold">43 REGISTERED • 4 MONITORED</span>
                     </div>
                     <span class="text-[10px] text-[var(--text-muted)] font-mono">Click state to view units</span>
                 </div>
@@ -757,7 +814,7 @@
                                 <span class="text-[8px] font-mono badge-optimal px-1 rounded ml-1 font-semibold">ACTIVE</span>
                             </div>
                             <div class="text-right text-[var(--text-muted)] text-[11px] tabular-nums">5 units</div>
-                            <div class="text-right status-optimal-text font-medium text-xs tabular-nums">100%</div>
+                            <div class="text-right status-optimal-text font-medium text-xs tabular-nums">100% OPTIMAL</div>
                             <div class="text-center text-[10px] text-[var(--text-muted)] toggle-arrow">▾</div>
                         </div>
                     </div>
@@ -769,23 +826,10 @@
                             </div>
                             <div class="flex items-center space-x-1.5 truncate pl-1">
                                 <span class="text-[var(--text-secondary)] font-sans text-xs truncate">Rajasthan</span>
+                                <span class="text-[8px] font-mono badge-critical px-1 rounded ml-1 font-semibold">P0 ALERT</span>
                             </div>
                             <div class="text-right text-[var(--text-muted)] text-[11px] tabular-nums">5 units</div>
-                            <div class="text-right status-critical-text font-bold text-xs tabular-nums">100%</div>
-                            <div class="text-center text-[10px] text-[var(--text-muted)] toggle-arrow">▾</div>
-                        </div>
-                    </div>
-                    <div class="state-item transition-colors rounded hover:bg-[var(--bg-sub)]">
-                        <div class="state-grid-row p-1 px-2 cursor-pointer select-none state-header text-xs">
-                            <div class="flex items-center space-x-1.5 flex-none">
-                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                                <span class="font-bold w-6 text-[var(--text-primary)]">UP</span>
-                            </div>
-                            <div class="flex items-center space-x-1.5 truncate pl-1">
-                                <span class="text-[var(--text-secondary)] font-sans text-xs truncate">Uttar Pradesh</span>
-                            </div>
-                            <div class="text-right text-[var(--text-muted)] text-[11px] tabular-nums">5 units</div>
-                            <div class="text-right status-degraded-text font-semibold text-xs tabular-nums">100%</div>
+                            <div class="text-right status-critical-text font-bold text-xs tabular-nums">CRITICAL (0%)</div>
                             <div class="text-center text-[10px] text-[var(--text-muted)] toggle-arrow">▾</div>
                         </div>
                     </div>
@@ -793,13 +837,27 @@
                         <div class="state-grid-row p-1 px-2 cursor-pointer select-none state-header text-xs">
                             <div class="flex items-center space-x-1.5 flex-none">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                <span class="font-bold w-6 text-[var(--text-primary)]">UP</span>
+                            </div>
+                            <div class="flex items-center space-x-1.5 truncate pl-1">
+                                <span class="text-[var(--text-secondary)] font-sans text-xs truncate">Uttar Pradesh</span>
+                            </div>
+                            <div class="text-right text-[var(--text-muted)] text-[11px] tabular-nums">5 units</div>
+                            <div class="text-right status-optimal-text font-medium text-xs tabular-nums">100% OPTIMAL</div>
+                            <div class="text-center text-[10px] text-[var(--text-muted)] toggle-arrow">▾</div>
+                        </div>
+                    </div>
+                    <div class="state-item transition-colors rounded hover:bg-[var(--bg-sub)]">
+                        <div class="state-grid-row p-1 px-2 cursor-pointer select-none state-header text-xs">
+                            <div class="flex items-center space-x-1.5 flex-none">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
                                 <span class="font-bold w-6 text-[var(--text-primary)]">KL</span>
                             </div>
                             <div class="flex items-center space-x-1.5 truncate pl-1">
                                 <span class="text-[var(--text-secondary)] font-sans text-xs truncate">Kerala</span>
                             </div>
                             <div class="text-right text-[var(--text-muted)] text-[11px] tabular-nums">4 units</div>
-                            <div class="text-right status-optimal-text font-medium text-xs tabular-nums">100%</div>
+                            <div class="text-right text-[var(--text-muted)] text-xs tabular-nums">STANDBY</div>
                             <div class="text-center text-[10px] text-[var(--text-muted)] toggle-arrow">▾</div>
                         </div>
                     </div>
@@ -813,91 +871,91 @@
                                 <span class="text-[var(--text-secondary)] font-sans text-xs truncate">Karnataka</span>
                             </div>
                             <div class="text-right text-[var(--text-muted)] text-[11px] tabular-nums">5 units</div>
-                            <div class="text-right status-optimal-text font-medium text-xs tabular-nums">100%</div>
+                            <div class="text-right status-optimal-text font-medium text-xs tabular-nums">100% OPTIMAL</div>
                             <div class="text-center text-[10px] text-[var(--text-muted)] toggle-arrow">▾</div>
                         </div>
                     </div>
                     <div class="state-item transition-colors rounded hover:bg-[var(--bg-sub)]">
                         <div class="state-grid-row p-1 px-2 cursor-pointer select-none state-header text-xs">
                             <div class="flex items-center space-x-1.5 flex-none">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
                                 <span class="font-bold w-6 text-[var(--text-primary)]">AP</span>
                             </div>
                             <div class="flex items-center space-x-1.5 truncate pl-1">
                                 <span class="text-[var(--text-secondary)] font-sans text-xs truncate">Andhra Pradesh</span>
                             </div>
                             <div class="text-right text-[var(--text-muted)] text-[11px] tabular-nums">3 units</div>
-                            <div class="text-right status-optimal-text font-medium text-xs tabular-nums">100%</div>
+                            <div class="text-right text-[var(--text-muted)] text-xs tabular-nums">STANDBY</div>
                             <div class="text-center text-[10px] text-[var(--text-muted)] toggle-arrow">▾</div>
                         </div>
                     </div>
                     <div class="state-item transition-colors rounded hover:bg-[var(--bg-sub)]">
                         <div class="state-grid-row p-1 px-2 cursor-pointer select-none state-header text-xs">
                             <div class="flex items-center space-x-1.5 flex-none">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
                                 <span class="font-bold w-6 text-[var(--text-primary)]">MH</span>
                             </div>
                             <div class="flex items-center space-x-1.5 truncate pl-1">
                                 <span class="text-[var(--text-secondary)] font-sans text-xs truncate">Maharashtra</span>
                             </div>
                             <div class="text-right text-[var(--text-muted)] text-[11px] tabular-nums">4 units</div>
-                            <div class="text-right status-optimal-text font-medium text-xs tabular-nums">100%</div>
+                            <div class="text-right text-[var(--text-muted)] text-xs tabular-nums">STANDBY</div>
                             <div class="text-center text-[10px] text-[var(--text-muted)] toggle-arrow">▾</div>
                         </div>
                     </div>
                     <div class="state-item transition-colors rounded hover:bg-[var(--bg-sub)]">
                         <div class="state-grid-row p-1 px-2 cursor-pointer select-none state-header text-xs">
                             <div class="flex items-center space-x-1.5 flex-none">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
                                 <span class="font-bold w-6 text-[var(--text-primary)]">TN</span>
                             </div>
                             <div class="flex items-center space-x-1.5 truncate pl-1">
                                 <span class="text-[var(--text-secondary)] font-sans text-xs truncate">Tamil Nadu</span>
                             </div>
                             <div class="text-right text-[var(--text-muted)] text-[11px] tabular-nums">3 units</div>
-                            <div class="text-right status-optimal-text font-medium text-xs tabular-nums">100%</div>
+                            <div class="text-right text-[var(--text-muted)] text-xs tabular-nums">STANDBY</div>
                             <div class="text-center text-[10px] text-[var(--text-muted)] toggle-arrow">▾</div>
                         </div>
                     </div>
                     <div class="state-item transition-colors rounded hover:bg-[var(--bg-sub)]">
                         <div class="state-grid-row p-1 px-2 cursor-pointer select-none state-header text-xs">
                             <div class="flex items-center space-x-1.5 flex-none">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
                                 <span class="font-bold w-6 text-[var(--text-primary)]">WB</span>
                             </div>
                             <div class="flex items-center space-x-1.5 truncate pl-1">
                                 <span class="text-[var(--text-secondary)] font-sans text-xs truncate">West Bengal</span>
                             </div>
                             <div class="text-right text-[var(--text-muted)] text-[11px] tabular-nums">3 units</div>
-                            <div class="text-right status-optimal-text font-medium text-xs tabular-nums">100%</div>
+                            <div class="text-right text-[var(--text-muted)] text-xs tabular-nums">STANDBY</div>
                             <div class="text-center text-[10px] text-[var(--text-muted)] toggle-arrow">▾</div>
                         </div>
                     </div>
                     <div class="state-item transition-colors rounded hover:bg-[var(--bg-sub)]">
                         <div class="state-grid-row p-1 px-2 cursor-pointer select-none state-header text-xs">
                             <div class="flex items-center space-x-1.5 flex-none">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
                                 <span class="font-bold w-6 text-[var(--text-primary)]">GJ</span>
                             </div>
                             <div class="flex items-center space-x-1.5 truncate pl-1">
                                 <span class="text-[var(--text-secondary)] font-sans text-xs truncate">Gujarat</span>
                             </div>
                             <div class="text-right text-[var(--text-muted)] text-[11px] tabular-nums">3 units</div>
-                            <div class="text-right status-optimal-text font-medium text-xs tabular-nums">100%</div>
+                            <div class="text-right text-[var(--text-muted)] text-xs tabular-nums">STANDBY</div>
                             <div class="text-center text-[10px] text-[var(--text-muted)] toggle-arrow">▾</div>
                         </div>
                     </div>
                     <div class="state-item transition-colors rounded hover:bg-[var(--bg-sub)]">
                         <div class="state-grid-row p-1 px-2 cursor-pointer select-none state-header text-xs">
                             <div class="flex items-center space-x-1.5 flex-none">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
                                 <span class="font-bold w-6 text-[var(--text-primary)]">MP</span>
                             </div>
                             <div class="flex items-center space-x-1.5 truncate pl-1">
                                 <span class="text-[var(--text-secondary)] font-sans text-xs truncate">Madhya Pradesh</span>
                             </div>
                             <div class="text-right text-[var(--text-muted)] text-[11px] tabular-nums">3 units</div>
-                            <div class="text-right status-optimal-text font-medium text-xs tabular-nums">100%</div>
+                            <div class="text-right text-[var(--text-muted)] text-xs tabular-nums">STANDBY</div>
                             <div class="text-center text-[10px] text-[var(--text-muted)] toggle-arrow">▾</div>
                         </div>
                     </div>

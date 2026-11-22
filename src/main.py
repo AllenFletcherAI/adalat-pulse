@@ -179,13 +179,42 @@ async def get_fleet_courtroom_status():
     regions: List[RegionalStats] = []
     verdict_counts = {"OPTIMAL": 0, "DEGRADED": 0, "CRITICAL": 0}
 
+    incidents = get_recent_incidents(20)
+    # Only active (unresolved/unclosed) incidents impact current health
+    critical_incident_states = {
+        inc["state"] for inc in incidents 
+        if inc.get("severity") == "CRITICAL" and not (
+            str(inc.get("linear_status", "")).startswith("RESOLVED") or str(inc.get("linear_status", "")).startswith("CLOSED")
+        )
+    }
+    degraded_incident_states = {
+        inc["state"] for inc in incidents 
+        if inc.get("severity") == "DEGRADED" and not (
+            str(inc.get("linear_status", "")).startswith("RESOLVED") or str(inc.get("linear_status", "")).startswith("CLOSED")
+        )
+    }
+
     for code, name in STATE_NAMES.items():
         courts = state_groups[code]
         opt = sum(1 for c in courts if c["verdict"] == "OPTIMAL")
         deg = sum(1 for c in courts if c["verdict"] == "DEGRADED")
         crit = sum(1 for c in courts if c["verdict"] == "CRITICAL")
+
+        # Reconcile with active unclosed incidents so a failing state never falsely reports 100%
+        if code in critical_incident_states and crit == 0:
+            crit += 1
+        elif code in degraded_incident_states and deg == 0 and crit == 0:
+            deg += 1
+
         tot = len(courts)
-        health_pct = round((opt / tot * 100), 1) if tot > 0 else 100.0
+        if tot > 0:
+            health_pct = round((opt / tot * 100), 1)
+        elif crit > 0:
+            health_pct = 0.0
+        elif deg > 0:
+            health_pct = 50.0
+        else:
+            health_pct = 100.0
 
         verdict_counts["OPTIMAL"] += opt
         verdict_counts["DEGRADED"] += deg
@@ -194,7 +223,7 @@ async def get_fleet_courtroom_status():
         regions.append(RegionalStats(
             state=StateCode(code),
             state_name=name,
-            total_courtrooms=tot,
+            total_courtrooms=tot if tot > 0 else (1 if (crit > 0 or deg > 0) else 0),
             optimal_count=opt,
             degraded_count=deg,
             critical_count=crit,
@@ -202,12 +231,18 @@ async def get_fleet_courtroom_status():
         ))
 
     total_active = len(latest_rows)
+    total_monitored = max(total_active, verdict_counts["OPTIMAL"] + verdict_counts["DEGRADED"] + verdict_counts["CRITICAL"])
     fleet_health = (
-        round((verdict_counts["OPTIMAL"] / total_active * 100), 1)
-        if total_active > 0 else 100.0
+        round((verdict_counts["OPTIMAL"] / total_monitored * 100), 1)
+        if total_monitored > 0 else 100.0
     )
 
-    incidents = get_recent_incidents(10)
+    recent_critical_count = sum(
+        1 for inc in incidents 
+        if inc.get("severity") == "CRITICAL" and not (
+            str(inc.get("linear_status", "")).startswith("RESOLVED") or str(inc.get("linear_status", "")).startswith("CLOSED")
+        )
+    )
 
     courtroom_summaries = [
         CourtroomStatusSummary(
@@ -230,7 +265,7 @@ async def get_fleet_courtroom_status():
         fleet_health_pct=fleet_health,
         verdict_breakdown=verdict_counts,
         regions=regions,
-        recent_critical_incidents=len(incidents),
+        recent_critical_incidents=recent_critical_count,
         courtrooms=courtroom_summaries,
         last_updated=datetime.now(timezone.utc).isoformat(),
     )
