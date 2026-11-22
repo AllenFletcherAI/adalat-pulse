@@ -1,13 +1,11 @@
 /**
  * Adalat-Pulse: Frontend Diagnostic Engine & Operations Gateway
- * Production Design System: Solid Matte Canvas, High Contrast, Authentic Enterprise Tooling
- * Zero AI Slop / Clichés:
- * - Concentric corner radii: R_inner = R_outer - P
- * - No purple-to-blue gradients or neon halos
- * - Zero nested cards inside cards; grouped with whitespace
- * - Sentence case labels, no all-caps yelling
- * - Static calm status dots (no infinite looping ping animations)
- * - Monospace reserved strictly for numeric values, telemetry units, and IDs
+ * Zero-Scroll Single-Viewport Enterprise Standard
+ * - Strictly fits 100vh on any display from 768p up to 4K
+ * - No teaching the ABCs: zero marketing fluff, zero redundant banners
+ * - In-place pre-allocated verdict container: zero layout shift (CLS: 0)
+ * - Concentric radii (R_inner = R_outer - P)
+ * - Tabular numbers on all metrics and clocks
  */
 
 let audioContext = null;
@@ -30,11 +28,10 @@ function preventWidow(text) {
     return `${words.join(' ')} ${secondLast}&nbsp;${lastWord}`;
 }
 
-// Postel's Law: Robust Input Normalizers (Be liberal in what you accept)
+// Postel's Law: Robust Input Normalizers
 function normalizeCourtroomId(raw) {
     if (!raw) return "DL-HC-CRT04";
     let clean = raw.trim().toUpperCase().replace(/\s+/g, '-');
-    // Auto-expand common shorthand
     if (clean === 'DL' || clean === 'DELHI') clean = 'DL-HC-CRT04';
     if (clean === 'KL' || clean === 'KERALA') clean = 'KL-HC-CRT01';
     if (clean === 'KA' || clean === 'KARNATAKA') clean = 'KA-HC-BLR02';
@@ -52,7 +49,6 @@ function normalizeCourtroomId(raw) {
 function parseLenientNumber(val, defaultVal = 0.0) {
     if (typeof val === 'number') return Math.max(0.0, val);
     if (!val) return defaultVal;
-    // Strip ms, %, dB, Hz, spaces
     const cleaned = String(val).replace(/[^\d.-]/g, '');
     const num = parseFloat(cleaned);
     return isNaN(num) ? defaultVal : Math.max(0.0, num);
@@ -81,15 +77,13 @@ async function initAudioHardware() {
 
         currentSampleRate = audioContext.sampleRate || 48000;
         const srEl = document.getElementById('live-sample-rate');
-        if (srEl) srEl.textContent = `${currentSampleRate} Hz`;
+        if (srEl) srEl.textContent = currentSampleRate >= 1000 ? `${currentSampleRate / 1000}k` : currentSampleRate;
 
         if (!micStream) {
             micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
             const tracks = micStream.getAudioTracks();
             if (tracks.length > 0) {
                 micDeviceLabel = tracks[0].label || "Integrated Microphone";
-                const labelEl = document.getElementById('mic-status-label');
-                if (labelEl) labelEl.textContent = micDeviceLabel.slice(0, 28);
             }
 
             analyser = audioContext.createAnalyser();
@@ -101,12 +95,10 @@ async function initAudioHardware() {
         }
     } catch (err) {
         console.warn("Browser mic access fallback:", err.message);
-        const labelEl = document.getElementById('mic-status-label');
-        if (labelEl) labelEl.textContent = "Simulated / Fallback Mode";
         const srEl = document.getElementById('live-sample-rate');
-        if (srEl) srEl.textContent = "16000 Hz";
+        if (srEl) srEl.textContent = "16k";
         const snrEl = document.getElementById('live-snr-db');
-        if (snrEl) snrEl.textContent = "24.5 dB";
+        if (snrEl) snrEl.textContent = "24.5";
     }
 }
 
@@ -121,14 +113,13 @@ function sampleAudioLoop() {
     }
     const average = sum / dataArray.length;
 
-    // Estimate Signal-to-Noise Ratio (SNR) in dB from input RMS
     const minDb = 10.0;
     const maxDb = 35.0;
     const normalized = Math.min(Math.max(average / 128, 0.1), 1.0);
     currentSnrDb = Math.round((minDb + (normalized * (maxDb - minDb))) * 10) / 10;
 
     const snrEl = document.getElementById('live-snr-db');
-    if (snrEl) snrEl.textContent = `${currentSnrDb.toFixed(1)} dB`;
+    if (snrEl) snrEl.textContent = currentSnrDb.toFixed(1);
 
     const levelBar = document.getElementById('audio-level-bar');
     if (levelBar) {
@@ -168,17 +159,17 @@ function initCourtroomComboBox() {
         );
 
         if (matches.length === 0) {
-            listbox.innerHTML = `<div class="p-3 text-xs text-slate-500 text-center font-mono">No matching courtroom benches found</div>`;
+            listbox.innerHTML = `<div class="p-2 text-xs text-slate-500 text-center font-mono">No matching courtrooms</div>`;
             return;
         }
 
         listbox.innerHTML = matches.map((item, idx) => `
-            <div role="option" data-id="${item.id}" data-state="${item.state}" data-bench="${item.bench}" data-golden="${item.golden}" class="combo-option px-3 py-2 hover:bg-[#171B26] cursor-pointer flex items-center justify-between text-xs transition-colors ${idx === highlightedIndex ? 'bg-[#171B26]' : ''}">
+            <div role="option" data-id="${item.id}" data-state="${item.state}" data-bench="${item.bench}" data-golden="${item.golden}" class="combo-option px-2.5 py-1.5 hover:bg-[#171B26] cursor-pointer flex items-center justify-between text-xs transition-colors ${idx === highlightedIndex ? 'bg-[#171B26]' : ''}">
                 <div>
                     <span class="font-mono font-semibold text-white tracking-wide">${item.id}</span>
-                    <p class="text-[11px] text-slate-400 truncate max-w-[240px]">${item.bench}</p>
+                    <p class="text-[10px] text-slate-400 truncate max-w-[200px]">${item.bench}</p>
                 </div>
-                <span class="px-1.5 py-0.5 rounded text-[11px] font-mono text-slate-300 bg-[#0A0C10] border border-[#222634]">${item.state}</span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-300 bg-[#0A0C10] border border-[#222634]">${item.state}</span>
             </div>
         `).join('');
 
@@ -198,6 +189,8 @@ function initCourtroomComboBox() {
             if (data.golden) {
                 document.getElementById('select-golden-profile').value = data.golden;
             }
+            const standbyTarget = document.querySelector('#verdict-standby span:first-of-type');
+            if (standbyTarget) standbyTarget.textContent = data.id;
         };
 
         if (document.startViewTransition) {
@@ -325,13 +318,13 @@ function applyPreset(preset) {
         jitIn.value = "7.5";
         rttIn.value = "75.0";
         currentSampleRate = 16000;
-        currentSnrDb = 15.5; // Degraded noise floor (15.5 dB) -> Level 3 Interview trigger
+        currentSnrDb = 15.5;
         document.getElementById('input-courtroom-id').value = "UP-DC-LKO05";
         document.getElementById('input-state').value = "UP";
         document.getElementById('input-bench-name').value = "Lucknow District Court Hall 05";
         document.getElementById('select-golden-profile').value = "GOLDEN-DC-HYBRID";
     } else if (preset === 'edge_lag') {
-        latIn.value = "340.0"; // Critical Latency (> 300 ms)
+        latIn.value = "340.0";
         lossIn.value = "1.4";
         jitIn.value = "45.0";
         rttIn.value = "360.0";
@@ -344,9 +337,9 @@ function applyPreset(preset) {
     }
 
     const srEl = document.getElementById('live-sample-rate');
-    if (srEl) srEl.textContent = `${currentSampleRate} Hz`;
+    if (srEl) srEl.textContent = currentSampleRate >= 1000 ? `${currentSampleRate / 1000}k` : currentSampleRate;
     const snrEl = document.getElementById('live-snr-db');
-    if (snrEl) snrEl.textContent = `${currentSnrDb.toFixed(1)} dB`;
+    if (snrEl) snrEl.textContent = currentSnrDb.toFixed(1);
 }
 
 // 5. Pre-Flight Diagnostic Check
@@ -361,6 +354,7 @@ async function executePreFlightCheck() {
     const progressContainer = document.getElementById('progress-container');
     const progressBar = document.getElementById('progress-bar');
     const progressPct = document.getElementById('progress-pct');
+    const standby = document.getElementById('verdict-standby');
     const skeleton = document.getElementById('verdict-skeleton');
     const verdictCard = document.getElementById('verdict-card');
 
@@ -373,6 +367,7 @@ async function executePreFlightCheck() {
     btn.classList.add('opacity-50', 'cursor-not-allowed');
     progressContainer.classList.remove('hidden');
 
+    if (standby) standby.classList.add('hidden');
     verdictCard.classList.add('hidden');
     skeleton.classList.remove('hidden');
 
@@ -456,8 +451,9 @@ async function submitDiagnosticReport() {
     }
 }
 
-// 6. Verdict Rendering (Concentric Law: R_inner = R_outer - P, High Contrast, Solid Matte)
+// 6. In-Place Verdict Rendering (Zero Layout Expansion)
 function renderVerdictWithFollowThrough(data) {
+    const standby = document.getElementById('verdict-standby');
     const skeleton = document.getElementById('verdict-skeleton');
     const card = document.getElementById('verdict-card');
     const iconContainer = document.getElementById('verdict-icon-container');
@@ -473,29 +469,29 @@ function renderVerdictWithFollowThrough(data) {
     const goldenScorePct = document.getElementById('golden-score-pct');
     const goldenProgressBar = document.getElementById('golden-progress-bar');
     const goldenSummaryText = document.getElementById('golden-summary-text');
-
     const interviewBox = document.getElementById('interview-trigger-box');
 
+    if (standby) standby.classList.add('hidden');
     skeleton.classList.add('hidden');
     card.classList.remove('hidden');
 
     if (data.verdict === 'OPTIMAL') {
-        card.className = "bg-[#0A0C10] border border-[#222634] border-l-4 border-l-emerald-500 rounded-md p-4 space-y-4";
-        iconContainer.className = "h-6 w-6 rounded bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20";
-        iconContainer.innerHTML = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`;
+        card.className = "h-full bg-[#0A0C10] border border-[#222634] border-l-4 border-l-emerald-500 rounded-md p-3 flex flex-col justify-between space-y-2";
+        iconContainer.className = "h-5 w-5 rounded bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20";
+        iconContainer.innerHTML = `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
         title.textContent = "Optimal: session cleared";
-        title.className = "text-sm font-bold text-white tracking-tight";
+        title.className = "text-xs font-bold text-white tracking-tight";
         verdictBadge.textContent = "Cleared";
-        verdictBadge.className = "px-2.5 py-1 rounded text-xs font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+        verdictBadge.className = "px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
         interviewBox.classList.add('hidden');
     } else if (data.verdict === 'DEGRADED') {
-        card.className = "bg-[#0A0C10] border border-[#222634] border-l-4 border-l-amber-500 rounded-md p-4 space-y-4";
-        iconContainer.className = "h-6 w-6 rounded bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20";
-        iconContainer.innerHTML = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+        card.className = "h-full bg-[#0A0C10] border border-[#222634] border-l-4 border-l-amber-500 rounded-md p-3 flex flex-col justify-between space-y-2";
+        iconContainer.className = "h-5 w-5 rounded bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20";
+        iconContainer.innerHTML = `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
         title.textContent = "Degraded: monitoring active";
-        title.className = "text-sm font-bold text-white tracking-tight";
-        verdictBadge.textContent = "Attention required";
-        verdictBadge.className = "px-2.5 py-1 rounded text-xs font-mono font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20";
+        title.className = "text-xs font-bold text-white tracking-tight";
+        verdictBadge.textContent = "Attention";
+        verdictBadge.className = "px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20";
 
         if (data.evaluation.pending_questions && data.evaluation.pending_questions.length > 0) {
             pendingInterviewQuestions = data.evaluation.pending_questions;
@@ -504,19 +500,19 @@ function renderVerdictWithFollowThrough(data) {
             interviewBox.classList.add('hidden');
         }
     } else {
-        card.className = "bg-[#0A0C10] border border-[#222634] border-l-4 border-l-rose-500 rounded-md p-4 space-y-4";
-        iconContainer.className = "h-6 w-6 rounded bg-rose-500/10 text-rose-400 flex items-center justify-center border border-rose-500/20";
-        iconContainer.innerHTML = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
+        card.className = "h-full bg-[#0A0C10] border border-[#222634] border-l-4 border-l-rose-500 rounded-md p-3 flex flex-col justify-between space-y-2";
+        iconContainer.className = "h-5 w-5 rounded bg-rose-500/10 text-rose-400 flex items-center justify-center border border-rose-500/20";
+        iconContainer.innerHTML = `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
         title.textContent = "Critical breach: session halted";
-        title.className = "text-sm font-bold text-white tracking-tight";
-        verdictBadge.textContent = "Gate blocked";
-        verdictBadge.className = "px-2.5 py-1 rounded text-xs font-mono font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20";
+        title.className = "text-xs font-bold text-white tracking-tight";
+        verdictBadge.textContent = "Blocked";
+        verdictBadge.className = "px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20";
         interviewBox.classList.add('hidden');
     }
 
-    crText.textContent = `${data.courtroom_id} (${data.state}) • Snapshot #${data.snapshot_id}`;
-    summary.innerHTML = `<div class="font-semibold text-slate-200 mb-1">${preventWidow(data.evaluation.summary)}</div>` +
-        data.evaluation.reason_codes.map(r => `<div class="text-[11px] text-slate-400 flex items-start space-x-1.5"><span class="text-slate-600">•</span><span>${preventWidow(r)}</span></div>`).join('');
+    crText.textContent = `${data.courtroom_id} (${data.state}) • #${data.snapshot_id}`;
+    summary.innerHTML = `<span class="font-semibold text-slate-200">${preventWidow(data.evaluation.summary)}</span> ` +
+        data.evaluation.reason_codes.map(r => `<span class="text-slate-400 inline-block mr-2">• ${preventWidow(r)}</span>`).join('');
 
     // Golden profile alignment bar
     if (data.evaluation.golden_alignment) {
@@ -526,15 +522,25 @@ function renderVerdictWithFollowThrough(data) {
         goldenSummaryText.innerHTML = preventWidow(`${align.summary} (Δ Latency: ${align.latency_delta_ms >= 0 ? '+' : ''}${align.latency_delta_ms}ms, Δ Loss: ${align.packet_loss_delta_pct >= 0 ? '+' : ''}${align.packet_loss_delta_pct}%, Δ SNR: ${align.snr_delta_db >= 0 ? '+' : ''}${align.snr_delta_db} dB)`);
     }
 
-    // Receipts Status Update
-    receiptAirtable.querySelector('span:last-child').textContent = data.airtable_synced ? "Synced" : "Pending";
-    receiptAirtable.querySelector('span:last-child').className = data.airtable_synced ? "font-semibold text-emerald-400 text-xs" : "font-semibold text-slate-400 text-xs";
-
-    receiptSlack.querySelector('span:last-child').textContent = data.slack_alert_sent ? "Dispatched" : "Standby";
-    receiptSlack.querySelector('span:last-child').className = data.slack_alert_sent ? "font-semibold text-rose-400 text-xs" : "font-semibold text-slate-400 text-xs";
-
-    receiptLinear.querySelector('span:last-child').textContent = data.linear_ticket_created ? "P0 Created" : "None";
-    receiptLinear.querySelector('span:last-child').className = data.linear_ticket_created ? "font-semibold text-blue-400 text-xs" : "font-semibold text-slate-400 text-xs";
+    // Receipts Status Update (Compact Inline Pills)
+    if (receiptAirtable) {
+        receiptAirtable.textContent = data.airtable_synced ? "Airtable: Synced" : "Airtable: Pending";
+        receiptAirtable.className = data.airtable_synced 
+            ? "px-1.5 py-0.5 rounded bg-[#12151E] text-emerald-400 border border-emerald-500/30" 
+            : "px-1.5 py-0.5 rounded bg-[#12151E] text-slate-400 border border-[#222634]";
+    }
+    if (receiptSlack) {
+        receiptSlack.textContent = data.slack_alert_sent ? "Slack: Dispatched" : "Slack: Standby";
+        receiptSlack.className = data.slack_alert_sent 
+            ? "px-1.5 py-0.5 rounded bg-[#12151E] text-rose-400 border border-rose-500/30" 
+            : "px-1.5 py-0.5 rounded bg-[#12151E] text-slate-400 border border-[#222634]";
+    }
+    if (receiptLinear) {
+        receiptLinear.textContent = data.linear_ticket_created ? "Linear: P0 Created" : "Linear: None";
+        receiptLinear.className = data.linear_ticket_created 
+            ? "px-1.5 py-0.5 rounded bg-[#12151E] text-blue-400 border border-blue-500/30" 
+            : "px-1.5 py-0.5 rounded bg-[#12151E] text-slate-400 border border-[#222634]";
+    }
 
     // Update Deep Diagnostics JSON
     const rawPre = document.getElementById('raw-telemetry-json');
@@ -552,7 +558,7 @@ function renderVerdictWithFollowThrough(data) {
     }
 }
 
-// 7. Progressive Disclosure Accordion
+// 7. Progressive Disclosure Drawer
 const btnToggleDeep = document.getElementById('btn-toggle-deep-diagnostics');
 if (btnToggleDeep) {
     btnToggleDeep.addEventListener('click', () => {
@@ -581,9 +587,9 @@ if (btnOpenInterview) {
 
         container.innerHTML = `
             <p class="text-xs font-semibold text-slate-200">${preventWidow(q.prompt)}</p>
-            <div class="space-y-2 pt-1.5">
+            <div class="space-y-1.5 pt-1">
                 ${q.options.map((opt, idx) => `
-                    <label class="flex items-center space-x-2.5 p-2.5 rounded-md bg-[#0A0C10] border border-[#222634] hover:border-slate-600 cursor-pointer transition-colors">
+                    <label class="flex items-center space-x-2.5 p-2 rounded-md bg-[#0A0C10] border border-[#222634] hover:border-slate-600 cursor-pointer transition-colors">
                         <input type="radio" name="interview-option" value="${opt}" ${idx === 0 ? 'checked' : ''} class="w-3.5 h-3.5 text-emerald-500 focus:ring-emerald-500 bg-[#0A0C10] border-[#222634]">
                         <span class="text-xs text-slate-300 font-medium">${preventWidow(opt)}</span>
                     </label>
@@ -626,11 +632,11 @@ document.getElementById('btn-submit-interview').addEventListener('click', async 
     const previousClass = card.className;
 
     // Sub-50ms Optimistic UI upgrade
-    card.className = "bg-[#0A0C10] border border-[#222634] border-l-4 border-l-emerald-500 rounded-md p-4 space-y-4";
+    card.className = "h-full bg-[#0A0C10] border border-[#222634] border-l-4 border-l-emerald-500 rounded-md p-3 flex flex-col justify-between space-y-2";
     title.textContent = "Optimal: remediation applied (+6.0 dB)";
-    title.className = "text-sm font-bold text-white tracking-tight";
+    title.className = "text-xs font-bold text-white tracking-tight";
     verdictBadge.textContent = "Remediated";
-    verdictBadge.className = "px-2.5 py-1 rounded text-xs font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+    verdictBadge.className = "px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
 
     closeInterviewModal();
 
@@ -658,17 +664,22 @@ document.getElementById('btn-submit-interview').addEventListener('click', async 
     }
 });
 
-// 10. Poll 11-State Fleet Telemetry Matrix (Concentric Law, Zero Loops)
+// 10. Poll 11-State Fleet Telemetry Matrix (Compact 4-Column Micro-Cards)
 async function pollFleetOverview() {
     try {
         const res = await fetch('/api/v1/courtrooms/status');
         if (!res.ok) return;
         const data = await res.json();
 
-        document.getElementById('stat-total-courtrooms').textContent = data.total_active_courtrooms;
-        document.getElementById('stat-fleet-health').textContent = `${data.fleet_health_pct}%`;
-        document.getElementById('stat-optimal-sessions').textContent = data.verdict_breakdown.OPTIMAL || 0;
-        document.getElementById('stat-incidents-count').textContent = data.recent_critical_incidents || 0;
+        const statTotal = document.getElementById('stat-total-courtrooms');
+        const statHealth = document.getElementById('stat-fleet-health');
+        const statOpt = document.getElementById('stat-optimal-sessions');
+        const statInc = document.getElementById('stat-incidents-count');
+
+        if (statTotal) statTotal.textContent = data.total_active_courtrooms;
+        if (statHealth) statHealth.textContent = `${data.fleet_health_pct}%`;
+        if (statOpt) statOpt.textContent = data.verdict_breakdown.OPTIMAL || 0;
+        if (statInc) statInc.textContent = data.recent_critical_incidents || 0;
 
         const container = document.getElementById('regions-container');
         if (container) {
@@ -684,14 +695,13 @@ async function pollFleetOverview() {
                 }
 
                 return `
-                <div class="bg-[#0A0C10] hover:bg-[#171B26] p-2.5 rounded-md border border-[#222634] hover:border-slate-600 transition-colors cursor-pointer flex flex-col justify-between" onclick="filterByState('${r.state}')">
+                <div class="h-10 p-1.5 rounded-md bg-[#0A0C10] border border-[#222634] hover:border-slate-500 transition-colors cursor-pointer flex flex-col justify-between" onclick="filterByState('${r.state}')">
                     <div class="flex items-center justify-between">
-                        <span class="font-mono font-bold text-xs text-white">${r.state}</span>
-                        <span class="h-2 w-2 rounded-full ${dotClass}"></span>
+                        <span class="font-mono font-bold text-[11px] text-white">${r.state}</span>
+                        <span class="h-1.5 w-1.5 rounded-full ${dotClass}"></span>
                     </div>
-                    <p class="text-[10px] text-slate-400 truncate mt-0.5">${r.state_name}</p>
-                    <div class="flex justify-between items-center text-[10px] text-slate-500 mt-2 pt-1 border-t border-[#222634] tabular-nums">
-                        <span>Active: <strong class="text-slate-300 font-mono">${r.total_courtrooms}</strong></span>
+                    <div class="flex items-center justify-between text-[10px] tabular-nums">
+                        <span class="text-slate-400 font-mono">${r.total_courtrooms} act</span>
                         <span class="font-mono ${statusColor}">${r.healthy_pct}%</span>
                     </div>
                 </div>
@@ -713,6 +723,8 @@ window.filterByState = function(stateCode) {
             if (match.golden) {
                 document.getElementById('select-golden-profile').value = match.golden;
             }
+            const standbyTarget = document.querySelector('#verdict-standby span:first-of-type');
+            if (standbyTarget) standbyTarget.textContent = match.id;
         };
 
         if (document.startViewTransition) {
@@ -723,7 +735,7 @@ window.filterByState = function(stateCode) {
     }
 };
 
-// 11. Poll Live Incident Routing Stream
+// 11. Poll Live Incident Routing Stream (Compact 2-Line Entries)
 async function pollIncidents() {
     try {
         const res = await fetch('/api/v1/incidents?limit=10');
@@ -735,15 +747,15 @@ async function pollIncidents() {
             container.innerHTML = data.incidents.map((inc) => {
                 const dateStr = inc.created_at ? new Date(inc.created_at).toLocaleTimeString() : "--";
                 return `
-                <div class="bg-[#0A0C10] border border-[#222634] rounded-md p-2.5 space-y-1.5 text-xs">
+                <div class="bg-[#0A0C10] border border-[#222634] rounded-md p-2 space-y-1 text-[11px]">
                     <div class="flex justify-between items-center">
                         <span class="font-mono font-bold text-rose-400 text-xs">${inc.courtroom_id}</span>
                         <span class="text-[10px] font-mono text-slate-500 tabular-nums">${dateStr}</span>
                     </div>
-                    <p class="text-slate-300 font-medium text-xs truncate">${preventWidow(inc.title)}</p>
-                    <div class="flex items-center space-x-2 text-[10px] font-mono pt-0.5">
-                        <span class="px-1.5 py-0.5 rounded bg-[#12151E] text-slate-300 border border-[#222634]">Slack: ${inc.slack_status}</span>
-                        <span class="px-1.5 py-0.5 rounded bg-[#12151E] text-slate-300 border border-[#222634]">Linear: ${inc.linear_status}</span>
+                    <p class="text-slate-300 font-medium truncate text-[11px]">${preventWidow(inc.title)}</p>
+                    <div class="flex items-center space-x-1.5 text-[10px] font-mono pt-0.5">
+                        <span class="px-1.5 py-0.2 rounded bg-[#12151E] text-slate-400 border border-[#222634]">Slack: ${inc.slack_status}</span>
+                        <span class="px-1.5 py-0.2 rounded bg-[#12151E] text-slate-400 border border-[#222634]">Linear: ${inc.linear_status}</span>
                     </div>
                 </div>
                 `;
@@ -769,7 +781,7 @@ document.getElementById('btn-sync-airtable').addEventListener('click', async () 
     } finally {
         btn.disabled = false;
         btn.innerHTML = `
-            <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg class="w-3 h-3 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/>
             </svg>
             <span>Sync Airtable</span>

@@ -145,3 +145,16 @@
 * **Why:** Judicial software deployed for the Supreme Court, High Courts, and 6,000+ judges must convey institutional sobriety, clarity, and authority. Eliminating AI slop transforms the gateway from a toy prototype into mission-critical infrastructure that senior leadership can trust immediately.
 * **Rejected Alternative:** Keeping flashy glowing borders, frosted cards, and pill badges. Rejected because decorative gimmicks clutter the interface, distract technical officers during emergencies, and reveal amateurish generation.
 * **When to Reconsider:** Never. Clean, functional, authentic tooling is timeless.
+---
+
+## ADR-010: Zero-Scroll Single-Viewport Architecture & Essential Information Design
+* **Date:** November 2026
+* **Decision:** Re-architect the operational workstation into a strict single-viewport, zero-scroll application (`h-screen overflow-hidden`):
+  1. *Eradicate Introductory/Exploratory Copy:* Remove marketing headlines, explanatory blurbs, and redundant labels. Operators do not need introductory explanations on an active pre-flight tool.
+  2. *Header-Integrated Micro-KPIs:* Consolidate the 4 separate 116px KPI cards into 3 compact inline metric tokens inside the 44px top header (`Active`, `Fleet Readiness`, `Optimal`, `Incidents`).
+  3. *Unified 6-Metric Telemetry Grid:* Collapse network and audio telemetry sections into a single 6-column grid row with an integrated 4px audio level bar, saving over 150px of vertical real estate.
+  4. *In-Place Zero-CLS Verdict Slot:* Pre-allocate a fixed-height result container (180px–220px) directly below the CTA. The system transitions from standby -> progress -> verdict in place, ensuring the document height never expands to trigger a window scrollbar.
+  5. *Compact 4-Column Regional Grid:* Re-architect the 11-state matrix into a dense 4x3 micro-card grid (38px height per card) and contain the incident feed with internal scrolling only.
+* **Why:** In real-time court proceedings across 6,000+ judges, technical officers need all controls, diagnostic telemetry, and dispatch receipts visible simultaneously at a glance. Window scrollbars force operators to scroll back and forth, losing situational awareness during courtroom emergencies.
+* **Rejected Alternative:** Long-scroll vertical dashboards. Rejected because vertical sprawl conceals action triggers and critical dispatch receipts.
+* **When to Reconsider:** Never for operational deployment gateways.

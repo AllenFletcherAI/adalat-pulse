@@ -18,23 +18,22 @@
 - **Automated Incident Routing:** Real Slack Block Kit dispatcher (`#all-adalat-pulse-alerts`) and Linear P0 issue creator in `src/alerts.py`. Verified with live Linear issue `ALL-7` and live Slack alert.
 - **Bi-Directional Airtable Sync:** Live REST client in `src/airtable_sync.py` syncing courtroom health to base `appviUqZAQGGD2ILo`. Verified with live record `recMbWX6eUaV3pnOD` (`typecast: True` enabled).
 - **FastAPI Gateway & WebSocket Probe:** REST endpoints (`/report`, `/interview`, `/golden-profiles`, `/courtrooms/status`, `/health`) and live `/ws/probe` endpoint in `src/main.py`.
-- **Anti-AI-Slop Authentic Design System (ADR-009):**
-  - Purged all purple-to-blue gradients, glowing halos, frosted glass, and filler tags.
-  - Enforced concentric radius invariant: $R_{\text{inner}} = \max(0, R_{\text{outer}} - P)$ (12px outer panels, 6px inner inputs/buttons).
-  - Flattened nested cards: grouped with generous 24px whitespace (`space-y-6`) and clean 1px hairline dividers (`border-[#222634]`).
-  - Terminated infinite looping animations (`animate-ping`) in favor of calm, solid status indicators.
-  - Replaced all-caps yelling with clean Sentence Case; reserved monospace strictly for numbers, units, and courtroom IDs.
-  - Specific technical headline: *"Koyal ASR Pre-Flight Diagnostic Gateway — Deterministic network and audio validation for live judicial proceedings across 11 partner state jurisdictions"*.
-  - Solid emerald high-contrast CTA (`#10B981`) anchored against authentic `#0A0C10` slate matte canvas.
-- **Automated Verification:** 30 out of 30 unit and integration tests passing in `tests/` in 12.24s.
+- **Zero-Scroll Single-Viewport Architecture (ADR-010):**
+  - Viewport strictly locked to 100vh (`h-screen overflow-hidden`): zero browser window scrolling on any screen $\ge 1280 \times 800$.
+  - Eradicated all introductory/marketing copy (no giant H2 hero or explanatory paragraphs).
+  - Consolidated 4 oversized KPI cards into a clean 44px top header micro-stat strip (`Active`, `Fleet`, `Optimal`, `Incidents`).
+  - Unified all 6 telemetry parameters into a single compact horizontal grid with an integrated 4px hairline audio level bar.
+  - In-place pre-allocated verdict container (zero layout shift; standby $\rightarrow$ progress $\rightarrow$ verdict without page height expansion).
+  - Compact 4-column regional matrix (38px cards) and strictly contained incident feed (internal scroll only).
+- **Automated Verification:** 30 out of 30 unit and integration tests passing in `tests/` in 12.25s.
 - **Git Repository & Remote Push:** Public repository created and synced at `https://github.com/AllenFletcherAI/adalat-pulse`.
 - **Containerization:** Multi-stage production `Dockerfile` and `docker-compose.yml`.
 
 ---
 
 ## 2. Working On Now
-- Final production verification and git commit synchronization.
-- Background Uvicorn daemon running healthy on port 8000.
+- System operating in production zero-scroll mode.
+- Uvicorn daemon running healthy on port 8000.
 
 ---
 
@@ -46,7 +45,7 @@
 ---
 
 ## 4. What To Do Next
-1. Commit all cleaned production design system files to git.
+1. Commit all zero-scroll single-page updates to git.
 2. Push main branch to `https://github.com/AllenFletcherAI/adalat-pulse`.
 3. Keep background server daemon active on port 8000.
 

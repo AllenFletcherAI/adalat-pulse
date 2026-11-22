@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Adalat-Pulse | Courtroom Pre-Flight Diagnostic Gateway</title>
+    <title>Adalat-Pulse | Courtroom Pre-Flight Gateway</title>
     
     <!-- Clean System Fonts: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,45 +42,49 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        body {
+        /* Enforce Zero-Scroll Single-Page Viewport */
+        html, body {
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
             background-color: #0A0C10;
             color: #F8FAFC;
         }
 
-        /* Design System Surface: Solid, Crisp, Zero Frosted Glass */
+        /* Solid Matte Surface: R_outer = 12px */
         .surface-panel {
             background-color: #12151E;
             border: 1px solid #222634;
             border-radius: 12px;
         }
 
-        /* Tabular Numbers */
+        /* Tabular Numbers for Zero Layout Shift */
         .tabular-nums, .font-mono {
             font-variant-numeric: tabular-nums;
             font-feature-settings: "tnum" 1;
         }
 
-        /* Clean High-Contrast Inputs */
+        /* Concentric Radius: R_inner = 6px */
         .clean-input {
             background-color: #0A0C10;
             border: 1px solid #222634;
             border-radius: 6px;
             color: #F8FAFC;
-            transition: border-color 120ms ease;
+            transition: border-color 100ms ease;
         }
         .clean-input:focus {
             outline: none;
             border-color: #10B981;
         }
 
-        /* Primary Action Trigger: Solid Emerald, No Neon Halo */
+        /* Solid Emerald Action Trigger (Zero Neon Glow) */
         .btn-action-primary {
             background-color: #10B981;
             color: #FFFFFF;
             border: 1px solid #059669;
             border-radius: 6px;
             font-weight: 600;
-            transition: background-color 120ms ease, transform 80ms ease;
+            transition: background-color 100ms ease, transform 60ms ease;
         }
         .btn-action-primary:hover {
             background-color: #059669;
@@ -89,24 +93,31 @@
             transform: translateY(1px);
         }
 
-        /* Clean Press Feedback */
         .pressable {
-            transition: transform 80ms ease, background-color 120ms ease;
+            transition: transform 60ms ease, background-color 100ms ease;
             touch-action: manipulation;
         }
         .pressable:active {
             transform: translateY(1px);
         }
 
-        /* Safe Area Padding */
-        .safe-area-pad {
-            padding-top: max(0.75rem, env(safe-area-inset-top));
-            padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
-            padding-left: max(1rem, env(safe-area-inset-left));
-            padding-right: max(1rem, env(safe-area-inset-right));
+        /* Custom Scrollbar for Inner Containers Only */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0A0C10;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #222634;
+            border-radius: 2px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #32384A;
         }
 
-        /* Shimmer Loading State for Zero-CLS */
+        /* Shimmer Loading State */
         @keyframes shimmer {
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
@@ -118,408 +129,340 @@
         }
     </style>
 </head>
-<body class="min-h-screen safe-area-pad flex flex-col justify-between selection:bg-emerald-600/30">
+<body class="h-screen w-screen overflow-hidden flex flex-col justify-between selection:bg-emerald-600/30">
 
-    <!-- Top Navigation: Clean, Authoritative, Zero Filler Badges -->
-    <header class="border-b border-[#222634] bg-[#0A0C10] sticky top-0 z-50">
-        <div class="max-w-[1360px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="h-8 w-8 rounded-md bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
-                        <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
-                        <path d="M7 21h10"/>
-                        <path d="M12 3v18"/>
-                        <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>
-                    </svg>
-                </div>
-                <div>
-                    <h1 class="text-sm font-semibold text-white tracking-tight">Adalat-Pulse</h1>
-                    <p class="text-[11px] text-slate-400">Courtroom Pre-Flight Gateway</p>
-                </div>
+    <!-- Top Navigation & Micro-Stats: Compact 44px Bar (Replaces 100px Hero + 116px KPI Cards) -->
+    <header class="h-11 flex-none border-b border-[#222634] bg-[#0A0C10] px-4 sm:px-6 flex items-center justify-between z-30">
+        <div class="flex items-center space-x-2.5">
+            <div class="h-6 w-6 rounded-md bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                    <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                    <path d="M7 21h10"/>
+                    <path d="M12 3v18"/>
+                    <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>
+                </svg>
+            </div>
+            <div>
+                <span class="text-xs font-bold text-white tracking-tight">Adalat-Pulse</span>
+                <span class="text-[10px] text-slate-400 ml-1.5 hidden sm:inline">Pre-Flight Gateway</span>
+            </div>
+        </div>
+
+        <!-- Center: Fleet Micro-KPIs (Eliminates the entire 4-card row) -->
+        <div class="hidden md:flex items-center space-x-3 text-xs bg-[#12151E] px-3 py-1 rounded-md border border-[#222634]">
+            <div class="flex items-center space-x-1.5">
+                <span class="text-slate-400 text-[11px]">Active:</span>
+                <span id="stat-total-courtrooms" class="font-mono font-semibold text-white tabular-nums text-xs">--</span>
+            </div>
+            <span class="text-slate-700">•</span>
+            <div class="flex items-center space-x-1.5">
+                <span class="text-slate-400 text-[11px]">Fleet:</span>
+                <span id="stat-fleet-health" class="font-mono font-semibold text-emerald-400 tabular-nums text-xs">--%</span>
+            </div>
+            <span class="text-slate-700">•</span>
+            <div class="flex items-center space-x-1.5">
+                <span class="text-slate-400 text-[11px]">Optimal:</span>
+                <span id="stat-optimal-sessions" class="font-mono font-semibold text-white tabular-nums text-xs">--</span>
+            </div>
+            <span class="text-slate-700">•</span>
+            <div class="flex items-center space-x-1.5">
+                <span class="text-slate-400 text-[11px]">Incidents:</span>
+                <span id="stat-incidents-count" class="font-mono font-semibold text-rose-400 tabular-nums text-xs">--</span>
+            </div>
+        </div>
+
+        <!-- Right: Status, IST Clock, Airtable Sync -->
+        <div class="flex items-center space-x-3">
+            <div class="flex items-center space-x-2 text-xs">
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span id="gateway-status" class="font-mono text-emerald-400 text-[11px]">WAL</span>
+                <span class="text-slate-700">•</span>
+                <span id="live-ist-clock" class="font-mono text-slate-300 tabular-nums text-[11px]">--:--:-- IST</span>
             </div>
 
-            <!-- Header Right: Static Calm Status & Sync Trigger -->
-            <div class="flex items-center space-x-4">
-                <div class="hidden sm:flex items-center space-x-2 text-xs text-slate-400">
-                    <!-- Static Solid Emerald Dot (Zero Infinite Ping) -->
-                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span id="gateway-status" class="font-mono text-emerald-400 text-xs">Gateway active (WAL)</span>
-                    <span class="text-slate-600">•</span>
-                    <span id="live-ist-clock" class="font-mono text-slate-300 tabular-nums text-xs">--:--:-- IST</span>
-                </div>
-
-                <!-- Sync Airtable Button -->
-                <button id="btn-sync-airtable" class="min-h-[34px] px-3 py-1.5 rounded-md text-xs font-medium text-slate-200 bg-[#12151E] hover:bg-[#171B26] border border-[#222634] hover:border-slate-600 transition-colors flex items-center space-x-1.5 pressable focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-400">
-                    <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                        <path d="M3 3v5h5"/>
-                        <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
-                        <path d="M16 21h5v-5"/>
-                    </svg>
-                    <span>Sync Airtable</span>
-                </button>
-            </div>
+            <button id="btn-sync-airtable" class="h-7 px-2.5 rounded-md text-[11px] font-medium text-slate-200 bg-[#12151E] hover:bg-[#171B26] border border-[#222634] hover:border-slate-600 transition-colors flex items-center space-x-1.5 pressable focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-400">
+                <svg class="w-3 h-3 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                    <path d="M3 3v5h5"/>
+                    <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+                    <path d="M16 21h5v-5"/>
+                </svg>
+                <span>Sync Airtable</span>
+            </button>
         </div>
     </header>
 
-    <!-- Main Content Container -->
-    <main class="max-w-[1360px] w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+    <!-- Main Viewport: Strict 1-Screen Container (Zero Page Scroll) -->
+    <main class="flex-1 w-full max-w-[1400px] mx-auto p-3 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 overflow-hidden">
 
-        <!-- Specific Technical Headline (Zero Marketing Slop) -->
-        <div class="space-y-1">
-            <h2 class="text-xl font-bold text-white tracking-tight">Koyal ASR Pre-Flight Diagnostic Gateway</h2>
-            <p class="text-sm text-slate-400 max-w-3xl">
-                Deterministic network and audio validation for live judicial proceedings across 11 partner state jurisdictions.
-            </p>
-        </div>
+        <!-- LEFT WORKSTATION: The Core Diagnostic Console (7 cols) -->
+        <div class="lg:col-span-7 surface-panel p-3.5 sm:p-4 flex flex-col justify-between h-full overflow-hidden space-y-2.5">
 
-        <!-- 4 Essential Fleet KPIs: Simple, Clean, High Contrast -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- KPI 1 -->
-            <div class="surface-panel p-4 flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-medium text-slate-400">Active courtrooms</p>
-                    <h3 id="stat-total-courtrooms" class="text-2xl font-bold text-white mt-1 tabular-nums">--</h3>
+            <!-- 1. Target & Baseline Row (Compact Side-by-Side) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 flex-none">
+                <!-- Courtroom Combobox -->
+                <div class="relative space-y-1">
+                    <label class="block text-[11px] font-medium text-slate-400">Courtroom bench</label>
+                    <div class="relative">
+                        <input id="input-courtroom-id" type="text" value="DL-HC-CRT04" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="courtroom-combo-list" class="clean-input w-full h-8 px-2.5 text-xs font-mono font-medium text-white placeholder-slate-500" placeholder="Type bench or ID...">
+                        <button id="btn-combo-toggle" type="button" aria-label="Toggle list" class="absolute right-2 top-2 h-4 w-4 flex items-center justify-center text-slate-400 hover:text-white">
+                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                    </div>
+                    <div id="courtroom-combo-list" role="listbox" class="hidden absolute left-0 right-0 top-full mt-1 bg-[#12151E] border border-[#222634] rounded-md shadow-2xl max-h-40 overflow-y-auto z-40 divide-y divide-[#222634]">
+                        <!-- Populated dynamically -->
+                    </div>
                 </div>
-                <div class="h-9 w-9 rounded-md bg-[#0A0C10] border border-[#222634] flex items-center justify-center text-slate-400">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 21h18"/><path d="M3 7h18"/><path d="M4 11v6"/><path d="M8 11v6"/><path d="M12 11v6"/><path d="M16 11v6"/><path d="M20 11v6"/><path d="m12 3 9 4H3l9-4Z"/></svg>
+
+                <!-- Certified Golden Baseline -->
+                <div class="space-y-1">
+                    <label class="block text-[11px] font-medium text-slate-400">Certified golden profile</label>
+                    <select id="select-golden-profile" class="clean-input w-full h-8 px-2 text-xs text-slate-200">
+                        <option value="GOLDEN-HC-FIBER" selected>High Court Leased Line (35ms, 0% Loss, 28 dB)</option>
+                        <option value="GOLDEN-DC-HYBRID">District Court Dual-ISP (70ms, 0.2% Loss, 22 dB)</option>
+                        <option value="GOLDEN-TL-EDGE">Rural Taluka Edge 4G (110ms, 0.5% Loss, 18 dB)</option>
+                    </select>
                 </div>
+
+                <input id="input-state" type="hidden" value="DL">
+                <input id="input-bench-name" type="hidden" value="Delhi High Court Bench 04 (Civil Division)">
             </div>
 
-            <!-- KPI 2 -->
-            <div class="surface-panel p-4 flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-medium text-slate-400">Fleet ASR readiness</p>
-                    <h3 id="stat-fleet-health" class="text-2xl font-bold text-emerald-400 mt-1 tabular-nums">--%</h3>
-                </div>
-                <div class="h-9 w-9 rounded-md bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
-                </div>
+            <!-- 2. Field Simulation Presets (Compact Segmented Strip) -->
+            <div class="grid grid-cols-4 gap-1.5 bg-[#0A0C10] p-1 rounded-md border border-[#222634] flex-none">
+                <button type="button" data-preset="optimal" class="preset-btn py-1 px-2 rounded text-[11px] font-medium text-slate-300 hover:text-white hover:bg-[#171B26] transition-colors text-center pressable truncate">
+                    Fiber optimal
+                </button>
+                <button type="button" data-preset="monsoon" class="preset-btn py-1 px-2 rounded text-[11px] font-medium text-slate-300 hover:text-white hover:bg-[#171B26] transition-colors text-center pressable truncate">
+                    Monsoon
+                </button>
+                <button type="button" data-preset="fan_noise" class="preset-btn py-1 px-2 rounded text-[11px] font-medium text-slate-300 hover:text-white hover:bg-[#171B26] transition-colors text-center pressable truncate">
+                    Fan noise
+                </button>
+                <button type="button" data-preset="edge_lag" class="preset-btn py-1 px-2 rounded text-[11px] font-medium text-slate-300 hover:text-white hover:bg-[#171B26] transition-colors text-center pressable truncate">
+                    4G lag
+                </button>
             </div>
 
-            <!-- KPI 3 -->
-            <div class="surface-panel p-4 flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-medium text-slate-400">Optimal sessions</p>
-                    <h3 id="stat-optimal-sessions" class="text-2xl font-bold text-white mt-1 tabular-nums">--</h3>
-                </div>
-                <div class="h-9 w-9 rounded-md bg-[#0A0C10] border border-[#222634] flex items-center justify-center text-emerald-400">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                </div>
-            </div>
-
-            <!-- KPI 4 -->
-            <div class="surface-panel p-4 flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-medium text-slate-400">Incidents logged</p>
-                    <h3 id="stat-incidents-count" class="text-2xl font-bold text-rose-400 mt-1 tabular-nums">--</h3>
-                </div>
-                <div class="h-9 w-9 rounded-md bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
-                </div>
-            </div>
-        </div>
-
-        <!-- 2-Column Workstation Grid (Flattened, Grouped with Whitespace) -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-
-            <!-- LEFT WORKSTATION: The Core Product (7 cols) -->
-            <div class="lg:col-span-7 surface-panel p-6 space-y-6">
-
-                <!-- Section 1: Courtroom Target & Golden Baseline (Grouped with Spacing) -->
-                <div class="space-y-4">
-                    <h3 class="text-sm font-semibold text-white tracking-tight">Diagnostic target configuration</h3>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <!-- Courtroom Combobox -->
-                        <div class="relative space-y-1.5">
-                            <label class="block text-xs font-medium text-slate-300">Courtroom bench</label>
-                            <div class="relative">
-                                <input id="input-courtroom-id" type="text" value="DL-HC-CRT04" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="courtroom-combo-list" class="clean-input w-full h-10 px-3 text-xs font-mono font-medium text-white placeholder-slate-500" placeholder="Type bench or ID...">
-                                <button id="btn-combo-toggle" type="button" aria-label="Toggle list" class="absolute right-2 top-2.5 h-5 w-5 flex items-center justify-center text-slate-400 hover:text-white">
-                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                                </button>
-                            </div>
-                            <div id="courtroom-combo-list" role="listbox" class="hidden absolute left-0 right-0 top-full mt-1 bg-[#12151E] border border-[#222634] rounded-md shadow-2xl max-h-48 overflow-y-auto z-40 divide-y divide-[#222634]">
-                                <!-- Populated dynamically by app.js -->
-                            </div>
-                        </div>
-
-                        <!-- Golden Standard Profile -->
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-medium text-slate-300">Certified golden profile</label>
-                            <select id="select-golden-profile" class="clean-input w-full h-10 px-3 text-xs text-slate-200">
-                                <option value="GOLDEN-HC-FIBER" selected>High Court Dedicated Leased Line (35ms, 0% Loss, 28 dB)</option>
-                                <option value="GOLDEN-DC-HYBRID">District Court Dual-ISP Hybrid (70ms, 0.2% Loss, 22 dB)</option>
-                                <option value="GOLDEN-TL-EDGE">Rural Taluka Edge 4G Dongle (110ms, 0.5% Loss, 18 dB)</option>
-                            </select>
+            <!-- 3. Unified 6-Metric Telemetry Grid (Network + Audio in One Compact Cluster) -->
+            <div class="space-y-1.5 flex-none">
+                <div class="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                    <!-- Latency -->
+                    <div class="space-y-0.5">
+                        <label class="text-[10px] text-slate-400 block truncate">Latency</label>
+                        <div class="relative flex items-center">
+                            <input id="in-latency" type="text" value="42.0" class="clean-input w-full h-8 pl-2 pr-6 text-xs font-mono font-medium text-white tabular-nums">
+                            <span class="absolute right-1.5 text-[10px] text-slate-500 font-mono">ms</span>
                         </div>
                     </div>
 
-                    <!-- Hidden inputs kept for API payload compliance -->
-                    <input id="input-state" type="hidden" value="DL">
-                    <input id="input-bench-name" type="hidden" value="Delhi High Court Bench 04 (Civil Division)">
+                    <!-- Packet Loss -->
+                    <div class="space-y-0.5">
+                        <label class="text-[10px] text-slate-400 block truncate">Packet loss</label>
+                        <div class="relative flex items-center">
+                            <input id="in-loss" type="text" value="0.1" class="clean-input w-full h-8 pl-2 pr-5 text-xs font-mono font-medium text-white tabular-nums">
+                            <span class="absolute right-1.5 text-[10px] text-slate-500 font-mono">%</span>
+                        </div>
+                    </div>
+
+                    <!-- Jitter -->
+                    <div class="space-y-0.5">
+                        <label class="text-[10px] text-slate-400 block truncate">Jitter</label>
+                        <div class="relative flex items-center">
+                            <input id="in-jitter" type="text" value="5.2" class="clean-input w-full h-8 pl-2 pr-6 text-xs font-mono font-medium text-white tabular-nums">
+                            <span class="absolute right-1.5 text-[10px] text-slate-500 font-mono">ms</span>
+                        </div>
+                    </div>
+
+                    <!-- WS Keepalive -->
+                    <div class="space-y-0.5">
+                        <label class="text-[10px] text-slate-400 block truncate">WS RTT</label>
+                        <div class="relative flex items-center">
+                            <input id="in-ws-rtt" type="text" value="55.0" class="clean-input w-full h-8 pl-2 pr-6 text-xs font-mono font-medium text-white tabular-nums">
+                            <span class="absolute right-1.5 text-[10px] text-slate-500 font-mono">ms</span>
+                        </div>
+                    </div>
+
+                    <!-- Audio Sample Rate -->
+                    <div class="space-y-0.5">
+                        <label class="text-[10px] text-slate-400 block truncate">Sample rate</label>
+                        <div class="h-8 px-2 bg-[#0A0C10] border border-[#222634] rounded-md flex items-center justify-between text-xs font-mono text-white">
+                            <span id="live-sample-rate" class="truncate">48k</span>
+                            <span class="text-[10px] text-slate-500">Hz</span>
+                        </div>
+                    </div>
+
+                    <!-- Ambient Noise Floor -->
+                    <div class="space-y-0.5">
+                        <label class="text-[10px] text-slate-400 block truncate">Noise (SNR)</label>
+                        <div class="h-8 px-2 bg-[#0A0C10] border border-[#222634] rounded-md flex items-center justify-between text-xs font-mono text-emerald-400">
+                            <span id="live-snr-db" class="tabular-nums">26.5</span>
+                            <span class="text-[10px] text-slate-500 font-mono">dB</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="border-t border-[#222634]"></div>
+                <!-- Hairline VU Audio Bar (4px) -->
+                <div class="w-full bg-[#0A0C10] h-1.5 rounded-full overflow-hidden border border-[#222634]">
+                    <div id="audio-level-bar" class="h-full bg-emerald-500 transition-all duration-75 w-0"></div>
+                </div>
+            </div>
 
-                <!-- Section 2: Network Transport Metrics (Flattened, No Nested Boxes) -->
-                <div class="space-y-3">
+            <!-- 4. Action Trigger & 5s Progress Bar -->
+            <div class="space-y-1.5 flex-none">
+                <div id="progress-container" class="hidden space-y-1">
+                    <div class="flex justify-between text-[11px] text-slate-400 font-mono">
+                        <span>Executing hardware &amp; network probe...</span>
+                        <span id="progress-pct" class="text-emerald-400 font-semibold tabular-nums">0%</span>
+                    </div>
+                    <div class="w-full bg-[#0A0C10] h-1.5 rounded-full overflow-hidden border border-[#222634]">
+                        <div id="progress-bar" class="h-full bg-emerald-500 transition-all duration-100 w-0"></div>
+                    </div>
+                </div>
+
+                <button id="btn-run-diagnostic" class="btn-action-primary w-full h-9 flex items-center justify-center space-x-2 text-xs shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 pressable">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    <span>Run 5-second pre-flight check</span>
+                    <span class="text-[10px] font-mono text-emerald-100 bg-emerald-700/60 px-1 py-0.5 rounded ml-1">↵ Enter</span>
+                </button>
+            </div>
+
+            <!-- 5. In-Place Pre-Allocated Verdict Container (Zero Page Growth, Zero-CLS) -->
+            <div id="verdict-container-slot" class="flex-1 min-h-[170px] max-h-[220px] overflow-hidden flex flex-col justify-between">
+                
+                <!-- Standby State when Idle -->
+                <div id="verdict-standby" class="h-full bg-[#0A0C10] border border-[#222634] rounded-md p-3 flex flex-col items-center justify-center text-center space-y-1.5">
+                    <div class="h-7 w-7 rounded-full bg-[#12151E] border border-[#222634] flex items-center justify-center text-slate-400">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold text-slate-300">Ready for Pre-Flight Evaluation</p>
+                        <p class="text-[11px] text-slate-500">Target: <span class="font-mono text-slate-400">DL-HC-CRT04</span> • Golden: <span class="font-mono text-slate-400">High Court Leased Line</span></p>
+                    </div>
+                </div>
+
+                <!-- Shimmer Skeleton -->
+                <div id="verdict-skeleton" class="hidden h-full bg-[#0A0C10] border border-[#222634] rounded-md p-3 space-y-2.5">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-sm font-semibold text-white tracking-tight">Network metrics</h3>
-                        <span class="text-xs text-slate-400 font-mono">Live WebSocket connection</span>
+                        <div class="w-28 h-3.5 rounded skeleton-shimmer"></div>
+                        <div class="w-16 h-4 rounded skeleton-shimmer"></div>
                     </div>
-
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <!-- Latency -->
-                        <div class="space-y-1">
-                            <label class="text-xs text-slate-400">Latency</label>
-                            <div class="relative flex items-center">
-                                <input id="in-latency" type="text" value="42.0" class="clean-input w-full h-9 pl-3 pr-8 text-xs font-mono font-medium text-white tabular-nums">
-                                <span class="absolute right-2.5 text-xs text-slate-500 font-mono">ms</span>
-                            </div>
-                        </div>
-
-                        <!-- Packet Loss -->
-                        <div class="space-y-1">
-                            <label class="text-xs text-slate-400">Packet loss</label>
-                            <div class="relative flex items-center">
-                                <input id="in-loss" type="text" value="0.1" class="clean-input w-full h-9 pl-3 pr-7 text-xs font-mono font-medium text-white tabular-nums">
-                                <span class="absolute right-2.5 text-xs text-slate-500 font-mono">%</span>
-                            </div>
-                        </div>
-
-                        <!-- Jitter -->
-                        <div class="space-y-1">
-                            <label class="text-xs text-slate-400">Jitter</label>
-                            <div class="relative flex items-center">
-                                <input id="in-jitter" type="text" value="5.2" class="clean-input w-full h-9 pl-3 pr-8 text-xs font-mono font-medium text-white tabular-nums">
-                                <span class="absolute right-2.5 text-xs text-slate-500 font-mono">ms</span>
-                            </div>
-                        </div>
-
-                        <!-- WS RTT -->
-                        <div class="space-y-1">
-                            <label class="text-xs text-slate-400">WS keepalive</label>
-                            <div class="relative flex items-center">
-                                <input id="in-ws-rtt" type="text" value="55.0" class="clean-input w-full h-9 pl-3 pr-8 text-xs font-mono font-medium text-white tabular-nums">
-                                <span class="absolute right-2.5 text-xs text-slate-500 font-mono">ms</span>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="w-full h-8 rounded skeleton-shimmer"></div>
+                    <div class="w-3/4 h-3.5 rounded skeleton-shimmer"></div>
                 </div>
 
-                <div class="border-t border-[#222634]"></div>
-
-                <!-- Section 3: Audio Hardware & FFT Analysis (Flattened, Direct Surface) -->
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-sm font-semibold text-white tracking-tight">Audio hardware &amp; ambient noise</h3>
-                        <span id="mic-status-label" class="text-xs text-slate-400 font-mono truncate max-w-[220px]">Default Audio Device</span>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3 text-xs">
-                        <div class="bg-[#0A0C10] border border-[#222634] rounded-md px-3 py-2.5 flex justify-between items-center">
-                            <span class="text-slate-400">Sample rate:</span>
-                            <span id="live-sample-rate" class="font-mono font-medium text-white">48000 Hz</span>
-                        </div>
-                        <div class="bg-[#0A0C10] border border-[#222634] rounded-md px-3 py-2.5 flex justify-between items-center">
-                            <span class="text-slate-400">Noise floor (SNR):</span>
-                            <span id="live-snr-db" class="font-mono font-medium text-emerald-400">26.5 dB</span>
-                        </div>
-                    </div>
-
-                    <!-- Clean Audio Visualizer Bar -->
-                    <div class="w-full bg-[#0A0C10] h-2 rounded-full overflow-hidden border border-[#222634]">
-                        <div id="audio-level-bar" class="h-full bg-emerald-500 transition-all duration-75 w-0"></div>
-                    </div>
-                </div>
-
-                <div class="border-t border-[#222634]"></div>
-
-                <!-- Section 4: Field Simulation Presets (Clean Segmented Control) -->
-                <div class="space-y-2">
-                    <label class="text-xs font-medium text-slate-400 block">Field baseline presets</label>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-[#0A0C10] p-1 rounded-md border border-[#222634]">
-                        <button type="button" data-preset="optimal" class="preset-btn py-1.5 px-2 rounded text-xs font-medium text-slate-300 hover:text-white hover:bg-[#171B26] transition-colors text-center pressable">
-                            Fiber optimal
-                        </button>
-                        <button type="button" data-preset="monsoon" class="preset-btn py-1.5 px-2 rounded text-xs font-medium text-slate-300 hover:text-white hover:bg-[#171B26] transition-colors text-center pressable">
-                            Monsoon (3.8% loss)
-                        </button>
-                        <button type="button" data-preset="fan_noise" class="preset-btn py-1.5 px-2 rounded text-xs font-medium text-slate-300 hover:text-white hover:bg-[#171B26] transition-colors text-center pressable">
-                            Fan noise (15.5 dB)
-                        </button>
-                        <button type="button" data-preset="edge_lag" class="preset-btn py-1.5 px-2 rounded text-xs font-medium text-slate-300 hover:text-white hover:bg-[#171B26] transition-colors text-center pressable">
-                            4G lag (340ms)
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Section 5: Primary Action Trigger (Solid Emerald, High-Contrast Anchor) -->
-                <div class="space-y-3 pt-2">
-                    <!-- Progress bar active during 5s diagnostic -->
-                    <div id="progress-container" class="hidden space-y-1.5">
-                        <div class="flex justify-between text-xs text-slate-400 font-mono">
-                            <span>Executing audio FFT and network probe...</span>
-                            <span id="progress-pct" class="text-emerald-400 font-semibold tabular-nums">0%</span>
-                        </div>
-                        <div class="w-full bg-[#0A0C10] h-2 rounded-full overflow-hidden border border-[#222634]">
-                            <div id="progress-bar" class="h-full bg-emerald-500 transition-all duration-100 w-0"></div>
-                        </div>
-                    </div>
-
-                    <button id="btn-run-diagnostic" class="btn-action-primary w-full h-11 flex items-center justify-center space-x-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
-                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                        <span>Run 5-second pre-flight check</span>
-                        <span class="text-[11px] font-mono text-emerald-100 bg-emerald-700/60 px-1.5 py-0.5 rounded ml-2">↵ Enter</span>
-                    </button>
-                </div>
-
-                <!-- Section 6: Results & Remediation (Zero-CLS, Clean Inline Card) -->
-                <div id="verdict-container-slot" class="space-y-3">
-                    <!-- Shimmer Skeleton -->
-                    <div id="verdict-skeleton" class="hidden bg-[#0A0C10] border border-[#222634] rounded-md p-4 space-y-3">
-                        <div class="flex items-center justify-between">
-                            <div class="w-36 h-4 rounded skeleton-shimmer"></div>
-                            <div class="w-24 h-5 rounded skeleton-shimmer"></div>
-                        </div>
-                        <div class="w-full h-10 rounded skeleton-shimmer"></div>
-                    </div>
-
-                    <!-- Verdict Card -->
-                    <div id="verdict-card" class="hidden bg-[#0A0C10] border border-[#222634] rounded-md p-4 space-y-4 border-l-4">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-2.5">
-                                <div id="verdict-icon-container" class="h-6 w-6 rounded flex items-center justify-center">
-                                    <!-- Dynamic SVG icon -->
-                                </div>
-                                <div>
-                                    <h4 id="verdict-title" class="text-sm font-bold text-white tracking-tight">Optimal</h4>
-                                    <p id="verdict-courtroom" class="text-xs font-mono text-slate-400">DL-HC-CRT04 • Session Cleared</p>
-                                </div>
-                            </div>
-                            <span id="verdict-badge" class="px-2.5 py-1 rounded text-xs font-mono font-medium">
-                                Can start
-                            </span>
-                        </div>
-
-                        <!-- Golden Standard Alignment Score Bar -->
-                        <div class="space-y-1.5">
-                            <div class="flex justify-between items-center text-xs">
-                                <span class="font-medium text-slate-300">Golden profile alignment</span>
-                                <span id="golden-score-pct" class="font-mono font-semibold text-white tabular-nums">--%</span>
-                            </div>
-                            <div class="w-full bg-[#12151E] h-1.5 rounded-full overflow-hidden border border-[#222634]">
-                                <div id="golden-progress-bar" class="h-full bg-emerald-500 w-0 transition-all duration-300"></div>
-                            </div>
-                            <p id="golden-summary-text" class="text-xs text-slate-400 font-mono">--</p>
-                        </div>
-
-                        <div id="verdict-summary" class="text-xs text-slate-300 leading-relaxed space-y-1">
-                            <!-- Bullet points injected dynamically -->
-                        </div>
-
-                        <!-- Integration Receipts -->
-                        <div class="grid grid-cols-3 gap-2 text-xs pt-1 border-t border-[#222634]">
-                            <div id="receipt-airtable" class="bg-[#12151E] p-2 rounded border border-[#222634] text-center">
-                                <span class="text-slate-400 block text-[11px]">Airtable</span>
-                                <span class="font-medium text-slate-300 text-xs">Synced</span>
-                            </div>
-                            <div id="receipt-slack" class="bg-[#12151E] p-2 rounded border border-[#222634] text-center">
-                                <span class="text-slate-400 block text-[11px]">Slack</span>
-                                <span class="font-medium text-slate-300 text-xs">Standby</span>
-                            </div>
-                            <div id="receipt-linear" class="bg-[#12151E] p-2 rounded border border-[#222634] text-center">
-                                <span class="text-slate-400 block text-[11px]">Linear</span>
-                                <span class="font-medium text-slate-300 text-xs">None</span>
+                <!-- Verdict Card -->
+                <div id="verdict-card" class="hidden h-full bg-[#0A0C10] border border-[#222634] rounded-md p-3 flex flex-col justify-between space-y-2 border-l-4">
+                    <div class="flex items-center justify-between flex-none">
+                        <div class="flex items-center space-x-2">
+                            <div id="verdict-icon-container" class="h-5 w-5 rounded flex items-center justify-center"></div>
+                            <div>
+                                <h4 id="verdict-title" class="text-xs font-bold text-white tracking-tight">Optimal</h4>
+                                <p id="verdict-courtroom" class="text-[10px] font-mono text-slate-400">DL-HC-CRT04 • Cleared</p>
                             </div>
                         </div>
+                        <span id="verdict-badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-medium">Cleared</span>
+                    </div>
 
-                        <!-- Guided Interview Trigger -->
-                        <div id="interview-trigger-box" class="hidden pt-1">
-                            <button id="btn-open-interview" type="button" class="w-full h-9 px-3 rounded text-xs font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30 hover:bg-amber-500/20 transition-colors flex items-center justify-center space-x-2 pressable">
-                                <svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                                <span>Resolve via guided technician interview</span>
+                    <!-- Golden Alignment Score Bar -->
+                    <div class="space-y-1 flex-none">
+                        <div class="flex justify-between items-center text-[11px]">
+                            <span class="text-slate-400">Golden profile alignment</span>
+                            <span id="golden-score-pct" class="font-mono font-semibold text-white tabular-nums text-xs">--%</span>
+                        </div>
+                        <div class="w-full bg-[#12151E] h-1.5 rounded-full overflow-hidden border border-[#222634]">
+                            <div id="golden-progress-bar" class="h-full bg-emerald-500 w-0 transition-all duration-300"></div>
+                        </div>
+                        <p id="golden-summary-text" class="text-[10px] text-slate-400 font-mono truncate">--</p>
+                    </div>
+
+                    <!-- Bulleted Reason Summary -->
+                    <div id="verdict-summary" class="text-[11px] text-slate-300 leading-snug space-y-0.5 overflow-hidden line-clamp-2"></div>
+
+                    <!-- Bottom Bar: Receipts & Interview Action -->
+                    <div class="flex items-center justify-between pt-1 border-t border-[#222634] text-[10px] font-mono flex-none">
+                        <div class="flex items-center space-x-2">
+                            <span id="receipt-airtable" class="px-1.5 py-0.5 rounded bg-[#12151E] text-slate-300 border border-[#222634]">Airtable: Synced</span>
+                            <span id="receipt-slack" class="px-1.5 py-0.5 rounded bg-[#12151E] text-slate-300 border border-[#222634]">Slack: Standby</span>
+                            <span id="receipt-linear" class="px-1.5 py-0.5 rounded bg-[#12151E] text-slate-300 border border-[#222634]">Linear: None</span>
+                        </div>
+                        
+                        <div id="interview-trigger-box" class="hidden">
+                            <button id="btn-open-interview" type="button" class="h-6 px-2 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30 hover:bg-amber-500/20 transition-colors pressable">
+                                Guided interview
                             </button>
                         </div>
 
-                        <!-- Progressive Disclosure Accordion -->
-                        <div class="pt-1 border-t border-[#222634]">
-                            <button id="btn-toggle-deep-diagnostics" type="button" class="w-full py-1.5 flex items-center justify-between text-xs text-slate-400 hover:text-white transition-colors">
-                                <span>Inspect raw telemetry payload</span>
-                                <span id="deep-diag-arrow" class="font-mono text-xs">▾</span>
-                            </button>
-                            <div id="deep-diagnostics-panel" class="hidden pt-2">
-                                <pre id="raw-telemetry-json" class="p-3 bg-[#0A0C10] rounded border border-[#222634] text-emerald-400 text-xs font-mono overflow-x-auto whitespace-pre max-h-48"></pre>
-                            </div>
-                        </div>
+                        <button id="btn-toggle-deep-diagnostics" type="button" class="text-slate-500 hover:text-slate-300 transition-colors">
+                            JSON <span id="deep-diag-arrow">▾</span>
+                        </button>
+                    </div>
+
+                    <!-- Raw JSON Drawer (Hidden by default) -->
+                    <div id="deep-diagnostics-panel" class="hidden">
+                        <pre id="raw-telemetry-json" class="p-2 bg-[#0A0C10] rounded border border-[#222634] text-emerald-400 text-[10px] font-mono overflow-x-auto max-h-24"></pre>
                     </div>
                 </div>
 
             </div>
 
-            <!-- RIGHT WORKSTATION: Deployment Matrix & Incident Feed (5 cols) -->
-            <div class="lg:col-span-5 space-y-6">
+        </div>
 
-                <!-- 11-State Regional Matrix -->
-                <div class="surface-panel p-5 space-y-3">
-                    <div class="flex items-center justify-between border-b border-[#222634] pb-3">
-                        <h3 class="text-sm font-semibold text-white tracking-tight">11 partner states deployment</h3>
-                        <span class="text-xs text-slate-400 font-mono">6,000+ judges</span>
-                    </div>
+        <!-- RIGHT WORKSTATION: Deployment Matrix & Incident Stream (5 cols) -->
+        <div class="lg:col-span-5 flex flex-col space-y-3 h-full overflow-hidden">
 
-                    <div id="regions-container" class="grid grid-cols-3 gap-2">
-                        <!-- Populated dynamically with clean state cards -->
-                    </div>
+            <!-- 1. 11-State Regional Matrix (Compact 4-Column Micro-Cards) -->
+            <div class="surface-panel p-3 space-y-2 flex-none">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-semibold text-white tracking-tight">11 partner states deployment</h3>
+                    <span class="text-[10px] text-slate-500 font-mono">Live fleet</span>
                 </div>
 
-                <!-- Live Incident Feed -->
-                <div class="surface-panel p-5 space-y-3">
-                    <div class="flex items-center justify-between border-b border-[#222634] pb-3">
-                        <h3 class="text-sm font-semibold text-white tracking-tight">Live incident routing</h3>
-                        <span class="text-xs text-slate-400 font-mono">Automated P0 dispatch</span>
-                    </div>
+                <div id="regions-container" class="grid grid-cols-4 gap-1.5">
+                    <!-- Populated dynamically with compact 38px micro-cards -->
+                </div>
+            </div>
 
-                    <div id="incidents-container" class="space-y-2 max-h-64 overflow-y-auto pr-1">
-                        <p class="text-xs text-slate-500 text-center py-6 font-mono">No active P0 incidents logged.</p>
-                    </div>
+            <!-- 2. Live Incident Routing Feed (Fixed-Height Internal Scroll Only) -->
+            <div class="surface-panel p-3 flex-1 flex flex-col min-h-0 overflow-hidden space-y-2">
+                <div class="flex items-center justify-between flex-none">
+                    <h3 class="text-xs font-semibold text-white tracking-tight">Live incident routing</h3>
+                    <span class="text-[10px] text-slate-500 font-mono">Automated P0</span>
                 </div>
 
+                <div id="incidents-container" class="flex-1 overflow-y-auto space-y-1.5 pr-1">
+                    <p class="text-xs text-slate-500 text-center py-6 font-mono">No active P0 incidents logged.</p>
+                </div>
             </div>
 
         </div>
 
     </main>
 
-    <!-- Technician Diagnostic Interview Modal (Clean Solid Matte, No Halos) -->
+    <!-- Technician Diagnostic Interview Modal (Optical Center Overlay) -->
     <div id="interview-modal" class="fixed inset-0 bg-[#0A0C10]/80 z-50 hidden flex items-center justify-center p-4">
-        <div id="interview-modal-dialog" class="surface-panel max-w-lg w-full p-5 space-y-4 shadow-2xl">
-            <div class="flex justify-between items-start border-b border-[#222634] pb-3">
+        <div id="interview-modal-dialog" class="surface-panel max-w-md w-full p-4 space-y-3 shadow-2xl">
+            <div class="flex justify-between items-start border-b border-[#222634] pb-2">
                 <div>
-                    <h3 class="text-sm font-bold text-white tracking-tight">Technician diagnostic interview</h3>
-                    <p class="text-xs text-slate-400">Resolve degraded telemetry before hearing commences</p>
+                    <h3 class="text-xs font-bold text-white tracking-tight">Technician diagnostic interview</h3>
+                    <p class="text-[10px] text-slate-400">Resolve degraded telemetry before hearing commences</p>
                 </div>
-                <button id="btn-close-interview" class="h-7 w-7 flex items-center justify-center text-slate-400 hover:text-white rounded hover:bg-[#171B26] pressable" aria-label="Close">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                <button id="btn-close-interview" class="h-6 w-6 flex items-center justify-center text-slate-400 hover:text-white rounded hover:bg-[#171B26] pressable" aria-label="Close">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
 
-            <div id="interview-question-container" class="space-y-3">
-                <!-- Dynamically populated question and options -->
-            </div>
+            <div id="interview-question-container" class="space-y-2"></div>
 
-            <div class="bg-[#0A0C10] border border-amber-500/30 rounded-md p-3 text-xs text-amber-200" id="interview-remediation-box">
-                <!-- Remediation advice -->
-            </div>
+            <div class="bg-[#0A0C10] border border-amber-500/30 rounded-md p-2.5 text-[11px] text-amber-200" id="interview-remediation-box"></div>
 
-            <div class="flex justify-end space-x-2 pt-2">
-                <button id="btn-cancel-interview" type="button" class="h-9 px-3.5 rounded-md text-xs font-semibold bg-[#0A0C10] hover:bg-[#171B26] text-slate-300 border border-[#222634] pressable">
+            <div class="flex justify-end space-x-2 pt-1">
+                <button id="btn-cancel-interview" type="button" class="h-8 px-3 rounded-md text-xs font-semibold bg-[#0A0C10] hover:bg-[#171B26] text-slate-300 border border-[#222634] pressable">
                     Cancel
                 </button>
-                <button id="btn-submit-interview" type="button" class="btn-action-primary h-9 px-4 text-xs pressable">
-                    Apply remediation &amp; re-evaluate
+                <button id="btn-submit-interview" type="button" class="btn-action-primary h-8 px-3 text-xs pressable">
+                    Apply remediation
                 </button>
             </div>
         </div>
