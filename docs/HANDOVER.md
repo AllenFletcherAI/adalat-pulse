@@ -9,12 +9,13 @@
 ## 1. What Is Done
 - **Strict Data Contracts:** Pydantic v2 validation models in `src/models.py` covering network latency, jitter, packet loss, WebSocket keepalive RTT, microphone hardware sample rate, and ambient noise floor (SNR).
 - **Deterministic Evaluation Engine:** `src/evaluator.py` evaluates all 6 telemetry parameters against Koyal ASR quality gates. Returns `OPTIMAL`, `DEGRADED`, or `CRITICAL` with plain-language reason codes.
-- **SQLite Persistence (WAL Mode):** Append-only telemetry table and incident tracking in `src/database.py` with zero-config local reliability.
-- **Automated Incident Routing:** Real Slack Block Kit dispatcher (`#all-adalat-pulse-alerts`) and Linear P0 issue creator in `src/alerts.py`.
-- **Bi-Directional Airtable Sync:** Live REST client in `src/airtable_sync.py` syncing courtroom health to base `appviUqZAQGGD2ILo`.
+- **SQLite Persistence (WAL Mode):** Append-only telemetry table and incident tracking in `src/database.py` with auto-initialization and zero-config local reliability.
+- **Automated Incident Routing:** Real Slack Block Kit dispatcher (`#all-adalat-pulse-alerts`) and Linear P0 issue creator in `src/alerts.py`. Verified with live Linear issue `ALL-7` and live Slack alert.
+- **Bi-Directional Airtable Sync:** Live REST client in `src/airtable_sync.py` syncing courtroom health to base `appviUqZAQGGD2ILo`. Verified with live record `recMbWX6eUaV3pnOD` (`typecast: True` enabled).
 - **FastAPI Gateway & WebSocket Probe:** REST endpoints and live `/ws/probe` endpoint in `src/main.py`.
 - **Operational Dashboard:** Vanilla ES6 single-page application in `src/static/` with live Web Audio API microphone sampling and 11-state fleet grid.
-- **Automated Verification:** 20 out of 20 unit and integration tests passing in `tests/`.
+- **Automated Verification:** 20 out of 20 unit and integration tests passing in `tests/` in 8.18s.
+- **Git Repository & Remote Push:** Public repository created and synced at `https://github.com/AllenFletcherAI/adalat-pulse`.
 - **Containerization:** Multi-stage production `Dockerfile` and `docker-compose.yml`.
 
 ---
