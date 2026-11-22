@@ -80,7 +80,7 @@ if os.path.isdir(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 
-@app.get("/", response_class=FileResponse)
+@app.api_route("/", methods=["GET", "HEAD"], response_class=FileResponse)
 async def serve_dashboard():
     """Serves the single-page operational control dashboard."""
     index_path = os.path.join(static_dir, "index.html")
