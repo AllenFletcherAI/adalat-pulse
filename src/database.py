@@ -123,6 +123,15 @@ def init_db() -> None:
         );
         """)
 
+        # Ensure schema migrations for existing local databases
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA table_info(telemetry_snapshots)")
+        columns = [row[1] for row in cursor.fetchall()]
+        if "golden_profile_id" not in columns:
+            conn.execute("ALTER TABLE telemetry_snapshots ADD COLUMN golden_profile_id TEXT")
+        if "alignment_pct" not in columns:
+            conn.execute("ALTER TABLE telemetry_snapshots ADD COLUMN alignment_pct REAL")
+
         # Seed Level 4 Golden Profiles if not already present
         conn.execute("""
         INSERT OR IGNORE INTO golden_profiles (
