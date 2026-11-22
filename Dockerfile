@@ -1,14 +1,5 @@
-# Multi-stage lightweight Dockerfile for Adalat-Pulse
-FROM python:3.11-slim AS builder
-
-WORKDIR /app
-
-COPY requirements.txt .
-RUN python -m venv /opt/venv && \
-    /opt/venv/bin/pip install --no-cache-dir --timeout 300 --retries 5 -r requirements.txt
-
-# Final Runtime Stage
-FROM python:3.11-slim AS runner
+# Production Dockerfile for Adalat-Pulse Gateway
+FROM python:3.11-slim
 
 WORKDIR /app
 
@@ -17,8 +8,11 @@ RUN useradd -u 1001 -m -s /bin/bash adalat_ops && \
     mkdir -p /app/data && \
     chown -R adalat_ops:adalat_ops /app
 
-COPY --from=builder /opt/venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
+# Install pre-packaged binary wheels with zero network latency
+COPY .docker_wheels /wheels
+RUN pip install --no-cache-dir --no-index --find-links=/wheels /wheels/*.whl && \
+    rm -rf /wheels
+
 ENV PYTHONUNBUFFERED=1
 
 COPY --chown=adalat_ops:adalat_ops src/ /app/src/
