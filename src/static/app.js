@@ -1,9 +1,13 @@
 /**
- * Adalat-Pulse: Frontend Diagnostic Engine & Operations Visualizer
- * Production-Grade Enterprise Standard (Linear / Stripe / Datadog aesthetic)
- * Implements 20-Principle Motion & Cognitive Ergonomics Architecture:
- * - 12 Animation Principles (Squash/Stretch, Anticipation, Staging, Follow Through, Slow In/Out, Arcs, Secondary, Timing, Exaggeration, 3D Depth, Appeal)
- * - 8 Cognitive UX Laws (Fitts, Big Hit Areas, Hick, Miller, Doherty <400ms, Postel Robustness, Jakob Conventions, Frequency of Use)
+ * Adalat-Pulse: Frontend Diagnostic Engine & Operations Gateway
+ * Production Design System: Solid Matte Canvas, High Contrast, Authentic Enterprise Tooling
+ * Zero AI Slop / Clichés:
+ * - Concentric corner radii: R_inner = R_outer - P
+ * - No purple-to-blue gradients or neon halos
+ * - Zero nested cards inside cards; grouped with whitespace
+ * - Sentence case labels, no all-caps yelling
+ * - Static calm status dots (no infinite looping ping animations)
+ * - Monospace reserved strictly for numeric values, telemetry units, and IDs
  */
 
 let audioContext = null;
@@ -16,7 +20,7 @@ let lastReportPayload = null;
 let pendingInterviewQuestions = [];
 let probeIntervalId = null;
 
-// Helper: Typographic Widow Control
+// Typographic Widow Control: prevent lone words on the last line
 function preventWidow(text) {
     if (!text || typeof text !== 'string') return text;
     const words = text.trim().split(' ');
@@ -26,7 +30,7 @@ function preventWidow(text) {
     return `${words.join(' ')} ${secondLast}&nbsp;${lastWord}`;
 }
 
-// 18. Postel's Law: Robust Input Normalizers (Be liberal in what you accept)
+// Postel's Law: Robust Input Normalizers (Be liberal in what you accept)
 function normalizeCourtroomId(raw) {
     if (!raw) return "DL-HC-CRT04";
     let clean = raw.trim().toUpperCase().replace(/\s+/g, '-');
@@ -85,7 +89,7 @@ async function initAudioHardware() {
             if (tracks.length > 0) {
                 micDeviceLabel = tracks[0].label || "Integrated Microphone";
                 const labelEl = document.getElementById('mic-status-label');
-                if (labelEl) labelEl.textContent = micDeviceLabel.slice(0, 24);
+                if (labelEl) labelEl.textContent = micDeviceLabel.slice(0, 28);
             }
 
             analyser = audioContext.createAnalyser();
@@ -134,7 +138,7 @@ function sampleAudioLoop() {
     requestAnimationFrame(sampleAudioLoop);
 }
 
-// 15. Hick's Law: Courtroom Directory with Pre-Configured Golden Baselines
+// 3. Courtroom Directory with Certified Golden Baselines
 const COURTROOM_DIRECTORY = [
     { id: "DL-HC-CRT04", state: "DL", bench: "Delhi High Court Bench 04 (Civil Division)", golden: "GOLDEN-HC-FIBER" },
     { id: "KL-HC-CRT01", state: "KL", bench: "Kerala High Court Bench 01 (Digital Benches)", golden: "GOLDEN-HC-FIBER" },
@@ -164,17 +168,17 @@ function initCourtroomComboBox() {
         );
 
         if (matches.length === 0) {
-            listbox.innerHTML = `<div class="p-3 text-[11px] text-slate-500 text-center font-mono">No matching courtroom benches found</div>`;
+            listbox.innerHTML = `<div class="p-3 text-xs text-slate-500 text-center font-mono">No matching courtroom benches found</div>`;
             return;
         }
 
         listbox.innerHTML = matches.map((item, idx) => `
-            <div role="option" data-id="${item.id}" data-state="${item.state}" data-bench="${item.bench}" data-golden="${item.golden}" class="combo-option px-3 py-2 hover:bg-white/[0.06] cursor-pointer flex items-center justify-between text-xs transition-colors ${idx === highlightedIndex ? 'bg-white/[0.08]' : ''}">
+            <div role="option" data-id="${item.id}" data-state="${item.state}" data-bench="${item.bench}" data-golden="${item.golden}" class="combo-option px-3 py-2 hover:bg-[#171B26] cursor-pointer flex items-center justify-between text-xs transition-colors ${idx === highlightedIndex ? 'bg-[#171B26]' : ''}">
                 <div>
                     <span class="font-mono font-semibold text-white tracking-wide">${item.id}</span>
-                    <p class="text-[10px] text-slate-400 truncate max-w-[240px]">${item.bench}</p>
+                    <p class="text-[11px] text-slate-400 truncate max-w-[240px]">${item.bench}</p>
                 </div>
-                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-300 bg-white/[0.05] border border-white/[0.08]">${item.state}</span>
+                <span class="px-1.5 py-0.5 rounded text-[11px] font-mono text-slate-300 bg-[#0A0C10] border border-[#222634]">${item.state}</span>
             </div>
         `).join('');
 
@@ -232,7 +236,6 @@ function initCourtroomComboBox() {
         });
     }
 
-    // 19. Jakob's Law Keyboard Navigation (Arrows, Enter, Escape)
     input.addEventListener('keydown', (e) => {
         const options = listbox.querySelectorAll('.combo-option');
         if (listbox.classList.contains('hidden')) {
@@ -245,12 +248,12 @@ function initCourtroomComboBox() {
         if (e.key === 'ArrowDown') {
             e.preventDefault();
             highlightedIndex = Math.min(highlightedIndex + 1, options.length - 1);
-            options.forEach((opt, idx) => opt.classList.toggle('bg-white/[0.08]', idx === highlightedIndex));
+            options.forEach((opt, idx) => opt.classList.toggle('bg-[#171B26]', idx === highlightedIndex));
             if (options[highlightedIndex]) options[highlightedIndex].scrollIntoView({ block: 'nearest' });
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
             highlightedIndex = Math.max(highlightedIndex - 1, 0);
-            options.forEach((opt, idx) => opt.classList.toggle('bg-white/[0.08]', idx === highlightedIndex));
+            options.forEach((opt, idx) => opt.classList.toggle('bg-[#171B26]', idx === highlightedIndex));
             if (options[highlightedIndex]) options[highlightedIndex].scrollIntoView({ block: 'nearest' });
         } else if (e.key === 'Enter') {
             e.preventDefault();
@@ -258,7 +261,6 @@ function initCourtroomComboBox() {
                 selectCourtroomOption(options[highlightedIndex].dataset);
                 closeComboBox();
             } else {
-                // Postel's Law: Normalize free-form typed text
                 input.value = normalizeCourtroomId(input.value);
                 closeComboBox();
             }
@@ -275,12 +277,16 @@ function initCourtroomComboBox() {
 }
 initCourtroomComboBox();
 
-// 20. Frequency of Use: High-frequency baseline presets execute instantly (<80ms)
+// 4. Baseline Field Presets (Instant Clean Toggle)
 document.querySelectorAll('.preset-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
         const preset = e.currentTarget.getAttribute('data-preset');
-        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('bg-white/[0.12]', 'text-emerald-400', 'font-semibold'));
-        e.currentTarget.classList.add('bg-white/[0.12]', 'text-emerald-400', 'font-semibold');
+        document.querySelectorAll('.preset-btn').forEach(b => {
+            b.classList.remove('bg-[#171B26]', 'text-emerald-400', 'font-semibold', 'border', 'border-emerald-500/40');
+            b.classList.add('text-slate-300');
+        });
+        e.currentTarget.classList.add('bg-[#171B26]', 'text-emerald-400', 'font-semibold', 'border', 'border-emerald-500/40');
+        e.currentTarget.classList.remove('text-slate-300');
         applyPreset(preset);
     });
 });
@@ -343,16 +349,9 @@ function applyPreset(preset) {
     if (snrEl) snrEl.textContent = `${currentSnrDb.toFixed(1)} dB`;
 }
 
-// 2. Anticipation Wind-Up & 3. Staging the Focus: Primary Diagnostic Trigger
+// 5. Pre-Flight Diagnostic Check
 document.getElementById('btn-run-diagnostic').addEventListener('click', async () => {
-    const btn = document.getElementById('btn-run-diagnostic');
-    
-    // 2. Anticipation: Brief 70ms inward depression
-    btn.classList.add('windup-active');
-    setTimeout(async () => {
-        btn.classList.remove('windup-active');
-        await executePreFlightCheck();
-    }, 70);
+    await executePreFlightCheck();
 });
 
 async function executePreFlightCheck() {
@@ -362,10 +361,8 @@ async function executePreFlightCheck() {
     const progressContainer = document.getElementById('progress-container');
     const progressBar = document.getElementById('progress-bar');
     const progressPct = document.getElementById('progress-pct');
-    const badge = document.getElementById('diagnostic-badge');
     const skeleton = document.getElementById('verdict-skeleton');
     const verdictCard = document.getElementById('verdict-card');
-    const rightPane = document.getElementById('right-pane');
 
     if (probeIntervalId) {
         clearInterval(probeIntervalId);
@@ -376,14 +373,8 @@ async function executePreFlightCheck() {
     btn.classList.add('opacity-50', 'cursor-not-allowed');
     progressContainer.classList.remove('hidden');
 
-    // 3. Staging the Focus: Dim peripheral right pane during active testing
-    if (rightPane) rightPane.classList.add('staged-dimmed');
-
     verdictCard.classList.add('hidden');
     skeleton.classList.remove('hidden');
-
-    badge.textContent = "PROBING (5s)";
-    badge.className = "px-2.5 py-1 text-[11px] font-mono font-medium rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/25 animate-pulse tabular-nums";
 
     const totalSteps = 50; // 50 * 100ms = 5000ms
     let currentStep = 0;
@@ -400,10 +391,6 @@ async function executePreFlightCheck() {
             progressContainer.classList.add('hidden');
             btn.disabled = false;
             btn.classList.remove('opacity-50', 'cursor-not-allowed');
-            badge.textContent = "EVALUATING";
-
-            // 3. Staging: Un-dim right pane upon evaluation
-            if (rightPane) rightPane.classList.remove('staged-dimmed');
 
             await submitDiagnosticReport();
         }
@@ -411,7 +398,6 @@ async function executePreFlightCheck() {
 }
 
 async function submitDiagnosticReport() {
-    // 18. Postel's Law: Normalize and clean all inputs
     const rawCourtroomId = document.getElementById('input-courtroom-id').value;
     const courtroomId = normalizeCourtroomId(rawCourtroomId);
     document.getElementById('input-courtroom-id').value = courtroomId;
@@ -461,7 +447,6 @@ async function submitDiagnosticReport() {
         }
 
         const data = await res.json();
-        // 5. Follow Through & Overlapping Action
         renderVerdictWithFollowThrough(data);
         pollFleetOverview();
         pollIncidents();
@@ -471,11 +456,10 @@ async function submitDiagnosticReport() {
     }
 }
 
-// 5. Follow-Through & 8. Secondary Action Cascade
+// 6. Verdict Rendering (Concentric Law: R_inner = R_outer - P, High Contrast, Solid Matte)
 function renderVerdictWithFollowThrough(data) {
     const skeleton = document.getElementById('verdict-skeleton');
     const card = document.getElementById('verdict-card');
-    const badge = document.getElementById('diagnostic-badge');
     const iconContainer = document.getElementById('verdict-icon-container');
     const title = document.getElementById('verdict-title');
     const crText = document.getElementById('verdict-courtroom');
@@ -489,43 +473,29 @@ function renderVerdictWithFollowThrough(data) {
     const goldenScorePct = document.getElementById('golden-score-pct');
     const goldenProgressBar = document.getElementById('golden-progress-bar');
     const goldenSummaryText = document.getElementById('golden-summary-text');
-    const consoleContainer = document.getElementById('diagnostic-console');
 
     const interviewBox = document.getElementById('interview-trigger-box');
 
     skeleton.classList.add('hidden');
     card.classList.remove('hidden');
 
-    // Reset previous exaggerated effects
-    card.classList.remove('critical-spotlight');
-    consoleContainer.classList.remove('border-beam-active');
-
     if (data.verdict === 'OPTIMAL') {
-        card.className = "obsidian-subpanel rounded-xl p-4 space-y-3.5 border-l-4 border-l-emerald-500 border border-white/[0.06]";
-        badge.className = "px-2.5 py-1 text-[11px] font-mono font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 tabular-nums";
-        badge.textContent = "OPTIMAL";
-        iconContainer.className = "h-7 w-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20";
-        iconContainer.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`;
-        title.textContent = "OPTIMAL — SESSION APPROVED";
-        title.className = "text-sm font-bold text-emerald-400 tracking-tight";
-        verdictBadge.textContent = "SESSION CLEARED";
-        verdictBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
+        card.className = "bg-[#0A0C10] border border-[#222634] border-l-4 border-l-emerald-500 rounded-md p-4 space-y-4";
+        iconContainer.className = "h-6 w-6 rounded bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20";
+        iconContainer.innerHTML = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`;
+        title.textContent = "Optimal: session cleared";
+        title.className = "text-sm font-bold text-white tracking-tight";
+        verdictBadge.textContent = "Cleared";
+        verdictBadge.className = "px-2.5 py-1 rounded text-xs font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
         interviewBox.classList.add('hidden');
-
-        // 8. Secondary Action: Specular border-beam sweep across console
-        setTimeout(() => {
-            consoleContainer.classList.add('border-beam-active');
-        }, 150);
     } else if (data.verdict === 'DEGRADED') {
-        card.className = "obsidian-subpanel rounded-xl p-4 space-y-3.5 border-l-4 border-l-amber-500 border border-white/[0.06]";
-        badge.className = "px-2.5 py-1 text-[11px] font-mono font-medium rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/25 tabular-nums";
-        badge.textContent = "DEGRADED";
-        iconContainer.className = "h-7 w-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20";
-        iconContainer.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
-        title.textContent = "DEGRADED — MONITORING ACTIVE";
-        title.className = "text-sm font-bold text-amber-400 tracking-tight";
-        verdictBadge.textContent = "ATTENTION REQUIRED";
-        verdictBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-amber-500/10 text-amber-400 border border-amber-500/30";
+        card.className = "bg-[#0A0C10] border border-[#222634] border-l-4 border-l-amber-500 rounded-md p-4 space-y-4";
+        iconContainer.className = "h-6 w-6 rounded bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20";
+        iconContainer.innerHTML = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+        title.textContent = "Degraded: monitoring active";
+        title.className = "text-sm font-bold text-white tracking-tight";
+        verdictBadge.textContent = "Attention required";
+        verdictBadge.className = "px-2.5 py-1 rounded text-xs font-mono font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20";
 
         if (data.evaluation.pending_questions && data.evaluation.pending_questions.length > 0) {
             pendingInterviewQuestions = data.evaluation.pending_questions;
@@ -534,49 +504,37 @@ function renderVerdictWithFollowThrough(data) {
             interviewBox.classList.add('hidden');
         }
     } else {
-        card.className = "obsidian-subpanel rounded-xl p-4 space-y-3.5 border-l-4 border-l-rose-500 border border-white/[0.06]";
-        badge.className = "px-2.5 py-1 text-[11px] font-mono font-medium rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/25 tabular-nums";
-        badge.textContent = "CRITICAL BREACH";
-        iconContainer.className = "h-7 w-7 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center border border-rose-500/20";
-        iconContainer.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
-        title.textContent = "CRITICAL — SESSION HALTED";
-        title.className = "text-sm font-bold text-rose-400 tracking-tight";
-        verdictBadge.textContent = "GATE BLOCKED";
-        verdictBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-rose-500/10 text-rose-400 border border-rose-500/30";
+        card.className = "bg-[#0A0C10] border border-[#222634] border-l-4 border-l-rose-500 rounded-md p-4 space-y-4";
+        iconContainer.className = "h-6 w-6 rounded bg-rose-500/10 text-rose-400 flex items-center justify-center border border-rose-500/20";
+        iconContainer.innerHTML = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
+        title.textContent = "Critical breach: session halted";
+        title.className = "text-sm font-bold text-white tracking-tight";
+        verdictBadge.textContent = "Gate blocked";
+        verdictBadge.className = "px-2.5 py-1 rounded text-xs font-mono font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20";
         interviewBox.classList.add('hidden');
-
-        // 10. Exaggerated Feedback: Highlight critical breach card and pop counter
-        card.classList.add('critical-spotlight');
-        const incCounter = document.getElementById('stat-incidents-count');
-        if (incCounter) {
-            incCounter.classList.add('counter-popped');
-            setTimeout(() => incCounter.classList.remove('counter-popped'), 350);
-        }
     }
 
     crText.textContent = `${data.courtroom_id} (${data.state}) • Snapshot #${data.snapshot_id}`;
     summary.innerHTML = `<div class="font-semibold text-slate-200 mb-1">${preventWidow(data.evaluation.summary)}</div>` +
         data.evaluation.reason_codes.map(r => `<div class="text-[11px] text-slate-400 flex items-start space-x-1.5"><span class="text-slate-600">•</span><span>${preventWidow(r)}</span></div>`).join('');
 
-    // 5. Follow Through: Golden score bar fills smoothly 120ms after card drop
+    // Golden profile alignment bar
     if (data.evaluation.golden_alignment) {
         const align = data.evaluation.golden_alignment;
         goldenScorePct.textContent = `${align.alignment_pct}%`;
-        setTimeout(() => {
-            goldenProgressBar.style.width = `${align.alignment_pct}%`;
-        }, 120);
+        goldenProgressBar.style.width = `${align.alignment_pct}%`;
         goldenSummaryText.innerHTML = preventWidow(`${align.summary} (Δ Latency: ${align.latency_delta_ms >= 0 ? '+' : ''}${align.latency_delta_ms}ms, Δ Loss: ${align.packet_loss_delta_pct >= 0 ? '+' : ''}${align.packet_loss_delta_pct}%, Δ SNR: ${align.snr_delta_db >= 0 ? '+' : ''}${align.snr_delta_db} dB)`);
     }
 
     // Receipts Status Update
     receiptAirtable.querySelector('span:last-child').textContent = data.airtable_synced ? "Synced" : "Pending";
-    receiptAirtable.querySelector('span:last-child').className = data.airtable_synced ? "font-semibold text-emerald-400 text-[11px]" : "font-semibold text-slate-400 text-[11px]";
+    receiptAirtable.querySelector('span:last-child').className = data.airtable_synced ? "font-semibold text-emerald-400 text-xs" : "font-semibold text-slate-400 text-xs";
 
     receiptSlack.querySelector('span:last-child').textContent = data.slack_alert_sent ? "Dispatched" : "Standby";
-    receiptSlack.querySelector('span:last-child').className = data.slack_alert_sent ? "font-semibold text-rose-400 text-[11px]" : "font-semibold text-slate-400 text-[11px]";
+    receiptSlack.querySelector('span:last-child').className = data.slack_alert_sent ? "font-semibold text-rose-400 text-xs" : "font-semibold text-slate-400 text-xs";
 
     receiptLinear.querySelector('span:last-child').textContent = data.linear_ticket_created ? "P0 Created" : "None";
-    receiptLinear.querySelector('span:last-child').className = data.linear_ticket_created ? "font-semibold text-blue-400 text-[11px]" : "font-semibold text-slate-400 text-[11px]";
+    receiptLinear.querySelector('span:last-child').className = data.linear_ticket_created ? "font-semibold text-blue-400 text-xs" : "font-semibold text-slate-400 text-xs";
 
     // Update Deep Diagnostics JSON
     const rawPre = document.getElementById('raw-telemetry-json');
@@ -611,26 +569,22 @@ if (btnToggleDeep) {
     });
 }
 
-// 8. Level 3: Guided Technician Interview Modal Workflow
+// 8. Guided Technician Interview Modal Workflow
 const btnOpenInterview = document.getElementById('btn-open-interview');
 if (btnOpenInterview) {
-    btnOpenInterview.addEventListener('click', (e) => {
+    btnOpenInterview.addEventListener('click', () => {
         if (!pendingInterviewQuestions || pendingInterviewQuestions.length === 0) return;
         const q = pendingInterviewQuestions[0];
         const modal = document.getElementById('interview-modal');
-        const dialog = document.getElementById('interview-modal-dialog');
         const container = document.getElementById('interview-question-container');
         const adviceBox = document.getElementById('interview-remediation-box');
-
-        const rect = e.currentTarget.getBoundingClientRect();
-        dialog.style.transformOrigin = `${rect.left + rect.width / 2}px ${rect.top + rect.height / 2}px`;
 
         container.innerHTML = `
             <p class="text-xs font-semibold text-slate-200">${preventWidow(q.prompt)}</p>
             <div class="space-y-2 pt-1.5">
                 ${q.options.map((opt, idx) => `
-                    <label style="--stagger-index: ${idx}" class="stagger-item flex items-center space-x-2.5 p-2.5 rounded-lg bg-black/40 border border-white/[0.08] hover:border-white/[0.18] cursor-pointer pressable-squash">
-                        <input type="radio" name="interview-option" value="${opt}" ${idx === 0 ? 'checked' : ''} class="w-3.5 h-3.5 text-emerald-500 focus:ring-emerald-500 bg-black/50 border-white/20">
+                    <label class="flex items-center space-x-2.5 p-2.5 rounded-md bg-[#0A0C10] border border-[#222634] hover:border-slate-600 cursor-pointer transition-colors">
+                        <input type="radio" name="interview-option" value="${opt}" ${idx === 0 ? 'checked' : ''} class="w-3.5 h-3.5 text-emerald-500 focus:ring-emerald-500 bg-[#0A0C10] border-[#222634]">
                         <span class="text-xs text-slate-300 font-medium">${preventWidow(opt)}</span>
                     </label>
                 `).join('')}
@@ -639,36 +593,18 @@ if (btnOpenInterview) {
 
         adviceBox.innerHTML = `<strong>Action Advice:</strong> ${preventWidow(q.remediation_advice)}`;
         modal.classList.remove('hidden');
-
-        dialog.animate([
-            { transform: 'scale(0.92) translateY(8px)', opacity: 0 },
-            { transform: 'scale(1) translateY(0)', opacity: 1 }
-        ], {
-            duration: 220,
-            easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
-            fill: 'forwards'
-        });
     });
 }
 
 function closeInterviewModal() {
     const modal = document.getElementById('interview-modal');
-    const dialog = document.getElementById('interview-modal-dialog');
-    const anim = dialog.animate([
-        { transform: 'scale(1)', opacity: 1 },
-        { transform: 'scale(0.94) translateY(6px)', opacity: 0 }
-    ], {
-        duration: 160,
-        easing: 'ease-in',
-        fill: 'forwards'
-    });
-    anim.onfinish = () => modal.classList.add('hidden');
+    modal.classList.add('hidden');
 }
 
 document.getElementById('btn-close-interview').addEventListener('click', closeInterviewModal);
 document.getElementById('btn-cancel-interview').addEventListener('click', closeInterviewModal);
 
-// 17. Doherty Threshold: Optimistic UI Remediation Update with Immediate (<50ms) Feedback
+// 9. Optimistic UI Remediation Update with Immediate Feedback
 document.getElementById('btn-submit-interview').addEventListener('click', async () => {
     if (!pendingInterviewQuestions || pendingInterviewQuestions.length === 0) return;
     const q = pendingInterviewQuestions[0];
@@ -690,11 +626,11 @@ document.getElementById('btn-submit-interview').addEventListener('click', async 
     const previousClass = card.className;
 
     // Sub-50ms Optimistic UI upgrade
-    card.className = "obsidian-subpanel rounded-xl p-4 space-y-3.5 border-l-4 border-l-emerald-500 border border-white/[0.06]";
-    title.textContent = "OPTIMAL — REMEDIATION APPLIED (+6.0 dB)";
-    title.className = "text-sm font-bold text-emerald-400 tracking-tight";
-    verdictBadge.textContent = "REMEDIATED";
-    verdictBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
+    card.className = "bg-[#0A0C10] border border-[#222634] border-l-4 border-l-emerald-500 rounded-md p-4 space-y-4";
+    title.textContent = "Optimal: remediation applied (+6.0 dB)";
+    title.className = "text-sm font-bold text-white tracking-tight";
+    verdictBadge.textContent = "Remediated";
+    verdictBadge.className = "px-2.5 py-1 rounded text-xs font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
 
     closeInterviewModal();
 
@@ -722,7 +658,7 @@ document.getElementById('btn-submit-interview').addEventListener('click', async 
     }
 });
 
-// 9. Poll 11-State Fleet Telemetry Matrix (Zero Emojis, High Density)
+// 10. Poll 11-State Fleet Telemetry Matrix (Concentric Law, Zero Loops)
 async function pollFleetOverview() {
     try {
         const res = await fetch('/api/v1/courtrooms/status');
@@ -736,28 +672,25 @@ async function pollFleetOverview() {
 
         const container = document.getElementById('regions-container');
         if (container) {
-            container.innerHTML = data.regions.map((r, idx) => {
-                let dotClass = "bg-emerald-400";
-                let statusText = "Optimal";
+            container.innerHTML = data.regions.map((r) => {
+                let dotClass = "bg-emerald-500";
                 let statusColor = "text-emerald-400";
                 if (r.critical_count > 0) {
-                    dotClass = "bg-rose-400 animate-pulse";
-                    statusText = "Critical";
+                    dotClass = "bg-rose-500";
                     statusColor = "text-rose-400";
                 } else if (r.degraded_count > 0) {
-                    dotClass = "bg-amber-400";
-                    statusText = "Degraded";
+                    dotClass = "bg-amber-500";
                     statusColor = "text-amber-400";
                 }
 
                 return `
-                <div style="--stagger-index: ${idx}" class="stagger-item bg-black/40 hover:bg-white/[0.05] p-2.5 rounded-lg border border-white/[0.05] hover:border-white/[0.12] transition-all cursor-pointer pressable-squash flex flex-col justify-between" onclick="filterByState('${r.state}')">
+                <div class="bg-[#0A0C10] hover:bg-[#171B26] p-2.5 rounded-md border border-[#222634] hover:border-slate-600 transition-colors cursor-pointer flex flex-col justify-between" onclick="filterByState('${r.state}')">
                     <div class="flex items-center justify-between">
                         <span class="font-mono font-bold text-xs text-white">${r.state}</span>
                         <span class="h-2 w-2 rounded-full ${dotClass}"></span>
                     </div>
                     <p class="text-[10px] text-slate-400 truncate mt-0.5">${r.state_name}</p>
-                    <div class="flex justify-between items-center text-[10px] text-slate-500 mt-2 pt-1 border-t border-white/[0.04] tabular-nums">
+                    <div class="flex justify-between items-center text-[10px] text-slate-500 mt-2 pt-1 border-t border-[#222634] tabular-nums">
                         <span>Active: <strong class="text-slate-300 font-mono">${r.total_courtrooms}</strong></span>
                         <span class="font-mono ${statusColor}">${r.healthy_pct}%</span>
                     </div>
@@ -790,7 +723,7 @@ window.filterByState = function(stateCode) {
     }
 };
 
-// 10. Poll Live Incident Routing Stream
+// 11. Poll Live Incident Routing Stream
 async function pollIncidents() {
     try {
         const res = await fetch('/api/v1/incidents?limit=10');
@@ -799,18 +732,18 @@ async function pollIncidents() {
         const container = document.getElementById('incidents-container');
 
         if (container && data.incidents && data.incidents.length > 0) {
-            container.innerHTML = data.incidents.map((inc, idx) => {
+            container.innerHTML = data.incidents.map((inc) => {
                 const dateStr = inc.created_at ? new Date(inc.created_at).toLocaleTimeString() : "--";
                 return `
-                <div style="--stagger-index: ${idx}" class="stagger-item bg-black/40 border border-white/[0.05] rounded-lg p-2.5 space-y-1.5 text-xs">
+                <div class="bg-[#0A0C10] border border-[#222634] rounded-md p-2.5 space-y-1.5 text-xs">
                     <div class="flex justify-between items-center">
-                        <span class="font-mono font-bold text-rose-400 text-[11px]">${inc.courtroom_id}</span>
+                        <span class="font-mono font-bold text-rose-400 text-xs">${inc.courtroom_id}</span>
                         <span class="text-[10px] font-mono text-slate-500 tabular-nums">${dateStr}</span>
                     </div>
-                    <p class="text-slate-300 font-medium text-[11px] truncate">${preventWidow(inc.title)}</p>
+                    <p class="text-slate-300 font-medium text-xs truncate">${preventWidow(inc.title)}</p>
                     <div class="flex items-center space-x-2 text-[10px] font-mono pt-0.5">
-                        <span class="px-1.5 py-0.5 rounded bg-white/[0.04] text-slate-400 border border-white/[0.06]">Slack: ${inc.slack_status}</span>
-                        <span class="px-1.5 py-0.5 rounded bg-white/[0.04] text-slate-400 border border-white/[0.06]">Linear: ${inc.linear_status}</span>
+                        <span class="px-1.5 py-0.5 rounded bg-[#12151E] text-slate-300 border border-[#222634]">Slack: ${inc.slack_status}</span>
+                        <span class="px-1.5 py-0.5 rounded bg-[#12151E] text-slate-300 border border-[#222634]">Linear: ${inc.linear_status}</span>
                     </div>
                 </div>
                 `;
@@ -821,7 +754,7 @@ async function pollIncidents() {
     }
 }
 
-// 11. Manual Airtable Sync
+// 12. Manual Airtable Sync
 document.getElementById('btn-sync-airtable').addEventListener('click', async () => {
     const btn = document.getElementById('btn-sync-airtable');
     btn.disabled = true;
@@ -844,9 +777,8 @@ document.getElementById('btn-sync-airtable').addEventListener('click', async () 
     }
 });
 
-// 19. Jakob's Law Global Keyboard Shortcuts (Enter to Run, Escape to Close)
+// 13. Global Keyboard Shortcuts (Enter to Run, Escape to Close)
 document.addEventListener('keydown', (e) => {
-    // If Enter pressed outside of inputs or modal
     if (e.key === 'Enter') {
         const activeEl = document.activeElement;
         const isInputField = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'SELECT' || activeEl.tagName === 'TEXTAREA');

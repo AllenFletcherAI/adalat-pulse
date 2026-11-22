@@ -131,3 +131,17 @@
 
 
 
+---
+
+## ADR-009: Anti-AI-Slop, Authentic Production Design System, and Concentric Radius Law
+* **Date:** November 2026
+* **Decision:** Completely eliminate common AI-generated design clichés ("AI slop") in favor of an authentic, solid-matte enterprise design system:
+  1. *The Concentric Radius Invariant:* Mathematically enforce $R_{\text{inner}} = \max(0, R_{\text{outer}} - P)$ across all nested elements. For our 12px outer panels (`rounded-xl`), inner inputs, buttons, and status boxes strictly use 6px (`rounded-md`) or 4px (`rounded`).
+  2. *Zero Infinite Looping Animations:* Terminate all perpetual pulsating rings (`animate-ping`) and continuous gradient sweeps. Active states use calm, solid indicator dots (e.g. solid emerald `#10B981`) and motion is reserved strictly for meaningful, finite feedback (e.g. 5-second progress bar).
+  3. *Solid Matte Surfaces & Whitespace Grouping:* Eliminate frosted glass (`backdrop-blur`), neon glows, and cards nested inside cards inside cards. Group related fields using 24px vertical whitespace (`space-y-6`) and clean 1px hairline dividers (`border-[#222634]`).
+  4. *Case & Typography Hygiene:* Eradicate all-caps yelling, excessive bolding, and random italicized words. Enforce clean Sentence Case across all headings and labels (`Active courtrooms`, `Fleet ASR readiness`, `Diagnostic target configuration`). Reserve monospace strictly for numeric values, units, and courtroom IDs.
+  5. *Purge Filler Badges & Specific Technical Headline:* Delete non-functional decorative tags (`[CTO OPS HUB]`, `[PROMPT PYRAMID]`, `100% Target`, `IDLE`). Replace generic marketing slogans with a concrete, specific headline: *"Koyal ASR Pre-Flight Diagnostic Gateway — Deterministic network and audio validation for live judicial proceedings across 11 partner state jurisdictions"*.
+  6. *Anchor Accent & WCAG AAA Contrast:* Center user focus on a single high-contrast emerald CTA button (`#10B981`) against an authentic `#0A0C10` slate matte background with pure white typography (`#F8FAFC`).
+* **Why:** Judicial software deployed for the Supreme Court, High Courts, and 6,000+ judges must convey institutional sobriety, clarity, and authority. Eliminating AI slop transforms the gateway from a toy prototype into mission-critical infrastructure that senior leadership can trust immediately.
+* **Rejected Alternative:** Keeping flashy glowing borders, frosted cards, and pill badges. Rejected because decorative gimmicks clutter the interface, distract technical officers during emergencies, and reveal amateurish generation.
+* **When to Reconsider:** Never. Clean, functional, authentic tooling is timeless.

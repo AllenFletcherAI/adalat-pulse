@@ -10,39 +10,31 @@
 - **Strict Data Contracts:** Pydantic v2 validation models in `src/models.py` covering network latency, jitter, packet loss, WebSocket keepalive RTT, microphone hardware sample rate, ambient noise floor (SNR), Golden Baselines, and Operator Interview schemas.
 - **Deterministic Evaluation Engine:** `src/evaluator.py` evaluates all 6 telemetry parameters against Koyal ASR quality gates. Returns `OPTIMAL`, `DEGRADED`, or `CRITICAL` with plain-language reason codes.
 - **4-Tier Prompt Pyramid Architecture:** Fully implemented across `src/models.py`, `src/evaluator.py`, `src/database.py`, and `src/static/`:
-  - *Level 1 (Outcome):* Zero-word-drop Koyal ASR legal guarantee banner.
-  * *Level 2 (Autonomous Edge Research):* 5-second Web Audio API FFT noise floor analysis and WebSocket ping/pong probe.
-  * *Level 3 (Interactive Interview):* Dynamic technician dialog (`/api/v1/telemetry/interview`) enabling field remediation (e.g. fan turned off grants $+6\text{ dB}$ SNR clearance).
-  * *Level 4 (Golden Exemplars):* Golden Baseline profiles (`GOLDEN-HC-FIBER`, `GOLDEN-DC-HYBRID`, `GOLDEN-TL-EDGE`) with a 0–100% alignment score and live deltas.
+  - *Level 1 (Outcome):* Zero-word-drop Koyal ASR legal guarantee.
+  - *Level 2 (Autonomous Edge Research):* 5-second Web Audio API FFT noise floor analysis and WebSocket ping/pong probe.
+  - *Level 3 (Interactive Interview):* Dynamic technician dialog (`/api/v1/telemetry/interview`) enabling field remediation (e.g. fan turned off grants $+6\text{ dB}$ SNR clearance).
+  - *Level 4 (Golden Exemplars):* Golden Baseline profiles (`GOLDEN-HC-FIBER`, `GOLDEN-DC-HYBRID`, `GOLDEN-TL-EDGE`) with a 0–100% alignment score and live deltas.
 - **SQLite Persistence (WAL Mode):** Append-only telemetry table, incidents table, golden profiles seed table, and diagnostic interviews table in `src/database.py` with auto-initialization and zero-config local reliability.
 - **Automated Incident Routing:** Real Slack Block Kit dispatcher (`#all-adalat-pulse-alerts`) and Linear P0 issue creator in `src/alerts.py`. Verified with live Linear issue `ALL-7` and live Slack alert.
 - **Bi-Directional Airtable Sync:** Live REST client in `src/airtable_sync.py` syncing courtroom health to base `appviUqZAQGGD2ILo`. Verified with live record `recMbWX6eUaV3pnOD` (`typecast: True` enabled).
 - **FastAPI Gateway & WebSocket Probe:** REST endpoints (`/report`, `/interview`, `/golden-profiles`, `/courtrooms/status`, `/health`) and live `/ws/probe` endpoint in `src/main.py`.
-- **Operational Dashboard:** Vanilla ES6 single-page application in `src/static/` with live Web Audio API microphone sampling, 11-state fleet grid, Golden Standard comparison gauge, and Guided Interview modal.
-- **20-Point Ergonomic Design System:** Fully implemented across `src/static/index.html` and `src/static/app.js` (ADR-006):
-  - *Typography:* Kerning (`font-feature-settings: "kern"`), tracking hierarchy, relaxed leading, Inter high x-height, 65ch line length, and widow balancing (`text-wrap: balance/pretty` + `&nbsp;`).
-  - *Layout & Geometry:* Optical centering (38% vertical modal offset), zero CLS pre-allocated slots with shimmer skeletons, safe area insets (`env(safe-area-inset-*)`), and min 44px × 44px touch targets.
-  - *Color & Numbers:* Perceptually uniform OKLCH status palette and `tabular-nums` on all telemetry readings.
-  - *Interaction:* Accessible keyboard combobox, 3-tier progressive disclosure accordion, tactile press affordances, and optimistic updates with rollback safety.
-  - *Motion:* Origin-aware modal zoom, interruptible Web Animations API, choreographed waterfall stagger (`--stagger-index`), and View Transitions API integration.
-- **Enterprise Obsidian Design System (Zero Emojis):** Fully upgraded across `src/static/index.html` and `src/static/app.js` (ADR-007):
-  - *Obsidian Glassmorphism:* Layered `#07080B` canvas, 1px specular lighting, and multi-stop drop shadows.
-  - *100% SVG Micro-Vectors:* Eradication of all system emojis in favor of crisp 14-16px monochrome inline SVGs.
-  - *Balanced Viewport Layout:* High-density 2-pane command console with zero bottom void.
-  - *Inset Unit Inputs & Segmented QA:* Integrated `[ 42.0 | ms ]` badges and segmented field simulation controls.
-- **20-Principle Motion & Cognitive Psychology Architecture:** Fully implemented (ADR-008):
-  - *12 Animation Principles:* Squash & stretch, anticipation wind-up (70ms), focus staging, follow-through cascades, custom slow-in/out cubic beziers, secondary border-beam sweeps, <300ms timing budgets, exaggerated breach shockwaves, and solid 3D specular depth.
-  - *8 Cognitive UX Laws:* Fitts's law trigger sizing, 44px+ hit areas (`::before`), Hick's law smart defaults, Miller's law 3-chunk telemetry grouping, Doherty sub-100ms optimistic handling, Postel's law lenient input normalization, Jakob's law keyboard conventions (`↵`/`Esc`), and frequency-of-use motion budgeting.
-- **Automated Verification:** 30 out of 30 unit and integration tests passing in `tests/` in 10.43s.
+- **Anti-AI-Slop Authentic Design System (ADR-009):**
+  - Purged all purple-to-blue gradients, glowing halos, frosted glass, and filler tags.
+  - Enforced concentric radius invariant: $R_{\text{inner}} = \max(0, R_{\text{outer}} - P)$ (12px outer panels, 6px inner inputs/buttons).
+  - Flattened nested cards: grouped with generous 24px whitespace (`space-y-6`) and clean 1px hairline dividers (`border-[#222634]`).
+  - Terminated infinite looping animations (`animate-ping`) in favor of calm, solid status indicators.
+  - Replaced all-caps yelling with clean Sentence Case; reserved monospace strictly for numbers, units, and courtroom IDs.
+  - Specific technical headline: *"Koyal ASR Pre-Flight Diagnostic Gateway — Deterministic network and audio validation for live judicial proceedings across 11 partner state jurisdictions"*.
+  - Solid emerald high-contrast CTA (`#10B981`) anchored against authentic `#0A0C10` slate matte canvas.
+- **Automated Verification:** 30 out of 30 unit and integration tests passing in `tests/` in 12.24s.
 - **Git Repository & Remote Push:** Public repository created and synced at `https://github.com/AllenFletcherAI/adalat-pulse`.
 - **Containerization:** Multi-stage production `Dockerfile` and `docker-compose.yml`.
 
 ---
 
 ## 2. Working On Now
-- Verifying complete 20-point UI system in live browser session.
-- Synchronizing GitHub commits on `main`.
-- Verifying background Uvicorn daemon health.
+- Final production verification and git commit synchronization.
+- Background Uvicorn daemon running healthy on port 8000.
 
 ---
 
@@ -54,11 +46,9 @@
 ---
 
 ## 4. What To Do Next
-1. Commit all 20-point UI/UX artifacts to git.
+1. Commit all cleaned production design system files to git.
 2. Push main branch to `https://github.com/AllenFletcherAI/adalat-pulse`.
-3. Keep the background server daemon active on port 8000.
-4. Verify end-to-end dashboard accessibility at `http://localhost:8000`.
-4. Verify end-to-end dashboard accessibility at `http://localhost:8000`.
+3. Keep background server daemon active on port 8000.
 
 ---
 
