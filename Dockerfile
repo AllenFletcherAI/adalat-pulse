@@ -5,8 +5,7 @@ WORKDIR /app
 
 COPY requirements.txt .
 RUN python -m venv /opt/venv && \
-    /opt/venv/bin/pip install --no-cache-dir --upgrade pip && \
-    /opt/venv/bin/pip install --no-cache-dir --default-timeout=100 -r requirements.txt
+    /opt/venv/bin/pip install --no-cache-dir --timeout 300 --retries 5 -r requirements.txt
 
 # Final Runtime Stage
 FROM python:3.11-slim AS runner
