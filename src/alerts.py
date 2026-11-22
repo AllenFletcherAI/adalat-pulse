@@ -59,7 +59,7 @@ async def dispatch_critical_incident(
                         "type": "header",
                         "text": {
                             "type": "plain_text",
-                            "text": f"🚨 CRITICAL TELEMETRY: {report.courtroom_id}"
+                            "text": f"[CRITICAL TELEMETRY] {report.courtroom_id}"
                         }
                     },
                     {

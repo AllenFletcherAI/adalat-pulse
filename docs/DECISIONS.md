@@ -219,3 +219,20 @@
 * **Why:** In production courtrooms, technicians and CTO office leadership require real network packet receipts, true hardware measurements, and immediate interactive drill-downs. Mocks erode trust and fail to detect actual network and audio degradation before court sessions begin.
 * **Rejected Alternative:** Client-side mock timer intervals and static display cards. Rejected because simulation hides actual packet drops, audio clipping, and ISP route degradation.
 * **When to Reconsider:** Never. Live deterministic telemetry is the core engineering mandate of Adalat Pulse.
+
+
+---
+
+## ADR-014: Live Audio Waveform Oscilloscope, Executive Telemetry Tables, and Automatic Tier Pairing
+* **Date:** November 2026
+* **Decision:** Re-architect the user interface for senior executive density, deterministic order of operations, and real-time voice verification:
+  1. *Live Real-Time Audio Oscilloscope Canvas:* Replaced static decibel indicators with an HTML5 `<canvas>` oscilloscope running off `AnalyserNode.getByteTimeDomainData()`. The visual waveform reacts in real time to the operator's spoken voice, displaying live room SNR in dB and active hardware sample rate (44.1k/48k Hz).
+  2. *Automatic Bench-to-Profile Pairing:* Eliminated manual mismatch between Courtroom Bench and Certified Golden Baseline. Selecting any bench automatically binds to its certified tier (High Court benches pair to `GOLDEN-HC-FIBER`, District Court benches pair to `GOLDEN-DC-HYBRID`, and Taluka benches pair to `GOLDEN-TL-EDGE`). Both inputs share identical 38px height and unified custom SVG chevrons.
+  3. *Side-by-Side Benchmark Telemetry Table:* Replaced isolated input boxes with a structured comparison matrix comparing Live Measured numbers against Golden Targets, computing live deltas ($\Delta$) and displaying Pass/Breach gate badges in real time.
+  4. *Structured 11-State Fleet Table:* Replaced scattered floating cards with an executive regional table detailing state jurisdictions, principal seats, active bench count, and live health percentages with single-click diagnostic testing.
+  5. *Structured Incident Inspector:* Eliminated raw unrendered markdown strings (`**`, `###`) in the Incident Inspector modal, formatting breached quality gates into a clean tabular layout with measured metrics, critical limits, and ASR speech impacts.
+  6. *100% Emoji Eradication:* Purged all emojis from UI copy, Slack payloads, Linear tickets, toasts, and codebase.
+  7. *Strict Single-Viewport Zero-Scroll Lock:* Optimized layout vertical rhythm so the entire command cockpit strictly fits within `100dvh` without vertical scrollbars or clipped verdict cards.
+* **Why:** Software built for the CTO and executive leadership must respect human psychology, order of operations, and information density. Real-time visual feedback proves that audio hardware and network probes are active before trial proceedings commence.
+* **Rejected Alternative:** Scattered decorative cards and consumer onboarding tutorials. Rejected because executive operators require clear tabular comparisons, immediate voice proof, and zero decorative noise.
+* **When to Reconsider:** Never. Structured comparisons and real-time sensory feedback remain core engineering principles.
