@@ -357,22 +357,18 @@
     <header class="h-[38px] flex-none border-b border-[var(--border-alpha)] bg-[var(--bg-canvas)] px-3 flex items-center justify-between z-30 overflow-hidden whitespace-nowrap">
         <!-- Left: Brand & Micro-KPI Bar -->
         <div class="flex items-center space-x-2 flex-none">
-            <span class="text-sm font-extrabold text-[var(--text-primary)] tracking-tight">Adalat Pulse</span>
-            <span class="text-[9px] font-mono font-semibold badge-optimal px-1 py-0.2 rounded">v1.0</span>
+            <button id="brand-home" type="button" class="text-sm font-extrabold text-[var(--text-primary)] tracking-tight hover:opacity-80 transition-opacity pressable" title="Reset to default bench">Adalat Pulse</button>
 
             <div class="flex items-center space-x-1 text-xs bg-[var(--bg-surface)] px-1.5 py-0.5 rounded border border-[var(--border-alpha)] font-mono ml-1">
                 <button id="chip-active" type="button" class="px-1.5 py-0.2 rounded hover:bg-[var(--bg-sub)] transition-colors pressable" title="Total registered courtroom units">
                     <span id="stat-total-courtrooms" class="font-semibold text-[var(--text-primary)] text-[11px]">43 Benches</span>
                 </button>
-                <span class="text-[var(--text-muted)] opacity-30">•</span>
                 <button id="chip-monitored" type="button" class="px-1.5 py-0.2 rounded hover:bg-[var(--bg-sub)] transition-colors pressable" title="Live monitored courtroom sessions">
                     <span id="stat-monitored-count" class="font-semibold text-[var(--text-primary)] text-[11px]">4 Monitored</span>
                 </button>
-                <span class="text-[var(--text-muted)] opacity-30">•</span>
                 <button id="chip-fleet" type="button" class="px-1.5 py-0.2 rounded hover:bg-[var(--bg-sub)] transition-colors pressable" title="Fleet health percentage reconciled with incidents">
                     <span id="stat-fleet-health" class="font-semibold status-degraded-text text-[11px]">75.0%</span>
                 </button>
-                <span class="text-[var(--text-muted)] opacity-30">•</span>
                 <button id="chip-incidents" type="button" class="px-1.5 py-0.2 rounded hover:bg-[var(--bg-sub)] transition-colors pressable" title="Active P0 incidents">
                     <span id="stat-incidents-count" class="font-semibold status-critical-text text-[11px]">1 P0</span>
                 </button>
@@ -393,7 +389,7 @@
             <kbd id="shortcut-hint-kbd" class="text-[9px] font-mono bg-[var(--bg-canvas)] border border-[var(--border-alpha)] px-1 py-0.2 rounded text-[var(--text-secondary)]">Ctrl+K</kbd>
         </button>
 
-        <!-- Right: Reset, Theme, IST Clock -->
+        <!-- Right: Reset, Theme -->
         <div class="flex items-center space-x-1.5 flex-none font-mono">
             <button id="btn-reset-console" type="button" class="h-6 px-2 rounded text-[11px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha)] flex items-center space-x-1 pressable" title="Reset diagnostic console (R)">
                 <svg class="w-2.5 h-2.5 text-[var(--text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
@@ -408,10 +404,6 @@
                     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                 </svg>
             </button>
-
-            <div class="flex items-center text-[11px] font-mono text-[var(--text-secondary)] px-2 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border-alpha)]">
-                <span id="live-ist-clock" class="tabular-nums">--:--:-- IST</span>
-            </div>
         </div>
     </header>
 
@@ -426,10 +418,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <!-- Courtroom Bench Input -->
                     <div class="space-y-0.5 relative">
-                        <div class="flex items-center justify-between">
-                            <label class="block text-[10px] font-mono font-semibold text-[var(--text-muted)] uppercase">Courtroom Bench</label>
-                            <span id="bench-tier-badge" class="text-[9px] font-mono badge-optimal px-1 py-0.2 rounded font-semibold">HIGH COURT</span>
-                        </div>
+                        <label class="block text-[10px] font-mono font-semibold text-[var(--text-muted)] uppercase">Courtroom Bench</label>
                         <div class="relative flex items-center">
                             <input id="input-courtroom-id" type="text" value="DL-HC-CRT04" autocomplete="one-time-code" role="combobox" aria-expanded="false" class="clean-input w-full h-[28px] px-2 pr-7 text-xs font-mono font-semibold" placeholder="Courtroom ID...">
                             <button id="btn-combo-toggle" type="button" aria-label="Toggle bench dropdown" class="absolute right-1.5 h-5 w-5 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hit-slot pressable">
@@ -441,10 +430,7 @@
 
                     <!-- Uplink Baseline Select -->
                     <div class="space-y-0.5">
-                        <div class="flex items-center justify-between">
-                            <label class="block text-[10px] font-mono font-semibold text-[var(--text-muted)] uppercase">Uplink Baseline</label>
-                            <span class="text-[9px] font-mono text-[var(--text-muted)]">WAN</span>
-                        </div>
+                        <label class="block text-[10px] font-mono font-semibold text-[var(--text-muted)] uppercase">Uplink Baseline</label>
                         <div class="custom-select-wrapper relative flex items-center">
                             <select id="select-golden-profile" class="clean-input w-full h-[28px] px-2 pr-7 text-xs font-mono text-[var(--text-primary)] cursor-pointer truncate">
                                 <option value="GOLDEN-HC-FIBER" selected>HC Leased Line (35ms)</option>
@@ -459,10 +445,7 @@
 
                     <!-- Language Model Select -->
                     <div class="space-y-0.5">
-                        <div class="flex items-center justify-between">
-                            <label class="block text-[10px] font-mono font-semibold text-[var(--text-muted)] uppercase">Language Model</label>
-                            <span class="text-[9px] font-mono text-emerald-400 font-semibold">ASR</span>
-                        </div>
+                        <label class="block text-[10px] font-mono font-semibold text-[var(--text-muted)] uppercase">Language Model</label>
                         <div class="custom-select-wrapper relative flex items-center">
                             <select id="select-koyal-language" class="clean-input w-full h-[28px] px-2 pr-7 text-xs font-mono text-[var(--text-primary)] cursor-pointer truncate">
                                 <option value="hi-en" selected>Hindi-English Hybrid</option>
@@ -485,26 +468,21 @@
             <!-- Acoustic Hardware -->
             <div class="surface-sub p-2 flex-none border border-[var(--border-alpha)] space-y-1.5">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-2 flex-1 min-w-0 mr-2">
-                        <span id="mic-indicator-dot" class="w-2 h-2 rounded-full bg-slate-500 flex-none"></span>
-                        <div class="custom-select-wrapper relative flex-1 min-w-0">
-                            <select id="select-hardware-profile" class="clean-input w-full h-6 px-1.5 pr-6 text-xs font-mono text-[var(--text-primary)] bg-transparent cursor-pointer truncate">
-                                <option value="SHURE_MX393" selected>Shure MX393 Boundary Mic (Balanced XLR)</option>
-                                <option value="BIAMP_DSP">Judicial DSP Line-Out (Biamp Tesira)</option>
-                                <option value="SENNHEISER_ME36">Court Master Goose-neck (Sennheiser ME36)</option>
-                                <option value="CONSUMER_WEBCAM">Consumer USB / Laptop Webcam (Fallback)</option>
-                            </select>
-                            <div class="pointer-events-none absolute right-1.5 flex items-center text-[var(--text-muted)]">
-                                <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                            </div>
+                    <div class="custom-select-wrapper relative flex-1 min-w-0 mr-2">
+                        <select id="select-hardware-profile" class="clean-input w-full h-6 px-1.5 pr-6 text-xs font-mono text-[var(--text-primary)] bg-transparent cursor-pointer truncate">
+                            <option value="SHURE_MX393" selected>Shure MX393 Boundary Mic (Balanced XLR)</option>
+                            <option value="BIAMP_DSP">Judicial DSP Line-Out (Biamp Tesira)</option>
+                            <option value="SENNHEISER_ME36">Court Master Goose-neck (Sennheiser ME36)</option>
+                            <option value="CONSUMER_WEBCAM">Consumer USB / Laptop Webcam (Fallback)</option>
+                        </select>
+                        <div class="pointer-events-none absolute right-1.5 flex items-center text-[var(--text-muted)]">
+                            <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                         </div>
-                        <span id="hardware-tier-badge" class="px-1.5 py-0.2 rounded text-[9px] font-mono font-semibold badge-optimal flex-none">BENCHMARK</span>
                     </div>
 
                     <!-- Mic Controls -->
                     <div class="flex items-center space-x-1.5 flex-none font-mono">
                         <button id="btn-toggle-mic" type="button" class="h-6 px-2.5 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition-colors flex items-center pressable" title="Run live microphone calibration (Space)">
-                            <svg class="w-3 h-3 flex-none mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
                             <span id="mic-btn-label">Calibrate</span>
                             <kbd class="text-[9px] font-mono px-1 py-0.2 rounded ml-1.5 border border-emerald-500/30 text-emerald-400 bg-[var(--bg-canvas)]">Space</kbd>
                         </button>
@@ -514,24 +492,13 @@
                     </div>
                 </div>
 
-                <!-- Dual Visualizers: 44px height, zero text overlay clutter -->
-                <div class="grid grid-cols-12 gap-2 h-11">
+                <!-- Dual Visualizers: clean 56px height, zero text overlay clutter -->
+                <div class="grid grid-cols-12 gap-2 h-14">
                     <div class="col-span-5 h-full relative">
-                        <canvas id="audio-spectrum-canvas" width="250" height="44" class="visualizer-canvas w-full h-full canvas-placeholder block"></canvas>
+                        <canvas id="audio-spectrum-canvas" width="250" height="56" class="visualizer-canvas w-full h-full canvas-placeholder block"></canvas>
                     </div>
                     <div class="col-span-7 h-full relative">
-                        <canvas id="audio-waveform-canvas" width="380" height="44" class="visualizer-canvas w-full h-full canvas-placeholder block"></canvas>
-                    </div>
-                </div>
-
-                <!-- Audio Metadata Strip -->
-                <div class="flex items-center justify-between text-[11px] font-mono text-[var(--text-secondary)] min-h-[20px]">
-                    <span id="mic-device-name" class="truncate">Hardware: Shure MX393 Boundary Mic</span>
-                    <div class="flex items-center space-x-2 flex-none">
-                        <span>48k → <strong class="text-emerald-400">16 kHz PCM</strong></span>
-                        <span class="text-[var(--text-muted)] opacity-30">•</span>
-                        <span>SNR: <strong id="live-snr-db" class="status-optimal-text tabular-nums">-- dB</strong></span>
-                        <span id="acoustic-cert-badge" class="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-slate-500/10 text-[var(--text-muted)] border border-[var(--border-alpha)]">UNCERTIFIED</span>
+                        <canvas id="audio-waveform-canvas" width="380" height="56" class="visualizer-canvas w-full h-full canvas-placeholder block"></canvas>
                     </div>
                 </div>
             </div>
@@ -539,100 +506,74 @@
             <!-- Telemetry Stream -->
             <div class="surface-sub p-2 flex-none border border-[var(--border-alpha)] space-y-1">
                 <div class="flex items-center justify-between text-xs font-mono">
-                    <div class="flex items-center space-x-2">
-                        <span id="chart-heartbeat-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span class="text-[11px] font-semibold text-[var(--text-muted)] uppercase">Telemetry (/ws/probe)</span>
-                    </div>
-                    <div class="flex items-center space-x-2 text-[11px]">
-                        <span class="text-[var(--text-muted)]">RTT: <strong id="chart-live-rtt" class="status-optimal-text tabular-nums">-- ms</strong></span>
-                        <span class="text-[var(--text-muted)] opacity-30">•</span>
-                        <span class="text-[var(--text-muted)]">Jitter: <strong id="chart-live-jitter" class="status-optimal-text tabular-nums">-- ms</strong></span>
-                        <span class="text-[var(--text-muted)] opacity-30">•</span>
-                        <span class="text-[var(--text-muted)]">Loss: <strong id="chart-live-loss" class="status-optimal-text tabular-nums">0.0%</strong></span>
-                    </div>
+                    <span class="text-[11px] font-semibold text-[var(--text-muted)] uppercase">Telemetry (/ws/probe)</span>
                 </div>
 
-                <canvas id="network-strip-chart" width="600" height="44" class="visualizer-canvas w-full h-[44px] canvas-placeholder block" title="Live WebSocket RTT in ms"></canvas>
+                <canvas id="network-strip-chart" width="600" height="56" class="visualizer-canvas w-full h-[56px] canvas-placeholder block" title="Live WebSocket RTT in ms"></canvas>
             </div>
 
             <!-- Quality Gates -->
             <div class="surface-sub p-2 flex-none border border-[var(--border-alpha)] space-y-1.5 font-mono text-xs">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
-                        <svg class="w-3.5 h-3.5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                        <span class="text-[11px] font-semibold text-[var(--text-muted)] uppercase">Quality Gates</span>
-                        <span id="gate-summary-pill" class="text-[9px] font-mono badge-optimal px-1.5 py-0.2 rounded font-semibold">4/4 PASS</span>
-                    </div>
+                    <span class="text-[11px] font-semibold text-[var(--text-muted)] uppercase">Quality Gates</span>
                     <button id="btn-toggle-override" type="button" class="text-[9px] px-1.5 py-0.2 rounded bg-[var(--bg-canvas)] border border-[var(--border-alpha)] text-[var(--text-muted)] hover:text-[var(--text-primary)] pressable" title="Toggle manual metric simulation override">Override</button>
                 </div>
 
                 <div id="gate-matrix-content" class="space-y-1 pt-1 border-t border-[var(--border-alpha)]">
                     <!-- Latency -->
                     <div class="flex items-center justify-between space-x-2">
-                        <span class="w-18 text-[11px] font-sans text-[var(--text-secondary)]">Latency:</span>
-                        <div class="w-14 text-center">
+                        <span class="w-20 text-[11px] font-sans text-[var(--text-secondary)]">Latency:</span>
+                        <div class="w-16 text-center">
                             <span id="readout-latency" class="font-bold text-xs tabular-nums text-[var(--text-primary)]">35.0</span>
-                            <input id="in-latency" type="text" value="35.0" class="clean-input w-14 h-5 px-1 text-xs font-bold tabular-nums text-center hidden">
+                            <input id="in-latency" type="text" value="35.0" class="clean-input w-16 h-5 px-1 text-xs font-bold tabular-nums text-center hidden">
                         </div>
                         <span class="text-[10px] text-[var(--text-muted)] w-5">ms</span>
-                        <div class="flex-1 bg-[var(--bg-canvas)] h-2 rounded-full overflow-visible relative border border-[var(--border-alpha)]">
+                        <div class="flex-1 bg-[var(--bg-canvas)] h-2 rounded-full overflow-hidden relative border border-[var(--border-alpha)]">
                             <div id="bar-latency-fill" class="h-full bg-emerald-400 meter-fill w-full rounded-full" style="transform: scaleX(0.175);"></div>
                             <div class="absolute left-1/2 -top-1 bottom-0 w-0.5 bg-rose-500/70" title="Limit: 200ms"></div>
-                            <span class="absolute left-1/2 -top-4 -translate-x-1/2 text-[8px] font-mono px-1 py-0.2 rounded bg-[var(--bg-canvas)] border border-[var(--border-alpha)] text-rose-400 pointer-events-none">&lt;200ms</span>
                         </div>
-                        <span id="delta-latency" class="w-16 text-right text-[11px] status-optimal-text tabular-nums">0.0 ms</span>
-                        <span id="gate-latency-badge" class="w-12 text-center text-[10px] font-semibold badge-optimal rounded py-0.2">PASS</span>
                     </div>
 
                     <!-- Packet Loss -->
                     <div class="flex items-center justify-between space-x-2">
-                        <span class="w-18 text-[11px] font-sans text-[var(--text-secondary)]">Loss:</span>
-                        <div class="w-14 text-center">
+                        <span class="w-20 text-[11px] font-sans text-[var(--text-secondary)]">Loss:</span>
+                        <div class="w-16 text-center">
                             <span id="readout-loss" class="font-bold text-xs tabular-nums text-[var(--text-primary)]">0.0</span>
-                            <input id="in-loss" type="text" value="0.0" class="clean-input w-14 h-5 px-1 text-xs font-bold tabular-nums text-center hidden">
+                            <input id="in-loss" type="text" value="0.0" class="clean-input w-16 h-5 px-1 text-xs font-bold tabular-nums text-center hidden">
                         </div>
                         <span class="text-[10px] text-[var(--text-muted)] w-5">%</span>
-                        <div class="flex-1 bg-[var(--bg-canvas)] h-2 rounded-full overflow-visible relative border border-[var(--border-alpha)]">
+                        <div class="flex-1 bg-[var(--bg-canvas)] h-2 rounded-full overflow-hidden relative border border-[var(--border-alpha)]">
                             <div id="bar-loss-fill" class="h-full bg-emerald-400 meter-fill w-full rounded-full" style="transform: scaleX(0.02);"></div>
                             <div class="absolute left-[40%] -top-1 bottom-0 w-0.5 bg-rose-500/70" title="Limit: 2.0%"></div>
-                            <span class="absolute left-[40%] -top-4 -translate-x-1/2 text-[8px] font-mono px-1 py-0.2 rounded bg-[var(--bg-canvas)] border border-[var(--border-alpha)] text-rose-400 pointer-events-none">&lt;2.0%</span>
                         </div>
-                        <span id="delta-loss" class="w-16 text-right text-[11px] status-optimal-text tabular-nums">0.0 %</span>
-                        <span id="gate-loss-badge" class="w-12 text-center text-[10px] font-semibold badge-optimal rounded py-0.2">PASS</span>
                     </div>
 
                     <!-- Jitter -->
                     <div class="flex items-center justify-between space-x-2">
-                        <span class="w-18 text-[11px] font-sans text-[var(--text-secondary)]">Jitter:</span>
-                        <div class="w-14 text-center">
+                        <span class="w-20 text-[11px] font-sans text-[var(--text-secondary)]">Jitter:</span>
+                        <div class="w-16 text-center">
                             <span id="readout-jitter" class="font-bold text-xs tabular-nums text-[var(--text-primary)]">4.5</span>
-                            <input id="in-jitter" type="text" value="4.5" class="clean-input w-14 h-5 px-1 text-xs font-bold tabular-nums text-center hidden">
+                            <input id="in-jitter" type="text" value="4.5" class="clean-input w-16 h-5 px-1 text-xs font-bold tabular-nums text-center hidden">
                         </div>
                         <span class="text-[10px] text-[var(--text-muted)] w-5">ms</span>
-                        <div class="flex-1 bg-[var(--bg-canvas)] h-2 rounded-full overflow-visible relative border border-[var(--border-alpha)]">
+                        <div class="flex-1 bg-[var(--bg-canvas)] h-2 rounded-full overflow-hidden relative border border-[var(--border-alpha)]">
                             <div id="bar-jitter-fill" class="h-full bg-emerald-400 meter-fill w-full rounded-full" style="transform: scaleX(0.15);"></div>
                             <div class="absolute left-1/2 -top-1 bottom-0 w-0.5 bg-amber-500/70" title="Limit: 30ms"></div>
-                            <span class="absolute left-1/2 -top-4 -translate-x-1/2 text-[8px] font-mono px-1 py-0.2 rounded bg-[var(--bg-canvas)] border border-[var(--border-alpha)] text-amber-400 pointer-events-none">&lt;30ms</span>
                         </div>
-                        <span id="delta-jitter" class="w-16 text-right text-[11px] status-optimal-text tabular-nums">-0.5 ms</span>
-                        <span id="gate-jitter-badge" class="w-12 text-center text-[10px] font-semibold badge-optimal rounded py-0.2">PASS</span>
                     </div>
 
                     <!-- WS Keepalive RTT -->
                     <div class="flex items-center justify-between space-x-2">
-                        <span class="w-18 text-[11px] font-sans text-[var(--text-secondary)]">WS RTT:</span>
-                        <div class="w-14 text-center">
+                        <span class="w-20 text-[11px] font-sans text-[var(--text-secondary)]">WS RTT:</span>
+                        <div class="w-16 text-center">
                             <span id="readout-ws-rtt" class="font-bold text-xs tabular-nums text-[var(--text-primary)]">42.0</span>
-                            <input id="in-ws-rtt" type="text" value="42.0" class="clean-input w-14 h-5 px-1 text-xs font-bold tabular-nums text-center hidden">
+                            <input id="in-ws-rtt" type="text" value="42.0" class="clean-input w-16 h-5 px-1 text-xs font-bold tabular-nums text-center hidden">
                         </div>
                         <span class="text-[10px] text-[var(--text-muted)] w-5">ms</span>
-                        <div class="flex-1 bg-[var(--bg-canvas)] h-2 rounded-full overflow-visible relative border border-[var(--border-alpha)]">
+                        <div class="flex-1 bg-[var(--bg-canvas)] h-2 rounded-full overflow-hidden relative border border-[var(--border-alpha)]">
                             <div id="bar-ws-fill" class="h-full bg-emerald-400 meter-fill w-full rounded-full" style="transform: scaleX(0.168);"></div>
                             <div class="absolute left-1/2 -top-1 bottom-0 w-0.5 bg-rose-500/70" title="Limit: 250ms"></div>
-                            <span class="absolute left-1/2 -top-4 -translate-x-1/2 text-[8px] font-mono px-1 py-0.2 rounded bg-[var(--bg-canvas)] border border-[var(--border-alpha)] text-rose-400 pointer-events-none">&lt;250ms</span>
                         </div>
-                        <span id="delta-ws-rtt" class="w-16 text-right text-[11px] status-optimal-text tabular-nums">-3.0 ms</span>
-                        <span id="gate-ws-badge" class="w-12 text-center text-[10px] font-semibold badge-optimal rounded py-0.2">PASS</span>
                     </div>
                 </div>
             </div>
@@ -652,10 +593,6 @@
 
                 <!-- Primary Action Button -->
                 <button id="btn-run-diagnostic" class="btn-action-primary w-full h-8 flex items-center justify-center space-x-2 text-xs shadow-sm pressable group">
-                    <svg class="flight-icon w-3.5 h-3.5 flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 2L11 13"/>
-                        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                    </svg>
                     <span class="label-default font-semibold">Verify Courtroom</span>
                     <span class="label-hover font-semibold">Authorize Proceeding</span>
                     <kbd class="text-[9px] font-mono text-emerald-100 bg-emerald-900/60 px-1 py-0.2 rounded ml-1">↵ Enter</kbd>
@@ -697,11 +634,7 @@
             <!-- 1. Regional Fleet Deployment Matrix (11 States Visible) -->
             <div class="surface-panel p-2 flex-1 flex flex-col min-h-0 overflow-hidden space-y-1">
                 <div class="flex items-center justify-between flex-none pb-0.5">
-                    <div class="flex items-center space-x-1.5">
-                        <svg class="w-3.5 h-3.5 text-[var(--text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 10v11M9 10v11M15 10v11M19 10v11M12 2L2 7h20L12 2z"/></svg>
-                        <h3 class="text-xs font-semibold text-[var(--text-primary)] tracking-tight uppercase">Fleet Deployment</h3>
-                        <span class="text-[9px] font-mono badge-optimal px-1 py-0.2 rounded font-semibold">43 BENCHES • 4 LIVE</span>
-                    </div>
+                    <h3 class="text-xs font-semibold text-[var(--text-primary)] tracking-tight uppercase">Fleet Deployment</h3>
                 </div>
 
                 <!-- Column Header Row with Dedicated Chevron Column -->
@@ -723,7 +656,6 @@
                             </div>
                             <div class="flex items-center space-x-1.5 truncate pl-1">
                                 <span class="text-[var(--text-secondary)] font-sans text-xs truncate">Delhi</span>
-                                <span class="text-[8px] font-mono badge-optimal px-1 rounded ml-1 font-semibold">ACTIVE</span>
                             </div>
                             <div class="text-right text-[var(--text-muted)] text-[11px] tabular-nums">5</div>
                             <div class="text-right status-optimal-text font-medium text-xs tabular-nums">100%</div>
@@ -879,7 +811,6 @@
                 <div class="space-y-1 overflow-hidden flex flex-col flex-1">
                     <div class="flex items-center justify-between flex-none pb-0.5">
                         <div class="flex items-center space-x-2">
-                            <svg class="w-3.5 h-3.5 text-[var(--text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
                             <h3 class="text-xs font-semibold text-[var(--text-primary)] tracking-tight uppercase">Incident Feed</h3>
                             <div class="flex items-center space-x-1">
                                 <button id="filter-inc-all" type="button" class="px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold badge-optimal pressable">ALL</button>
@@ -923,21 +854,6 @@
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
-                </div>
-
-                <!-- System Status Bar -->
-                <div class="surface-sub p-1 px-2 mt-1.5 flex items-center justify-between text-[10px] font-mono border border-[var(--border-alpha)] rounded flex-none">
-                    <div class="flex items-center space-x-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                        <span class="status-optimal-text font-semibold">Slack: Online</span>
-                    </div>
-                    <div class="flex items-center space-x-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-                        <span class="text-purple-600 dark:text-purple-400 font-semibold">Linear: Online</span>
-                    </div>
-                    <div class="text-[var(--text-muted)]">
-                        Heartbeat: <span class="text-[var(--text-primary)]">1.5s</span>
                     </div>
                 </div>
             </div>

@@ -8,6 +8,18 @@
 ---
 
 ## 1. What Is Done
+- **Total Purge of Static, Dummy & Non-Reactive Assets (ADR-021):**
+  - **Circled Artifacts Removed:**
+    1. `v1.0` badge adjacent to brand title purged.
+    2. Decorative shield SVG icon on Quality Gates header purged.
+    3. Looping paper plane flight animation SVG on primary CTA purged.
+    4. Entire bottom system status bar (`Slack: Online`, `Linear: Online`, `Heartbeat: 1.5s`) purged.
+  - **Brand Home Interaction:** Converted brand title `Adalat Pulse` into an interactive `<button id="brand-home">` that resets the workstation to the default courtroom bench on click.
+  - **Zero Canvas Text Clutter:** Stripped all static text stamps (`200ms Koyal Limit`, ms scale numbers, `T-30s`, `T-15s`, `NOW`) from `drawNetworkStripChart()`. Audio and network visualizers now render pure, live, high-frequency waveforms.
+  - **Strict Null Safety:** Added optional chaining and existence guards across `src/static/app.js` for all removed static readouts (`mic-indicator-dot`, `mic-device-name`, `live-sample-rate`, `live-snr-db`, `chart-live-rtt`, `chart-live-jitter`, `chart-live-loss`, `delta-*`, `gate-*-badge`).
+  - **Clean Single-Row Navigation:** Top navigation bar retains only interactive elements: clickable brand reset, interactive micro-KPI chips (`43 Benches`, `4 Monitored`, `75.0%`, `1 P0`), interactive Airtable sync button, `Find... [Ctrl+K]` quick actions modal trigger, console reset button, and light/dark theme toggle.
+  - **100% Emoji Eradication:** Zero emojis across all code, HTML, CSS, alerts, and documentation.
+  - **Automated Verification:** 30 out of 30 unit and integration tests passing in `tests/`. Node syntax check on `app.js` cleanly passes (exit 0).
 - **Delight-Driven Primary CTA, Strict Chronological Hierarchy & WCAG Accessibility (ADR-018):**
   - **Flying Send Icon Loop Animation & Win Copy:** Primary action button features a looping paper plane animation on hover and cross-fades text to `"Authorize Proceeding — All Systems Ready"`.
   - **Strict 5-Stage Operator Flow:** Re-architected diagnostic instruments into a chronological sequence (Stage 1: Bench & Profile Binding -> Stage 2: Acoustic Certification -> Stage 3: Live Network Telemetry -> Stage 4: Quality Gate Calibration -> Stage 5: Executive Clearance).

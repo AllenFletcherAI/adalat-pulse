@@ -319,7 +319,8 @@ async function startMicrophoneTest() {
         }
 
         currentSampleRate = audioContext.sampleRate || 48000;
-        document.getElementById('live-sample-rate').textContent = `${currentSampleRate.toLocaleString()} Hz`;
+        const rateEl = document.getElementById('live-sample-rate');
+        if (rateEl) rateEl.textContent = `${currentSampleRate.toLocaleString()} Hz`;
 
         micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
         const source = audioContext.createMediaStreamSource(micStream);
@@ -330,17 +331,20 @@ async function startMicrophoneTest() {
         const tracks = micStream.getAudioTracks();
         if (tracks.length > 0) {
             micDeviceLabel = tracks[0].label || "Hardware Microphone (Active)";
-            document.getElementById('mic-device-name').textContent = `Device: ${micDeviceLabel}`;
+            const devEl = document.getElementById('mic-device-name');
+            if (devEl) devEl.textContent = `Device: ${micDeviceLabel}`;
         }
 
         isMicActive = true;
-        document.getElementById('mic-indicator-dot').className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+        const dotEl = document.getElementById('mic-indicator-dot');
+        if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
         const micBadge = document.getElementById('mic-status-badge');
         if (micBadge) {
             micBadge.textContent = "CALIBRATING";
             micBadge.className = "px-1.5 py-0.2 rounded text-[10px] font-mono bg-amber-500/20 text-amber-400 border border-amber-500/30 font-semibold";
         }
-        document.getElementById('mic-btn-label').textContent = "Calibrating...";
+        const btnLabel = document.getElementById('mic-btn-label');
+        if (btnLabel) btnLabel.textContent = "Calibrating...";
 
         drawRealTimeAudioVisualizers();
 
@@ -360,16 +364,21 @@ function startSyntheticAcousticTest() {
     isMicActive = true;
     currentSampleRate = 48000;
     currentSnrDb = 31.8;
-    document.getElementById('live-sample-rate').textContent = "48,000 Hz";
-    document.getElementById('live-snr-db').textContent = "31.8 dB";
-    document.getElementById('mic-device-name').textContent = "Device: Hardware Audio Loopback (Calibrated)";
-    document.getElementById('mic-indicator-dot').className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+    const rateEl = document.getElementById('live-sample-rate');
+    if (rateEl) rateEl.textContent = "48,000 Hz";
+    const snrEl = document.getElementById('live-snr-db');
+    if (snrEl) snrEl.textContent = "31.8 dB";
+    const devEl = document.getElementById('mic-device-name');
+    if (devEl) devEl.textContent = "Device: Hardware Audio Loopback (Calibrated)";
+    const dotEl = document.getElementById('mic-indicator-dot');
+    if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
     const micBadge = document.getElementById('mic-status-badge');
     if (micBadge) {
         micBadge.textContent = "CALIBRATING";
         micBadge.className = "px-1.5 py-0.2 rounded text-[10px] font-mono bg-amber-500/20 text-amber-400 border border-amber-500/30 font-semibold";
     }
-    document.getElementById('mic-btn-label').textContent = "Calibrating...";
+    const btnLabel = document.getElementById('mic-btn-label');
+    if (btnLabel) btnLabel.textContent = "Calibrating...";
 
     drawSyntheticAudioVisualizers();
 
@@ -465,13 +474,15 @@ function stopMicrophoneTest() {
         audioAnimationId = null;
     }
 
-    document.getElementById('mic-indicator-dot').className = "w-2 h-2 rounded-full bg-slate-500";
+    const dotEl = document.getElementById('mic-indicator-dot');
+    if (dotEl) dotEl.className = "w-2 h-2 rounded-full bg-slate-500";
     const micBadge = document.getElementById('mic-status-badge');
     if (micBadge) {
         micBadge.textContent = "STANDBY";
         micBadge.className = "px-1.5 py-0.2 rounded text-[10px] font-mono bg-[var(--bg-canvas)] text-[var(--text-muted)] border border-[var(--border-alpha)]";
     }
-    document.getElementById('mic-btn-label').textContent = "Calibrate";
+    const btnLabel = document.getElementById('mic-btn-label');
+    if (btnLabel) btnLabel.textContent = "Calibrate";
 
     clearAudioCanvases();
 }
@@ -620,7 +631,8 @@ function drawRealTimeAudioVisualizers() {
         const rms = Math.sqrt(sumSquares / timeData.length);
         const speechSnr = Math.max(14.0, Math.min(34.0, 32.0 - (rms * 28.0)));
         currentSnrDb = Math.round(speechSnr * 10) / 10;
-        document.getElementById('live-snr-db').textContent = `${currentSnrDb.toFixed(1)} dB`;
+        const snrEl = document.getElementById('live-snr-db');
+        if (snrEl) snrEl.textContent = `${currentSnrDb.toFixed(1)} dB`;
     }
 
     renderFrame();
@@ -695,9 +707,12 @@ function connectContinuousWebSocket() {
                 networkHistory.push({ rtt: sampleRtt, jitter: sampleJitter });
                 if (networkHistory.length > 50) networkHistory.shift();
 
-                document.getElementById('chart-live-rtt').textContent = `${sampleRtt.toFixed(1)} ms`;
-                document.getElementById('chart-live-jitter').textContent = `${sampleJitter.toFixed(1)} ms`;
-                document.getElementById('chart-live-loss').textContent = "0.0%";
+                const elRtt = document.getElementById('chart-live-rtt');
+                if (elRtt) elRtt.textContent = `${sampleRtt.toFixed(1)} ms`;
+                const elJit = document.getElementById('chart-live-jitter');
+                if (elJit) elJit.textContent = `${sampleJitter.toFixed(1)} ms`;
+                const elLoss = document.getElementById('chart-live-loss');
+                if (elLoss) elLoss.textContent = "0.0%";
 
                 drawNetworkStripChart();
             } catch (err) {}
@@ -733,9 +748,12 @@ function startFallbackHttpHeartbeat() {
                 networkHistory.push({ rtt: sampleRtt, jitter: sampleJitter });
                 if (networkHistory.length > 50) networkHistory.shift();
 
-                document.getElementById('chart-live-rtt').textContent = `${sampleRtt.toFixed(1)} ms`;
-                document.getElementById('chart-live-jitter').textContent = `${sampleJitter.toFixed(1)} ms`;
-                document.getElementById('chart-live-loss').textContent = "0.0%";
+                const elRtt = document.getElementById('chart-live-rtt');
+                if (elRtt) elRtt.textContent = `${sampleRtt.toFixed(1)} ms`;
+                const elJit = document.getElementById('chart-live-jitter');
+                if (elJit) elJit.textContent = `${sampleJitter.toFixed(1)} ms`;
+                const elLoss = document.getElementById('chart-live-loss');
+                if (elLoss) elLoss.textContent = "0.0%";
 
                 drawNetworkStripChart();
             }
@@ -780,22 +798,7 @@ function drawNetworkStripChart() {
         ctx.lineTo(canvas.width, gridY200);
         ctx.stroke();
         ctx.setLineDash([]);
-
-        ctx.font = '8px IBM Plex Mono, monospace';
-        ctx.fillStyle = '#DC2626';
-        ctx.fillText('200ms Koyal Limit', canvas.width - 95, gridY200 - 3);
     }
-
-    // Y-Axis and Time Text Markings with full WCAG contrast
-    ctx.font = '8px IBM Plex Mono, monospace';
-    ctx.fillStyle = isLight ? 'rgba(15,23,42,0.75)' : 'rgba(255,255,255,0.45)';
-    ctx.fillText(`${chartScaleMax.toFixed(0)}ms`, 4, 10);
-    ctx.fillText(`${(chartScaleMax / 2).toFixed(0)}ms`, 4, gridYMid - 2);
-
-    // Time Baseline Markers
-    ctx.fillText('T-30s', 24, canvas.height - 3);
-    ctx.fillText('T-15s', canvas.width / 2 - 12, canvas.height - 3);
-    ctx.fillText('NOW', canvas.width - 24, canvas.height - 3);
 
     if (networkHistory.length < 2) return;
 
@@ -898,12 +901,16 @@ function updateLiveVisualFigures() {
     const rttIn = parseFloat(document.getElementById('in-ws-rtt').value) || 0;
 
     // Sync to readouts
-    document.getElementById('readout-latency').textContent = latIn.toFixed(1);
-    document.getElementById('readout-loss').textContent = lossIn.toFixed(1);
-    document.getElementById('readout-jitter').textContent = jitIn.toFixed(1);
-    document.getElementById('readout-ws-rtt').textContent = rttIn.toFixed(1);
+    const rLat = document.getElementById('readout-latency');
+    if (rLat) rLat.textContent = latIn.toFixed(1);
+    const rLoss = document.getElementById('readout-loss');
+    if (rLoss) rLoss.textContent = lossIn.toFixed(1);
+    const rJit = document.getElementById('readout-jitter');
+    if (rJit) rJit.textContent = jitIn.toFixed(1);
+    const rRtt = document.getElementById('readout-ws-rtt');
+    if (rRtt) rRtt.textContent = rttIn.toFixed(1);
 
-    const profileId = document.getElementById('select-golden-profile').value;
+    const profileId = document.getElementById('select-golden-profile')?.value || 'GOLDEN-HC-FIBER';
     const targets = GOLDEN_TARGETS[profileId] || GOLDEN_TARGETS["GOLDEN-HC-FIBER"];
 
     const dLat = latIn - targets.latency;
@@ -913,55 +920,79 @@ function updateLiveVisualFigures() {
 
     // 1. Latency Delta & Visual Range Bar
     const elDLat = document.getElementById('delta-latency');
-    elDLat.textContent = `${dLat > 0 ? '+' : ''}${dLat.toFixed(1)} ms`;
-    elDLat.className = `w-16 text-right text-[11px] tabular-nums ${dLat > 20 ? 'text-amber-400' : 'text-emerald-400'}`;
+    if (elDLat) {
+        elDLat.textContent = `${dLat > 0 ? '+' : ''}${dLat.toFixed(1)} ms`;
+        elDLat.className = `w-16 text-right text-[11px] tabular-nums ${dLat > 20 ? 'text-amber-400' : 'text-emerald-400'}`;
+    }
 
     const barLat = document.getElementById('bar-latency-fill');
-    barLat.style.transform = `scaleX(${Math.min(1.0, latIn / 400.0)})`;
-    barLat.className = `h-full meter-fill w-full ${latIn > 200 ? 'bg-rose-500' : 'bg-emerald-400'}`;
+    if (barLat) {
+        barLat.style.transform = `scaleX(${Math.min(1.0, latIn / 400.0)})`;
+        barLat.className = `h-full meter-fill w-full ${latIn > 200 ? 'bg-rose-500' : 'bg-emerald-400'}`;
+    }
 
     const badgeLat = document.getElementById('gate-latency-badge');
-    badgeLat.textContent = latIn < 200 ? 'PASS' : 'BREACH';
-    badgeLat.className = `w-12 text-center text-[10px] font-semibold rounded py-0.2 ${latIn < 200 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`;
+    if (badgeLat) {
+        badgeLat.textContent = latIn < 200 ? 'PASS' : 'BREACH';
+        badgeLat.className = `w-12 text-center text-[10px] font-semibold rounded py-0.2 ${latIn < 200 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`;
+    }
 
     // 2. Loss Delta & Visual Range Bar
     const elDLoss = document.getElementById('delta-loss');
-    elDLoss.textContent = `${dLoss > 0 ? '+' : ''}${dLoss.toFixed(1)} %`;
-    elDLoss.className = `w-16 text-right text-[11px] tabular-nums ${dLoss > 1.0 ? 'text-rose-400 font-bold' : 'text-emerald-400'}`;
+    if (elDLoss) {
+        elDLoss.textContent = `${dLoss > 0 ? '+' : ''}${dLoss.toFixed(1)} %`;
+        elDLoss.className = `w-16 text-right text-[11px] tabular-nums ${dLoss > 1.0 ? 'text-rose-400 font-bold' : 'text-emerald-400'}`;
+    }
 
     const barLoss = document.getElementById('bar-loss-fill');
-    barLoss.style.transform = `scaleX(${Math.min(1.0, lossIn / 5.0)})`;
-    barLoss.className = `h-full meter-fill w-full ${lossIn > 2.0 ? 'bg-rose-500' : 'bg-emerald-400'}`;
+    if (barLoss) {
+        barLoss.style.transform = `scaleX(${Math.min(1.0, lossIn / 5.0)})`;
+        barLoss.className = `h-full meter-fill w-full ${lossIn > 2.0 ? 'bg-rose-500' : 'bg-emerald-400'}`;
+    }
 
     const badgeLoss = document.getElementById('gate-loss-badge');
-    badgeLoss.textContent = lossIn < 2.0 ? 'PASS' : 'CRITICAL';
-    badgeLoss.className = `w-12 text-center text-[10px] font-semibold rounded py-0.2 ${lossIn < 2.0 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`;
+    if (badgeLoss) {
+        badgeLoss.textContent = lossIn < 2.0 ? 'PASS' : 'CRITICAL';
+        badgeLoss.className = `w-12 text-center text-[10px] font-semibold rounded py-0.2 ${lossIn < 2.0 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`;
+    }
 
     // 3. Jitter Delta & Visual Range Bar
     const elDJit = document.getElementById('delta-jitter');
-    elDJit.textContent = `${dJit > 0 ? '+' : ''}${dJit.toFixed(1)} ms`;
-    elDJit.className = `w-16 text-right text-[11px] tabular-nums ${dJit > 10 ? 'text-amber-400' : 'text-emerald-400'}`;
+    if (elDJit) {
+        elDJit.textContent = `${dJit > 0 ? '+' : ''}${dJit.toFixed(1)} ms`;
+        elDJit.className = `w-16 text-right text-[11px] tabular-nums ${dJit > 10 ? 'text-amber-400' : 'text-emerald-400'}`;
+    }
 
     const barJit = document.getElementById('bar-jitter-fill');
-    barJit.style.transform = `scaleX(${Math.min(1.0, jitIn / 60.0)})`;
-    barJit.className = `h-full meter-fill w-full ${jitIn > 30 ? 'bg-amber-500' : 'bg-emerald-400'}`;
+    if (barJit) {
+        barJit.style.transform = `scaleX(${Math.min(1.0, jitIn / 60.0)})`;
+        barJit.className = `h-full meter-fill w-full ${jitIn > 30 ? 'bg-amber-500' : 'bg-emerald-400'}`;
+    }
 
     const badgeJit = document.getElementById('gate-jitter-badge');
-    badgeJit.textContent = jitIn < 30 ? 'PASS' : 'BREACH';
-    badgeJit.className = `w-12 text-center text-[10px] font-semibold rounded py-0.2 ${jitIn < 30 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`;
+    if (badgeJit) {
+        badgeJit.textContent = jitIn < 30 ? 'PASS' : 'BREACH';
+        badgeJit.className = `w-12 text-center text-[10px] font-semibold rounded py-0.2 ${jitIn < 30 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`;
+    }
 
     // 4. WS RTT Delta & Visual Range Bar
     const elDRtt = document.getElementById('delta-ws-rtt');
-    elDRtt.textContent = `${dRtt > 0 ? '+' : ''}${dRtt.toFixed(1)} ms`;
-    elDRtt.className = `w-16 text-right text-[11px] tabular-nums ${dRtt > 30 ? 'text-amber-400' : 'text-emerald-400'}`;
+    if (elDRtt) {
+        elDRtt.textContent = `${dRtt > 0 ? '+' : ''}${dRtt.toFixed(1)} ms`;
+        elDRtt.className = `w-16 text-right text-[11px] tabular-nums ${dRtt > 30 ? 'text-amber-400' : 'text-emerald-400'}`;
+    }
 
     const barWs = document.getElementById('bar-ws-fill');
-    barWs.style.transform = `scaleX(${Math.min(1.0, rttIn / 500.0)})`;
-    barWs.className = `h-full meter-fill w-full ${rttIn > 250 ? 'bg-rose-500' : 'bg-emerald-400'}`;
+    if (barWs) {
+        barWs.style.transform = `scaleX(${Math.min(1.0, rttIn / 500.0)})`;
+        barWs.className = `h-full meter-fill w-full ${rttIn > 250 ? 'bg-rose-500' : 'bg-emerald-400'}`;
+    }
 
     const badgeWs = document.getElementById('gate-ws-badge');
-    badgeWs.textContent = rttIn < 250 ? 'PASS' : 'BREACH';
-    badgeWs.className = `w-12 text-center text-[10px] font-semibold rounded py-0.2 ${rttIn < 250 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`;
+    if (badgeWs) {
+        badgeWs.textContent = rttIn < 250 ? 'PASS' : 'BREACH';
+        badgeWs.className = `w-12 text-center text-[10px] font-semibold rounded py-0.2 ${rttIn < 250 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`;
+    }
 }
 
 // Progressive Disclosure: Override Toggle
@@ -1114,9 +1145,12 @@ async function runRealWebSocketProbe(onProgress, onComplete) {
                 const lossPct = sentPackets > 0 ? (((sentPackets - receivedPackets) / sentPackets) * 100).toFixed(1) : "0.0";
                 document.getElementById('in-loss').value = Math.max(0.0, parseFloat(lossPct)).toFixed(1);
 
-                document.getElementById('chart-live-rtt').textContent = `${sampleRtt.toFixed(1)} ms`;
-                document.getElementById('chart-live-jitter').textContent = `${currentJitter.toFixed(1)} ms`;
-                document.getElementById('chart-live-loss').textContent = `${lossPct}%`;
+                const elRtt = document.getElementById('chart-live-rtt');
+                if (elRtt) elRtt.textContent = `${sampleRtt.toFixed(1)} ms`;
+                const elJit = document.getElementById('chart-live-jitter');
+                if (elJit) elJit.textContent = `${currentJitter.toFixed(1)} ms`;
+                const elLoss = document.getElementById('chart-live-loss');
+                if (elLoss) elLoss.textContent = `${lossPct}%`;
 
                 updateLiveVisualFigures();
             } catch (e) {
@@ -1318,6 +1352,10 @@ document.getElementById('btn-dismiss-verdict').addEventListener('click', () => {
 // -------------------------------------------------------------
 // 8. Reset Console with Undo Toast
 // -------------------------------------------------------------
+document.getElementById('brand-home')?.addEventListener('click', () => {
+    document.getElementById('btn-reset-console')?.click();
+});
+
 document.getElementById('btn-reset-console').addEventListener('click', () => {
     const prevState = {
         courtroom: document.getElementById('input-courtroom-id').value,
