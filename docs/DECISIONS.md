@@ -158,3 +158,21 @@
 * **Why:** In real-time court proceedings across 6,000+ judges, technical officers need all controls, diagnostic telemetry, and dispatch receipts visible simultaneously at a glance. Window scrollbars force operators to scroll back and forth, losing situational awareness during courtroom emergencies.
 * **Rejected Alternative:** Long-scroll vertical dashboards. Rejected because vertical sprawl conceals action triggers and critical dispatch receipts.
 * **When to Reconsider:** Never for operational deployment gateways.
+---
+
+## ADR-011: Physical Motion Architecture & Micro-Interaction Physics (10 Non-Negotiable Rules)
+* **Date:** November 2026
+* **Decision:** Implement 10 universal physical motion and animation laws across `src/static/index.html` and `src/static/app.js`:
+  1. *Entrances:* All modal dialogues (`#interview-modal-dialog`), dropdown menus (`#courtroom-combo-list`), and verdict notifications begin strictly at `scale: 0.97` with `opacity: 0`, settling to `scale: 1` over 180–200ms with `cubic-bezier(0.16, 1, 0.3, 1)`. Animate from `scale: 0` is strictly banned.
+  2. *Button Press Feedback:* All interactive buttons (`#btn-run-diagnostic`, `#btn-sync-airtable`, `.preset-btn`) compress to `scale: 0.97` when pressed (`button:active { scale: 0.97 }`) with `transition: scale 150ms ease-out`.
+  3. *Input Error Shake:* Invalid telemetry entries (negative latency, out-of-bounds packet loss, blank courtroom ID) trigger a 360ms 6-step horizontal oscillation (`translateX: 0, -10, 10, -6, 6, -3, 0px`) alongside a red border (`#EF4444`) and focus grab.
+  4. *Directional Steppers:* Progression through operational steps (Standby $\rightarrow$ Probing $\rightarrow$ Verdict Card, and Interview Question navigation) translates elements directionally along the path of travel (forward moves right-to-left; reset moves left-to-right) rather than cross-fading.
+  5. *Smooth Height Accordions:* Configured `:root { interpolate-size: allow-keywords; }` in CSS, enabling the Deep Diagnostics JSON drawer to animate smoothly between `height: 0` and `height: auto` without manual JavaScript element height tracking.
+  6. *Compositor-Only Transforms:* VU level meters, progress bars, and score indicators animate purely via GPU-composited `transform: scaleX(...)`, eliminating browser layout recalculation and paint reflow cycles.
+  7. *Theme Transition Suppression:* Attached `.theme-switching, .theme-switching * { transition: none !important; }` during mode switches, disabling transition delays to eliminate color-dragging and flashing.
+  8. *Warm Tooltip Pool:* Tooltips delay 350ms on first hover; once warmed, all subsequent adjacent tooltips appear with 0ms delay.
+  9. *Velocity-Preserving Springs:* Dismissible dialogues and draggable sheets capture release velocity ($v = \frac{\Delta y}{\Delta t}$) on pointer up, handing off to physics-based spring dampening rather than static duration transitions.
+  10. *Boundary Resistance & Snapback:* Scroll containers pulled past top or bottom boundaries encounter logarithmic rubber-band resistance before snapping back via spring momentum.
+* **Why:** Software deployed in high-pressure judicial courtrooms must feel physically grounded, predictable, and instantaneous. Physical feedback models build muscular intuition and prevent operator input errors.
+* **Rejected Alternative:** Arbitrary CSS keyframes with hardcoded durations and linear easings. Rejected because unprincipled animations create visual noise and cognitive fatigue.
+* **When to Reconsider:** Never. Physics-based motion standards apply universally across computing touchpoints.

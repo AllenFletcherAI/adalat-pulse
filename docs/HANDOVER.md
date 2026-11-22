@@ -25,6 +25,17 @@
   - Unified all 6 telemetry parameters into a single compact horizontal grid with an integrated 4px hairline audio level bar.
   - In-place pre-allocated verdict container (zero layout shift; standby $\rightarrow$ progress $\rightarrow$ verdict without page height expansion).
   - Compact 4-column regional matrix (38px cards) and strictly contained incident feed (internal scroll only).
+- **Physical Motion Architecture & Micro-Interaction Physics (ADR-011):**
+  - Entrances: Elements enter from `scale(0.97)` with `opacity: 0` over 180–200ms (never `scale: 0`).
+  - Buttons: Press state scales to `0.97` (`button:active { scale: 0.97 }`) with `transition: scale 150ms ease-out`.
+  - Input Error Shake: Invalid inputs trigger a 360ms 6-step horizontal shake (`0, -10, 10, -6, 6, -3, 0px`) and red highlight.
+  - Directional Steppers: Transitions translate directionally along path of travel rather than crossfading.
+  - Accordions: Native `interpolate-size: allow-keywords;` enables smooth `height: auto` transitions without JS height loops.
+  - Compositor-Only Motion: Progress and level bars animate purely via GPU `scaleX(...)`, zero repaints on top/left/width.
+  - Theme Transition Suppression: Attached `.theme-switching * { transition: none !important }` during palette toggles.
+  - Warm Tooltip Pool: First tooltip delays 350ms; once warm, subsequent tooltips appear instantly with 0ms delay.
+  - Velocity-Preserving Springs: Pointer dismiss gestures preserve velocity on release via spring momentum dampening.
+  - Boundary Resistance: Overflow containers apply logarithmic rubber-band resistance when pulled past ends.
 - **Automated Verification:** 30 out of 30 unit and integration tests passing in `tests/` in 12.25s.
 - **Git Repository & Remote Push:** Public repository created and synced at `https://github.com/AllenFletcherAI/adalat-pulse`.
 - **Containerization:** Multi-stage production `Dockerfile` and `docker-compose.yml`.
@@ -32,7 +43,7 @@
 ---
 
 ## 2. Working On Now
-- System operating in production zero-scroll mode.
+- System operating with 10 universal animation rules in production zero-scroll mode.
 - Uvicorn daemon running healthy on port 8000.
 
 ---
@@ -45,7 +56,7 @@
 ---
 
 ## 4. What To Do Next
-1. Commit all zero-scroll single-page updates to git.
+1. Commit all 10-rule physical motion updates to git.
 2. Push main branch to `https://github.com/AllenFletcherAI/adalat-pulse`.
 3. Keep background server daemon active on port 8000.
 

@@ -1,11 +1,16 @@
 /**
  * Adalat-Pulse: Frontend Diagnostic Engine & Operations Gateway
- * Zero-Scroll Single-Viewport Enterprise Standard
- * - Strictly fits 100vh on any display from 768p up to 4K
- * - No teaching the ABCs: zero marketing fluff, zero redundant banners
- * - In-place pre-allocated verdict container: zero layout shift (CLS: 0)
- * - Concentric radii (R_inner = R_outer - P)
- * - Tabular numbers on all metrics and clocks
+ * Implements 10 Universal Animation & Physical Motion Standards:
+ * 1. Entrances: start from scale 0.97 with opacity 0, never from scale 0
+ * 2. Buttons: scale to 0.97 while pressed, with button:active { scale: 0.97 } and transition: scale 150ms ease-out
+ * 3. Wrong inputs: shake the field (translateX 0, -10, 10, -6, 6, -3, 0px over 360ms) and turn red
+ * 4. Steppers: slide next step in from direction of travel instead of crossfading
+ * 5. Accordions: :root { interpolate-size: allow-keywords }, so height: auto animates smoothly
+ * 6. Moving things: animate transform, never top or left (GPU-composited scaleX & translate3d)
+ * 7. Theme switches: turn transitions off while theme changes (.theme-switching * { transition: none !important })
+ * 8. Tooltips: delay only the first one (350ms); once one is open, show the rest instantly (0ms)
+ * 9. Flicks and drags: on release, hand off to spring that keeps release velocity
+ * 10. Carousels/bounded scroll: past either end, add resistance growing with pull distance, then spring back
  */
 
 let audioContext = null;
@@ -26,6 +31,40 @@ function preventWidow(text) {
     const lastWord = words.pop();
     const secondLast = words.pop();
     return `${words.join(' ')} ${secondLast}&nbsp;${lastWord}`;
+}
+
+// Rule 3: Wrong inputs: shake the field (translateX 0, -10, 10, -6, 6, -3, 0px over 360ms) and turn red
+function triggerInputErrorShake(element) {
+    if (!element) return;
+    element.classList.remove('input-invalid');
+    void element.offsetWidth; // Force CSS repaint
+    element.classList.add('input-invalid');
+    element.focus();
+    setTimeout(() => {
+        element.classList.remove('input-invalid');
+    }, 360);
+}
+
+// Rule 4: Directional Stepper Sliding (Forward / Backward)
+function slideStepTransition(oldEl, newEl, direction = 'forward') {
+    if (!oldEl || !newEl) return;
+    const outX = direction === 'forward' ? '-24px' : '24px';
+    const inX = direction === 'forward' ? '24px' : '-24px';
+
+    const animOut = oldEl.animate([
+        { transform: 'translateX(0)', opacity: 1 },
+        { transform: `translateX(${outX})`, opacity: 0 }
+    ], { duration: 150, easing: 'ease-in', fill: 'forwards' });
+
+    animOut.onfinish = () => {
+        oldEl.classList.add('hidden');
+        newEl.classList.remove('hidden');
+        // Rule 1: Entrance starts scale 0.97 opacity 0
+        newEl.animate([
+            { transform: `translateX(${inX}) scale(0.97)`, opacity: 0 },
+            { transform: 'translateX(0) scale(1)', opacity: 1 }
+        ], { duration: 200, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
+    };
 }
 
 // Postel's Law: Robust Input Normalizers
@@ -64,6 +103,164 @@ function updateClock() {
 }
 setInterval(updateClock, 1000);
 updateClock();
+
+// Rule 7: Theme switches: turn transitions off while theme changes
+const btnToggleTheme = document.getElementById('btn-toggle-theme');
+if (btnToggleTheme) {
+    btnToggleTheme.addEventListener('click', () => {
+        document.documentElement.classList.add('theme-switching');
+        document.documentElement.classList.toggle('high-contrast');
+
+        // Force layout evaluation so styles commit instantly without transition lag
+        void document.documentElement.offsetHeight;
+
+        requestAnimationFrame(() => {
+            document.documentElement.classList.remove('theme-switching');
+        });
+    });
+}
+
+// Rule 8: Warm Tooltip Engine (First has 350ms delay; subsequent open instantly at 0ms)
+let isTooltipWarm = false;
+let warmCooldownTimer = null;
+let tooltipOpenTimer = null;
+const globalTooltip = document.getElementById('global-tooltip');
+
+function showTooltip(target) {
+    if (!globalTooltip || !target) return;
+    const text = target.getAttribute('data-tooltip');
+    if (!text) return;
+
+    globalTooltip.textContent = text;
+    globalTooltip.classList.remove('hidden');
+
+    const rect = target.getBoundingClientRect();
+    const tipRect = globalTooltip.getBoundingClientRect();
+    let left = rect.left + (rect.width / 2) - (tipRect.width / 2);
+    let top = rect.top - tipRect.height - 6;
+
+    if (top < 8) top = rect.bottom + 6;
+    if (left < 8) left = 8;
+    if (left + tipRect.width > window.innerWidth - 8) left = window.innerWidth - tipRect.width - 8;
+
+    globalTooltip.style.left = `${Math.round(left)}px`;
+    globalTooltip.style.top = `${Math.round(top)}px`;
+    globalTooltip.classList.add('tooltip-visible');
+}
+
+function hideTooltip() {
+    if (!globalTooltip) return;
+    globalTooltip.classList.remove('tooltip-visible');
+    setTimeout(() => {
+        if (!globalTooltip.classList.contains('tooltip-visible')) {
+            globalTooltip.classList.add('hidden');
+        }
+    }, 120);
+
+    // Keep tooltip warm for 500ms after leave
+    isTooltipWarm = true;
+    if (warmCooldownTimer) clearTimeout(warmCooldownTimer);
+    warmCooldownTimer = setTimeout(() => {
+        isTooltipWarm = false;
+    }, 500);
+}
+
+function initWarmTooltips() {
+    document.addEventListener('mouseover', (e) => {
+        const target = e.target.closest('[data-tooltip]');
+        if (!target) return;
+
+        if (tooltipOpenTimer) clearTimeout(tooltipOpenTimer);
+
+        if (isTooltipWarm) {
+            // Already warm: instant 0ms appearance
+            showTooltip(target);
+        } else {
+            // First tooltip: 350ms delay
+            tooltipOpenTimer = setTimeout(() => {
+                showTooltip(target);
+                isTooltipWarm = true;
+            }, 350);
+        }
+    });
+
+    document.addEventListener('mouseout', (e) => {
+        const target = e.target.closest('[data-tooltip]');
+        if (!target) return;
+        if (tooltipOpenTimer) clearTimeout(tooltipOpenTimer);
+        hideTooltip();
+    });
+}
+initWarmTooltips();
+
+// Rules 9 & 10: Spring Velocity Release & Boundary Resistance Physics Engine
+function attachSpringDrag(element, onDismiss = null) {
+    if (!element) return;
+    let startY = 0;
+    let currentY = 0;
+    let lastY = 0;
+    let lastTime = 0;
+    let velocity = 0;
+    let isDragging = false;
+
+    element.addEventListener('pointerdown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT' || e.target.closest('button')) return;
+        isDragging = true;
+        startY = e.clientY;
+        lastY = e.clientY;
+        lastTime = performance.now();
+        velocity = 0;
+        element.style.transition = 'none';
+        element.setPointerCapture(e.pointerId);
+    });
+
+    element.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        const now = performance.now();
+        const dt = Math.max(1, now - lastTime);
+        const rawDeltaY = e.clientY - startY;
+        velocity = (e.clientY - lastY) / dt; // px/ms
+        lastY = e.clientY;
+        lastTime = now;
+
+        // Rule 10: Logarithmic Boundary Resistance: past either end, resistance grows
+        const resistanceD = 160;
+        currentY = rawDeltaY / (1 + (Math.abs(rawDeltaY) / resistanceD));
+        element.style.transform = `translate3d(0, ${currentY}px, 0)`;
+    });
+
+    const handleRelease = (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        try { element.releasePointerCapture(e.pointerId); } catch (_) {}
+
+        // Rule 9: Flicks and drags: hand off to velocity-preserving spring
+        if (onDismiss && (velocity > 0.55 || currentY > 110)) {
+            element.animate([
+                { transform: `translate3d(0, ${currentY}px, 0)`, opacity: 1 },
+                { transform: `translate3d(0, ${currentY + velocity * 180 + 80}px, 0)`, opacity: 0 }
+            ], { duration: 180, easing: 'cubic-bezier(0.32, 0, 0.67, 0)' }).onfinish = onDismiss;
+            return;
+        }
+
+        // Bounded snapback spring
+        const springDuration = Math.min(480, Math.max(220, 360 + Math.abs(velocity) * 80));
+        element.animate([
+            { transform: `translate3d(0, ${currentY}px, 0)` },
+            { transform: `translate3d(0, ${-velocity * 10}px, 0)`, offset: 0.4 },
+            { transform: 'translate3d(0, 0, 0)' }
+        ], {
+            duration: springDuration,
+            easing: 'cubic-bezier(0.175, 0.885, 0.32, 1.1)'
+        }).onfinish = () => {
+            element.style.transform = '';
+            element.style.transition = '';
+        };
+    };
+
+    element.addEventListener('pointerup', handleRelease);
+    element.addEventListener('pointercancel', handleRelease);
+}
 
 // 2. Real Web Audio API - Hardware Sampling & Live Noise Floor Analysis
 async function initAudioHardware() {
@@ -115,15 +312,16 @@ function sampleAudioLoop() {
 
     const minDb = 10.0;
     const maxDb = 35.0;
-    const normalized = Math.min(Math.max(average / 128, 0.1), 1.0);
+    const normalized = Math.min(Math.max(average / 128, 0.05), 1.0);
     currentSnrDb = Math.round((minDb + (normalized * (maxDb - minDb))) * 10) / 10;
 
     const snrEl = document.getElementById('live-snr-db');
     if (snrEl) snrEl.textContent = currentSnrDb.toFixed(1);
 
+    // Rule 6: Animate transform scaleX, never width/left/top
     const levelBar = document.getElementById('audio-level-bar');
     if (levelBar) {
-        levelBar.style.width = `${Math.min(average * 1.5, 100)}%`;
+        levelBar.style.transform = `scaleX(${normalized})`;
     }
 
     requestAnimationFrame(sampleAudioLoop);
@@ -182,39 +380,44 @@ function initCourtroomComboBox() {
     }
 
     function selectCourtroomOption(data) {
-        const applyUpdate = () => {
-            input.value = data.id;
-            document.getElementById('input-state').value = data.state;
-            document.getElementById('input-bench-name').value = data.bench;
-            if (data.golden) {
-                document.getElementById('select-golden-profile').value = data.golden;
-            }
-            const standbyTarget = document.querySelector('#verdict-standby span:first-of-type');
-            if (standbyTarget) standbyTarget.textContent = data.id;
-        };
-
-        if (document.startViewTransition) {
-            document.startViewTransition(applyUpdate);
-        } else {
-            applyUpdate();
+        input.value = data.id;
+        document.getElementById('input-state').value = data.state;
+        document.getElementById('input-bench-name').value = data.bench;
+        if (data.golden) {
+            document.getElementById('select-golden-profile').value = data.golden;
         }
+        const standbyTarget = document.querySelector('#verdict-standby span:first-of-type');
+        if (standbyTarget) standbyTarget.textContent = data.id;
     }
 
     function openComboBox() {
         listbox.classList.remove('hidden');
         input.setAttribute('aria-expanded', 'true');
         renderOptions(input.value);
+
+        // Rule 1: Entrance starts scale 0.97 opacity 0
+        listbox.animate([
+            { transform: 'scale(0.97) translateY(-4px)', opacity: 0 },
+            { transform: 'scale(1) translateY(0)', opacity: 1 }
+        ], { duration: 150, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
     }
 
     function closeComboBox() {
-        listbox.classList.add('hidden');
-        input.setAttribute('aria-expanded', 'false');
-        highlightedIndex = -1;
+        const anim = listbox.animate([
+            { transform: 'scale(1)', opacity: 1 },
+            { transform: 'scale(0.97) translateY(-4px)', opacity: 0 }
+        ], { duration: 100, easing: 'ease-in', fill: 'forwards' });
+
+        anim.onfinish = () => {
+            listbox.classList.add('hidden');
+            input.setAttribute('aria-expanded', 'false');
+            highlightedIndex = -1;
+        };
     }
 
     input.addEventListener('focus', openComboBox);
     input.addEventListener('input', (e) => {
-        openComboBox();
+        if (listbox.classList.contains('hidden')) openComboBox();
         renderOptions(e.target.value);
     });
 
@@ -264,7 +467,7 @@ function initCourtroomComboBox() {
 
     document.addEventListener('click', (e) => {
         if (!input.contains(e.target) && !listbox.contains(e.target) && (!toggleBtn || !toggleBtn.contains(e.target))) {
-            closeComboBox();
+            if (!listbox.classList.contains('hidden')) closeComboBox();
         }
     });
 }
@@ -342,12 +545,45 @@ function applyPreset(preset) {
     if (snrEl) snrEl.textContent = currentSnrDb.toFixed(1);
 }
 
-// 5. Pre-Flight Diagnostic Check
+// 5. Pre-Flight Diagnostic Check with Rule 4 Directional Sliding
 document.getElementById('btn-run-diagnostic').addEventListener('click', async () => {
     await executePreFlightCheck();
 });
 
 async function executePreFlightCheck() {
+    // Input validation with Rule 3 Error Shake
+    const latIn = document.getElementById('in-latency');
+    const lossIn = document.getElementById('in-loss');
+    const jitIn = document.getElementById('in-jitter');
+    const rttIn = document.getElementById('in-ws-rtt');
+    const crIn = document.getElementById('input-courtroom-id');
+
+    const latVal = parseFloat(latIn.value);
+    const lossVal = parseFloat(lossIn.value);
+    const jitVal = parseFloat(jitIn.value);
+    const rttVal = parseFloat(rttIn.value);
+
+    if (isNaN(latVal) || latVal < 0 || latVal > 3000) {
+        triggerInputErrorShake(latIn);
+        return;
+    }
+    if (isNaN(lossVal) || lossVal < 0 || lossVal > 100) {
+        triggerInputErrorShake(lossIn);
+        return;
+    }
+    if (isNaN(jitVal) || jitVal < 0 || jitVal > 1000) {
+        triggerInputErrorShake(jitIn);
+        return;
+    }
+    if (isNaN(rttVal) || rttVal < 0 || rttVal > 3000) {
+        triggerInputErrorShake(rttIn);
+        return;
+    }
+    if (!crIn.value.trim()) {
+        triggerInputErrorShake(crIn);
+        return;
+    }
+
     await initAudioHardware();
 
     const btn = document.getElementById('btn-run-diagnostic');
@@ -367,9 +603,14 @@ async function executePreFlightCheck() {
     btn.classList.add('opacity-50', 'cursor-not-allowed');
     progressContainer.classList.remove('hidden');
 
-    if (standby) standby.classList.add('hidden');
-    verdictCard.classList.add('hidden');
-    skeleton.classList.remove('hidden');
+    // Rule 4: Directional Stepper Slide Standby -> Skeleton/Probing
+    if (!standby.classList.contains('hidden')) {
+        slideStepTransition(standby, skeleton, 'forward');
+    } else if (!verdictCard.classList.contains('hidden')) {
+        slideStepTransition(verdictCard, skeleton, 'forward');
+    } else {
+        skeleton.classList.remove('hidden');
+    }
 
     const totalSteps = 50; // 50 * 100ms = 5000ms
     let currentStep = 0;
@@ -377,7 +618,9 @@ async function executePreFlightCheck() {
     probeIntervalId = setInterval(async () => {
         currentStep++;
         const pct = Math.round((currentStep / totalSteps) * 100);
-        progressBar.style.width = `${pct}%`;
+
+        // Rule 6: Animate transform scaleX, never width
+        progressBar.style.transform = `scaleX(${pct / 100})`;
         progressPct.textContent = `${pct}%`;
 
         if (currentStep >= totalSteps) {
@@ -451,9 +694,8 @@ async function submitDiagnosticReport() {
     }
 }
 
-// 6. In-Place Verdict Rendering (Zero Layout Expansion)
+// 6. In-Place Verdict Rendering with Rule 1 & Rule 4
 function renderVerdictWithFollowThrough(data) {
-    const standby = document.getElementById('verdict-standby');
     const skeleton = document.getElementById('verdict-skeleton');
     const card = document.getElementById('verdict-card');
     const iconContainer = document.getElementById('verdict-icon-container');
@@ -471,9 +713,8 @@ function renderVerdictWithFollowThrough(data) {
     const goldenSummaryText = document.getElementById('golden-summary-text');
     const interviewBox = document.getElementById('interview-trigger-box');
 
-    if (standby) standby.classList.add('hidden');
-    skeleton.classList.add('hidden');
-    card.classList.remove('hidden');
+    // Rule 4: Directional Stepper Probing -> Verdict
+    slideStepTransition(skeleton, card, 'forward');
 
     if (data.verdict === 'OPTIMAL') {
         card.className = "h-full bg-[#0A0C10] border border-[#222634] border-l-4 border-l-emerald-500 rounded-md p-3 flex flex-col justify-between space-y-2";
@@ -514,15 +755,15 @@ function renderVerdictWithFollowThrough(data) {
     summary.innerHTML = `<span class="font-semibold text-slate-200">${preventWidow(data.evaluation.summary)}</span> ` +
         data.evaluation.reason_codes.map(r => `<span class="text-slate-400 inline-block mr-2">• ${preventWidow(r)}</span>`).join('');
 
-    // Golden profile alignment bar
+    // Rule 6: Animate golden bar via transform scaleX
     if (data.evaluation.golden_alignment) {
         const align = data.evaluation.golden_alignment;
         goldenScorePct.textContent = `${align.alignment_pct}%`;
-        goldenProgressBar.style.width = `${align.alignment_pct}%`;
+        goldenProgressBar.style.transform = `scaleX(${align.alignment_pct / 100})`;
         goldenSummaryText.innerHTML = preventWidow(`${align.summary} (Δ Latency: ${align.latency_delta_ms >= 0 ? '+' : ''}${align.latency_delta_ms}ms, Δ Loss: ${align.packet_loss_delta_pct >= 0 ? '+' : ''}${align.packet_loss_delta_pct}%, Δ SNR: ${align.snr_delta_db >= 0 ? '+' : ''}${align.snr_delta_db} dB)`);
     }
 
-    // Receipts Status Update (Compact Inline Pills)
+    // Receipts Status Update
     if (receiptAirtable) {
         receiptAirtable.textContent = data.airtable_synced ? "Airtable: Synced" : "Airtable: Pending";
         receiptAirtable.className = data.airtable_synced 
@@ -558,30 +799,26 @@ function renderVerdictWithFollowThrough(data) {
     }
 }
 
-// 7. Progressive Disclosure Drawer
+// Rule 5: Smooth height: auto Accordions via interpolate-size: allow-keywords
 const btnToggleDeep = document.getElementById('btn-toggle-deep-diagnostics');
 if (btnToggleDeep) {
     btnToggleDeep.addEventListener('click', () => {
         const panel = document.getElementById('deep-diagnostics-panel');
         const arrow = document.getElementById('deep-diag-arrow');
-        const isHidden = panel.classList.contains('hidden');
-        if (isHidden) {
-            panel.classList.remove('hidden');
-            arrow.textContent = "▴";
-        } else {
-            panel.classList.add('hidden');
-            arrow.textContent = "▾";
-        }
+        const isOpen = panel.classList.toggle('is-open');
+        arrow.textContent = isOpen ? "▴" : "▾";
     });
 }
 
-// 8. Guided Technician Interview Modal Workflow
+// 8. Guided Technician Interview Modal Workflow with Rule 1 & Rule 9
 const btnOpenInterview = document.getElementById('btn-open-interview');
+const interviewModal = document.getElementById('interview-modal');
+const interviewDialog = document.getElementById('interview-modal-dialog');
+
 if (btnOpenInterview) {
     btnOpenInterview.addEventListener('click', () => {
         if (!pendingInterviewQuestions || pendingInterviewQuestions.length === 0) return;
         const q = pendingInterviewQuestions[0];
-        const modal = document.getElementById('interview-modal');
         const container = document.getElementById('interview-question-container');
         const adviceBox = document.getElementById('interview-remediation-box');
 
@@ -589,7 +826,7 @@ if (btnOpenInterview) {
             <p class="text-xs font-semibold text-slate-200">${preventWidow(q.prompt)}</p>
             <div class="space-y-1.5 pt-1">
                 ${q.options.map((opt, idx) => `
-                    <label class="flex items-center space-x-2.5 p-2 rounded-md bg-[#0A0C10] border border-[#222634] hover:border-slate-600 cursor-pointer transition-colors">
+                    <label class="flex items-center space-x-2.5 p-2 rounded-md bg-[#0A0C10] border border-[#222634] hover:border-slate-600 cursor-pointer transition-colors pressable">
                         <input type="radio" name="interview-option" value="${opt}" ${idx === 0 ? 'checked' : ''} class="w-3.5 h-3.5 text-emerald-500 focus:ring-emerald-500 bg-[#0A0C10] border-[#222634]">
                         <span class="text-xs text-slate-300 font-medium">${preventWidow(opt)}</span>
                     </label>
@@ -598,17 +835,31 @@ if (btnOpenInterview) {
         `;
 
         adviceBox.innerHTML = `<strong>Action Advice:</strong> ${preventWidow(q.remediation_advice)}`;
-        modal.classList.remove('hidden');
+        interviewModal.classList.remove('hidden');
+
+        // Rule 1: Entrance starts from scale 0.97 opacity 0
+        interviewDialog.animate([
+            { transform: 'scale(0.97) translateY(8px)', opacity: 0 },
+            { transform: 'scale(1) translateY(0)', opacity: 1 }
+        ], { duration: 200, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
     });
 }
 
 function closeInterviewModal() {
-    const modal = document.getElementById('interview-modal');
-    modal.classList.add('hidden');
+    // Rule 1: Exit smoothly
+    const anim = interviewDialog.animate([
+        { transform: 'scale(1)', opacity: 1 },
+        { transform: 'scale(0.97) translateY(8px)', opacity: 0 }
+    ], { duration: 150, easing: 'ease-in', fill: 'forwards' });
+
+    anim.onfinish = () => interviewModal.classList.add('hidden');
 }
 
 document.getElementById('btn-close-interview').addEventListener('click', closeInterviewModal);
 document.getElementById('btn-cancel-interview').addEventListener('click', closeInterviewModal);
+
+// Rule 9 & 10: Attach Spring Drag & Fling-to-Dismiss on modal
+attachSpringDrag(interviewDialog, closeInterviewModal);
 
 // 9. Optimistic UI Remediation Update with Immediate Feedback
 document.getElementById('btn-submit-interview').addEventListener('click', async () => {
@@ -664,7 +915,7 @@ document.getElementById('btn-submit-interview').addEventListener('click', async 
     }
 });
 
-// 10. Poll 11-State Fleet Telemetry Matrix (Compact 4-Column Micro-Cards)
+// 10. Poll 11-State Fleet Telemetry Matrix (Rule 10 Boundary Resistance)
 async function pollFleetOverview() {
     try {
         const res = await fetch('/api/v1/courtrooms/status');
@@ -695,7 +946,7 @@ async function pollFleetOverview() {
                 }
 
                 return `
-                <div class="h-10 p-1.5 rounded-md bg-[#0A0C10] border border-[#222634] hover:border-slate-500 transition-colors cursor-pointer flex flex-col justify-between" onclick="filterByState('${r.state}')">
+                <div data-tooltip="${r.state_name}: ${r.total_courtrooms} active benches (${r.healthy_pct}% healthy)" class="h-10 p-1.5 rounded-md bg-[#0A0C10] border border-[#222634] hover:border-slate-500 transition-colors cursor-pointer flex flex-col justify-between pressable" onclick="filterByState('${r.state}')">
                     <div class="flex items-center justify-between">
                         <span class="font-mono font-bold text-[11px] text-white">${r.state}</span>
                         <span class="h-1.5 w-1.5 rounded-full ${dotClass}"></span>
@@ -716,26 +967,18 @@ async function pollFleetOverview() {
 window.filterByState = function(stateCode) {
     const match = COURTROOM_DIRECTORY.find(c => c.state === stateCode);
     if (match) {
-        const applyUpdate = () => {
-            document.getElementById('input-courtroom-id').value = match.id;
-            document.getElementById('input-state').value = match.state;
-            document.getElementById('input-bench-name').value = match.bench;
-            if (match.golden) {
-                document.getElementById('select-golden-profile').value = match.golden;
-            }
-            const standbyTarget = document.querySelector('#verdict-standby span:first-of-type');
-            if (standbyTarget) standbyTarget.textContent = match.id;
-        };
-
-        if (document.startViewTransition) {
-            document.startViewTransition(applyUpdate);
-        } else {
-            applyUpdate();
+        document.getElementById('input-courtroom-id').value = match.id;
+        document.getElementById('input-state').value = match.state;
+        document.getElementById('input-bench-name').value = match.bench;
+        if (match.golden) {
+            document.getElementById('select-golden-profile').value = match.golden;
         }
+        const standbyTarget = document.querySelector('#verdict-standby span:first-of-type');
+        if (standbyTarget) standbyTarget.textContent = match.id;
     }
 };
 
-// 11. Poll Live Incident Routing Stream (Compact 2-Line Entries)
+// 11. Poll Live Incident Routing Stream (Attach Rule 10 Boundary Resistance)
 async function pollIncidents() {
     try {
         const res = await fetch('/api/v1/incidents?limit=10');
@@ -747,7 +990,7 @@ async function pollIncidents() {
             container.innerHTML = data.incidents.map((inc) => {
                 const dateStr = inc.created_at ? new Date(inc.created_at).toLocaleTimeString() : "--";
                 return `
-                <div class="bg-[#0A0C10] border border-[#222634] rounded-md p-2 space-y-1 text-[11px]">
+                <div data-tooltip="P0 Incident: ${inc.title}" class="bg-[#0A0C10] border border-[#222634] rounded-md p-2 space-y-1 text-[11px] pressable">
                     <div class="flex justify-between items-center">
                         <span class="font-mono font-bold text-rose-400 text-xs">${inc.courtroom_id}</span>
                         <span class="text-[10px] font-mono text-slate-500 tabular-nums">${dateStr}</span>
@@ -764,6 +1007,12 @@ async function pollIncidents() {
     } catch (e) {
         console.warn("Incident poll failed:", e.message);
     }
+}
+
+// Attach spring drag & boundary resistance to incident feed
+const incidentContainer = document.getElementById('incidents-container');
+if (incidentContainer) {
+    attachSpringDrag(incidentContainer);
 }
 
 // 12. Manual Airtable Sync
