@@ -264,7 +264,7 @@
   3. *Uncollapsed 11 Partner States Deployment List:* Replaced brittle table rows with an accessible disclosure list where all 11 Indian partner states (`DL`, `RJ`, `UP`, `KL`, `KA`, `AP`, `MH`, `TN`, `WB`, `GJ`, `MP`) are rendered simultaneously without layout collapse.
   4. *Filtered Incident Feed:* Added `ALL` and `CRITICAL` filters with automated dispatch standby monitoring.
   5. *Command Menu (`Cmd+K` / `Ctrl+K`):* Centered executive command palette for keyboard-driven bench navigation, diagnostic execution, theme toggling, and Airtable syncing.
-  6. *Shortcut Hints:* Visual keyboard badges (`⌘K`, `↵ Enter`, `Space`, `Esc`, `R`, `T`) embedded across all actions.
+  6. *Shortcut Hints:* Visual keyboard badges (`Cmd+K`, `↵ Enter`, `Space`, `Esc`, `R`, `T`) embedded across all actions.
   7. *Floating Undo Toast:* Interactive 5-second undo toast for console resets and state changes.
   8. *Stale-While-Revalidate (SWR):* Zero-latency cache hydration via `localStorage` on boot, revalidating seamlessly in the background.
   9. *Pre-Rendering & View Transitions:* Pre-built modal structures and `document.startViewTransition` support for zero-layout-shift state changes.
@@ -278,5 +278,31 @@
 * **Why:** The CTO and executive operators require a genuine, living hardware telemetry platform that feels authentic, responsive, and crafted to the highest design engineering standards.
 * **Rejected Alternative:** Brittle table row injections and uncalibrated static inputs.
 * **When to Reconsider:** Never.
+
+---
+
+## ADR-017: Comprehensive Alignment with 20 Psychological and Human-Computer Interaction Laws
+* **Date:** November 2026
+* **Decision:** Re-engineer Adalat Pulse across the 20 fundamental laws of human-computer interaction:
+  1. *Aesthetic-Usability Effect:* Resolved vertical geometry clipping beneath acoustic canvases, aligned state list columns via strict 5-column CSS Grid, and eliminated empty voids.
+  2. *Law of Proximity:* Formatted button labels and `<kbd>` shortcuts with clear gap spacing (`Start Mic Test` separated from `Space`).
+  3. *Von Restorff Effect:* Highlighted the currently targeted bench state (`DL`) in active emerald styling and `[ ACTIVE ]` pill. Highlighted breached incident states (`RJ`) in rose.
+  4. *Zeigarnik Effect & Goal-Gradient Effect:* Introduced a 3-step Pre-Flight Readiness Stepper (`1. Bench Paired` -> `2. Mic Calibrate` -> `3. Pre-Flight Test`) advancing readiness scores from 50% to 100%.
+  5. *Tesler’s Law & Occam's Razor:* Removed triple redundant tier badges. Read-only metric readouts by default, with an `[ Override ]` toggle for manual simulation.
+  6. *Law of Prägnanz:* Added Y-axis scale markings (`0ms`, `100ms`, `200ms Limit`, `400ms`) and time baseline markers (`T-30s`, `T-15s`, `NOW`) to the strip-chart canvas.
+  7. *Serial Position Effect:* Scaled row padding so all 11 partner states fit simultaneously in the viewport without hiding terminal states.
+  8. *Progressive Disclosure:* Displayed clean readouts by default, tucking editable inputs and debug parameters behind on-demand toggles.
+  9. *Law of Common Region:* Enclosed comparison figures in unified frames with clear threshold indicator tick marks (`< 200ms`, `< 2.0%`, `< 30ms`, `< 250ms`).
+  10. *Law of Similarity & Recognition Over Recall:* Standardized bench inputs and golden selects with identical heights and borders; clicking any state unit selects it directly.
+  11. *Pareto Principle:* Maximized visual dominance for the core 20% workflow: Pre-Flight Check button, Acoustic Calibration, and Courtroom Go/No-Go Verdict.
+  12. *Parkinson’s Law & Peak-End Rule:* Delivered an affirmative verdict banner (`PROCEEDING APPROVED: Courtroom Telemetry Cleared for Live Koyal ASR`) with ephemeral 6s auto-dismiss and manual Undo.
+  13. *Default Effect:* Auto-paired High Court Leased Line baseline for the default Delhi bench, ensuring zero-configuration readiness.
+  14. *Cognitive Load:* Replaced fragmented status chips with a unified micro-KPI bar and eliminated noisy decorative icons.
+  15. *Uniform Connectedness:* Framed acoustic visualizers and time-series monitors within coherent borders.
+  16. *Paradox of the Active User:* Built interactive in-context keyboard hints (`↵ Enter`, `Space`) so operators learn by acting immediately without reading manuals.
+* **Why:** Judicial software deployed for the Supreme Court, High Courts, and 6,000+ judges must command institutional trust, reduce cognitive load, and drive flawless pre-flight completion.
+* **Rejected Alternative:** Unlabeled canvases, raw editable inputs, and disconnected widget displays.
+* **When to Reconsider:** Never.
+
 
 

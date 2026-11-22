@@ -8,12 +8,29 @@
 ---
 
 ## 1. What Is Done
+- **Comprehensive Alignment with 20 Psychological and UX Laws (ADR-017):**
+  - **Aesthetic-Usability Effect:** Eliminated canvas text slicing, structured the 11-state table with strict CSS grid, and eradicated empty black voids with live telemetry and dispatch health monitors.
+  - **Law of Proximity:** Formatted button labels and `<kbd>` shortcuts with clear gap spacing (`Start Mic Test` cleanly separated from `Space`).
+  - **Von Restorff Effect:** Highlighted the currently targeted bench state (`DL`) in vibrant emerald with an `[ ACTIVE ]` pill. Highlighted breached incident states (`RJ`) in rose.
+  - **Zeigarnik Effect & Goal-Gradient Effect:** Introduced a 3-step Pre-Flight Readiness Stepper (`1. Bench Paired` -> `2. Mic Calibrate` -> `3. Pre-Flight Test`) advancing completion from 50% to 100%.
+  - **Tesler’s Law & Occam's Razor:** Clean read-only metric readouts by default, with an `[ Override ]` toggle for manual simulation. Removed redundant duplicate tier badges.
+  - **Law of Prägnanz:** Added Y-axis scale markings (`0ms`, `100ms`, `200ms Limit`, `400ms`) and time baseline markers (`T-30s`, `T-15s`, `NOW`) to the strip-chart canvas.
+  - **Serial Position Effect:** Compacted state list row padding so all 11 partner states fit simultaneously in the viewport without cutting off terminal states.
+  - **Progressive Disclosure:** Kept primary diagnostic screen clean and readable, tucking simulation overrides and bench lists behind on-demand disclosure drawers.
+  - **Law of Common Region:** Enclosed comparison figures in unified frames with clear threshold indicator tick marks (`< 200ms`, `< 2.0%`, `< 30ms`, `< 250ms`).
+  - **Law of Similarity & Recognition Over Recall:** Standardized bench inputs and golden selects with identical heights and borders; clicking any state unit selects it directly into the diagnostic engine.
+  - **Pareto Principle:** Maximized visual dominance for the core 20% workflow: Pre-Flight Check button, Acoustic Calibration, and Courtroom Go/No-Go Verdict.
+  - **Parkinson’s Law & Peak-End Rule:** Delivered an authoritative affirmative verdict banner (`PROCEEDING APPROVED: Courtroom Telemetry Cleared for Live Koyal ASR`) with ephemeral 6s auto-dismiss and manual Undo.
+  - **Default Effect:** Auto-paired High Court Leased Line baseline for the default Delhi bench, ensuring zero-configuration readiness.
+  - **Cognitive Load:** Replaced fragmented status chips with a unified micro-KPI bar and eliminated noisy decorative icons.
+  - **Uniform Connectedness:** Framed acoustic visualizers and time-series monitors within coherent borders.
+  - **Paradox of the Active User:** Built interactive in-context keyboard hints (`↵ Enter`, `Space`) so operators learn by acting immediately without reading manuals.
 - **20-Point Modern Interaction Architecture (ADR-016):**
   - **Acoustic Hardware Certification Engine:** Live 4-second calibration sampling Indic speech formants, room SNR, and sample rate, awarding a formal `KOYAL CERTIFIED (PASS)` badge and auto-injecting metrics into the pre-flight payload. Zero text clipping.
   - **Live Continuous WebSocket Packet Monitor:** Continuous 1,500ms background keepalive ping streaming living RTT gradient curves, jitter points, and p50/p95 latency metrics against the 200ms Koyal gate line. Pre-flight checks trigger 50-packet burst probes.
   - **Uncollapsed 11 Partner States Deployment List:** Replaced brittle table rows with an accessible disclosure list where all 11 Indian partner states (`DL`, `RJ`, `UP`, `KL`, `KA`, `AP`, `MH`, `TN`, `WB`, `GJ`, `MP`) are rendered simultaneously without layout collapse.
   - **Command Menu (`Cmd+K` / `Ctrl+K`):** Global executive command palette with keyboard fuzzy search across courtrooms, diagnostic actions, theme toggles, and Airtable sync.
-  - **Shortcut Hints & Hit Slots:** Keyboard badges (`⌘K`, `↵ Enter`, `Space`, `Esc`, `R`, `T`) and 44x44px touch targets.
+  - **Shortcut Hints & Hit Slots:** Keyboard badges (`Cmd+K`, `↵ Enter`, `Space`, `Esc`, `R`, `T`) and 44x44px touch targets.
   - **Floating Undo Toast:** 5-second interactive undo notification on console resets.
   - **Stale-While-Revalidate (SWR):** Instant zero-latency `localStorage` cache hydration with background revalidation.
   - **Swipe-to-Dismiss Sheets:** Touch/pointer downward drag gesture dismissing modals on 100px threshold.

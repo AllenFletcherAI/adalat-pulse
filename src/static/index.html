@@ -209,6 +209,13 @@
             background-image: none;
         }
 
+        /* Strict Grid Layout for States List */
+        .state-grid-row {
+            display: grid;
+            grid-template-columns: 24px 1fr 55px 45px 20px;
+            align-items: center;
+        }
+
         /* Flash Animation for newly created incident */
         @keyframes incident-flash {
             0% { background-color: rgba(239, 68, 68, 0.35); }
@@ -265,7 +272,7 @@
             <button id="btn-trigger-cmd" type="button" class="h-7 px-2.5 rounded text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha)] flex items-center space-x-1.5 pressable" title="Open Command Palette (Cmd+K / Ctrl+K)">
                 <svg class="w-3 h-3 text-[var(--text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 <span>Command</span>
-                <kbd class="text-[9px] font-mono bg-[var(--bg-canvas)] border border-[var(--border-alpha)] px-1 py-0.2 rounded text-[var(--text-muted)]">⌘K</kbd>
+                <kbd class="text-[9px] font-mono bg-[var(--bg-canvas)] border border-[var(--border-alpha)] px-1 py-0.2 rounded text-[var(--text-muted)]">Cmd+K</kbd>
             </button>
 
             <!-- Reset Console Button -->
@@ -306,9 +313,36 @@
     <main class="flex-1 w-full max-w-[1540px] mx-auto p-2.5 grid grid-cols-1 lg:grid-cols-12 gap-2.5 overflow-hidden">
 
         <!-- LEFT WORKSTATION: Diagnostic Instruments & Real-Time Test Engine (7 cols) -->
-        <div class="lg:col-span-7 surface-panel p-2.5 flex flex-col justify-between h-full overflow-hidden space-y-1.5">
+        <div class="lg:col-span-7 surface-panel p-2 flex flex-col justify-between h-full overflow-hidden space-y-1.5">
 
-            <!-- 1. Bench Selection & Auto-Paired Golden Baseline (38px Aligned Inputs) -->
+            <!-- 1. Pre-Flight Readiness Stepper (Goal-Gradient & Zeigarnik Effects) -->
+            <div class="surface-sub p-1.5 px-2.5 flex items-center justify-between text-[11px] font-mono border border-[var(--border-alpha)] flex-none">
+                <div class="flex items-center space-x-2">
+                    <span class="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">Readiness Gate:</span>
+                    <div class="flex items-center space-x-1.5">
+                        <span id="step-bench-indicator" class="flex items-center space-x-1 text-emerald-400 font-medium">
+                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>1. Bench Paired</span>
+                        </span>
+                        <span class="text-[var(--text-muted)] opacity-30">→</span>
+                        <span id="step-mic-indicator" class="flex items-center space-x-1 text-amber-400 font-medium">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                            <span>2. Mic Calibrate</span>
+                        </span>
+                        <span class="text-[var(--text-muted)] opacity-30">→</span>
+                        <span id="step-probe-indicator" class="flex items-center space-x-1 text-[var(--text-muted)]">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+                            <span>3. Pre-Flight Test</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-1.5">
+                    <span class="text-[10px] text-[var(--text-muted)]">Readiness:</span>
+                    <span id="readiness-gauge-pct" class="font-bold text-amber-400 text-xs tabular-nums">50%</span>
+                </div>
+            </div>
+
+            <!-- 2. Bench Selection & Auto-Paired Golden Baseline (Occam's Razor & Proximity) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-none">
                 <!-- Courtroom Bench Input -->
                 <div class="space-y-1 relative">
@@ -317,7 +351,7 @@
                         <span id="bench-tier-badge" class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded border border-emerald-500/20">HIGH COURT</span>
                     </div>
                     <div class="relative flex items-center">
-                        <input id="input-courtroom-id" type="text" value="DL-HC-CRT04" autocomplete="one-time-code" role="combobox" aria-expanded="false" class="clean-input w-full h-[36px] px-3 pr-8 text-xs font-mono font-semibold" placeholder="Search courtroom ID...">
+                        <input id="input-courtroom-id" type="text" value="DL-HC-CRT04" autocomplete="one-time-code" role="combobox" aria-expanded="false" class="clean-input w-full h-[34px] px-3 pr-8 text-xs font-mono font-semibold" placeholder="Search courtroom ID...">
                         <button id="btn-combo-toggle" type="button" aria-label="Toggle bench dropdown" class="absolute right-2 h-6 w-6 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hit-slot pressable">
                             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                         </button>
@@ -329,10 +363,10 @@
                 <div class="space-y-1">
                     <div class="flex items-center justify-between">
                         <label class="block text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">Certified Golden Standard</label>
-                        <span id="golden-profile-tier" class="text-[10px] font-mono text-[var(--text-muted)]">TIER AUTO-PAIRED</span>
+                        <span class="text-[10px] font-mono text-[var(--text-muted)]">DETERMINISTIC TIER</span>
                     </div>
                     <div class="custom-select-wrapper relative flex items-center">
-                        <select id="select-golden-profile" class="clean-input w-full h-[36px] px-3 pr-8 text-xs font-medium text-[var(--text-primary)] cursor-pointer">
+                        <select id="select-golden-profile" class="clean-input w-full h-[34px] px-3 pr-8 text-xs font-medium text-[var(--text-primary)] cursor-pointer">
                             <option value="GOLDEN-HC-FIBER" selected>High Court Dedicated Leased Line (35ms, 0% Loss, 28 dB)</option>
                             <option value="GOLDEN-DC-HYBRID">District Court Civil Dual-ISP (70ms, 0.2% Loss, 22 dB)</option>
                             <option value="GOLDEN-TL-EDGE">Rural Taluka Edge 4G (110ms, 0.5% Loss, 18 dB)</option>
@@ -347,8 +381,8 @@
                 <input id="input-bench-name" type="hidden" value="Delhi High Court Bench 04 (Civil Division)">
             </div>
 
-            <!-- 2. Real-Time Hardware Audio Laboratory with Koyal ASR Certification -->
-            <div class="surface-sub p-2 flex-none border border-[var(--border-alpha)] space-y-1.5">
+            <!-- 3. Real-Time Hardware Audio Laboratory with Koyal ASR Certification (ZERO CLIPPING / COMFORTABLE BREATHING ROOM) -->
+            <div class="surface-sub p-2 flex-none border border-[var(--border-alpha)] space-y-1.5 overflow-visible">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-2">
                         <span id="mic-indicator-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
@@ -356,12 +390,12 @@
                         <span id="mic-status-badge" class="px-1.5 py-0.2 rounded text-[10px] font-mono bg-[var(--bg-canvas)] text-[var(--text-muted)] border border-[var(--border-alpha)]">STANDBY</span>
                     </div>
 
-                    <!-- Explicit Mic Controls -->
+                    <!-- Explicit Mic Controls (CLEAN GAP SEPARATION) -->
                     <div class="flex items-center space-x-2">
-                        <button id="btn-toggle-mic" type="button" class="h-6 px-2.5 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition-colors flex items-center space-x-1 pressable" title="Run 3-second live microphone calibration (Space)">
-                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                        <button id="btn-toggle-mic" type="button" class="h-6 px-2.5 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition-colors flex items-center gap-1.5 pressable" title="Run live microphone calibration (Space)">
+                            <svg class="w-3 h-3 flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
                             <span id="mic-btn-label">Start Mic Test</span>
-                            <kbd class="text-[9px] font-mono text-emerald-300 ml-1">Space</kbd>
+                            <kbd class="text-[9px] font-mono text-emerald-300 bg-[var(--bg-canvas)] px-1 py-0.2 rounded border border-emerald-500/30 ml-1">Space</kbd>
                         </button>
                         <button id="btn-reset-audio" type="button" class="h-6 px-2 rounded text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-[var(--bg-canvas)] border border-[var(--border-alpha)] pressable" title="Reset audio canvas and stop recording">
                             Reset
@@ -369,23 +403,23 @@
                     </div>
                 </div>
 
-                <!-- Dual Visualizers: 32-Band Spectrum Analyzer (Left) + Voice Oscilloscope Waveform (Right) -->
-                <div class="grid grid-cols-12 gap-2 h-12">
+                <!-- Dual Visualizers: 32-Band Spectrum Analyzer (Left) + Voice Oscilloscope Waveform (Right) (36px Compact Height) -->
+                <div class="grid grid-cols-12 gap-2 h-9">
                     <!-- 32-Band FFT Spectrum Analyzer Canvas -->
                     <div class="col-span-5 h-full relative">
-                        <canvas id="audio-spectrum-canvas" width="250" height="48" class="w-full h-full bg-[var(--bg-canvas)] rounded border border-[var(--border-alpha)] canvas-placeholder block"></canvas>
-                        <span class="absolute left-1.5 top-0.5 text-[9px] font-mono text-[var(--text-muted)] pointer-events-none">32-Band Spectrum</span>
+                        <canvas id="audio-spectrum-canvas" width="250" height="36" class="w-full h-full bg-[var(--bg-canvas)] rounded border border-[var(--border-alpha)] canvas-placeholder block"></canvas>
+                        <span class="absolute left-1.5 top-0.5 text-[8px] font-mono text-[var(--text-muted)] pointer-events-none">32-Band Spectrum</span>
                     </div>
 
                     <!-- Voice Oscilloscope Waveform Canvas -->
                     <div class="col-span-7 h-full relative">
-                        <canvas id="audio-waveform-canvas" width="380" height="48" class="w-full h-full bg-[var(--bg-canvas)] rounded border border-[var(--border-alpha)] canvas-placeholder block"></canvas>
-                        <span class="absolute left-1.5 top-0.5 text-[9px] font-mono text-[var(--text-muted)] pointer-events-none">Time-Domain Oscilloscope</span>
+                        <canvas id="audio-waveform-canvas" width="380" height="36" class="w-full h-full bg-[var(--bg-canvas)] rounded border border-[var(--border-alpha)] canvas-placeholder block"></canvas>
+                        <span class="absolute left-1.5 top-0.5 text-[8px] font-mono text-[var(--text-muted)] pointer-events-none">Time-Domain Oscilloscope</span>
                     </div>
                 </div>
 
-                <!-- Audio Metadata & Acoustic Hardware Certification Badge (ZERO CLIPPING / FULL VISIBILITY) -->
-                <div class="flex items-center justify-between text-[11px] font-mono text-[var(--text-secondary)] min-h-[22px] leading-tight">
+                <!-- Audio Metadata Strip (ABSOLUTELY ZERO TEXT CUTOFF) -->
+                <div class="flex items-center justify-between text-[11px] font-mono text-[var(--text-secondary)] min-h-[22px] pt-0.5">
                     <div class="flex items-center space-x-2 truncate max-w-[240px]">
                         <span id="mic-device-name" class="truncate">Hardware: Ready to sample</span>
                     </div>
@@ -399,7 +433,7 @@
                 </div>
             </div>
 
-            <!-- 3. Dynamic Real-Time WebSocket Keepalive & Burst Strip-Chart (/ws/probe) -->
+            <!-- 4. Dynamic Real-Time WebSocket Telemetry Stream with Axis Scales (Law of Prägnanz) -->
             <div class="surface-sub p-2 flex-none border border-[var(--border-alpha)] space-y-1">
                 <div class="flex items-center justify-between text-xs">
                     <div class="flex items-center space-x-2">
@@ -415,27 +449,33 @@
                     </div>
                 </div>
 
-                <!-- Scrolling Canvas Time-Series Graph -->
-                <canvas id="network-strip-chart" width="600" height="46" class="w-full h-[46px] bg-[var(--bg-canvas)] rounded border border-[var(--border-alpha)] canvas-placeholder block"></canvas>
+                <!-- Scrolling Canvas Time-Series Graph with Y-Axis and Time Scales -->
+                <canvas id="network-strip-chart" width="600" height="48" class="w-full h-[48px] bg-[var(--bg-canvas)] rounded border border-[var(--border-alpha)] canvas-placeholder block" title="Live WebSocket Packet Round-Trip Time (RTT) in ms"></canvas>
             </div>
 
-            <!-- 4. Dynamic Multi-Metric Comparative Visual Figures & Delta Bars -->
+            <!-- 5. Dynamic Multi-Metric Comparative Visual Figures & Delta Bars (Tesler's Law & Progressive Disclosure) -->
             <div class="surface-sub p-2 flex-none border border-[var(--border-alpha)] space-y-1">
                 <div class="flex items-center justify-between text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
                     <span>ASR Quality Gate Comparison Matrix</span>
-                    <span class="font-mono text-[10px] text-[var(--text-muted)]">Deterministic Koyal Gates</span>
+                    <div class="flex items-center space-x-2 font-mono text-[10px]">
+                        <span class="text-[var(--text-muted)]">Koyal Baseline</span>
+                        <button id="btn-toggle-override" type="button" class="text-[9px] px-1.5 py-0.2 rounded bg-[var(--bg-canvas)] border border-[var(--border-alpha)] text-[var(--text-muted)] hover:text-[var(--text-primary)] pressable" title="Toggle manual metric simulation override">Override</button>
+                    </div>
                 </div>
 
                 <div class="space-y-1 font-mono text-xs">
                     <!-- Metric Bar 1: Latency -->
                     <div class="flex items-center justify-between space-x-2">
                         <span class="w-20 text-[11px] font-sans text-[var(--text-secondary)]">Latency:</span>
-                        <input id="in-latency" type="text" value="35.0" class="clean-input w-16 h-6 px-1 text-xs font-mono font-bold tabular-nums text-center">
+                        <div class="w-16 text-center">
+                            <span id="readout-latency" class="font-mono font-bold text-xs tabular-nums text-[var(--text-primary)]">35.0</span>
+                            <input id="in-latency" type="text" value="35.0" class="clean-input w-16 h-5 px-1 text-xs font-mono font-bold tabular-nums text-center hidden">
+                        </div>
                         <span class="text-[10px] text-[var(--text-muted)] w-5">ms</span>
-                        <!-- Visual Range Bar (0 - 400ms) with 200ms threshold tick -->
+                        <!-- Visual Range Bar (0 - 400ms) with 200ms threshold tick & micro-label -->
                         <div class="flex-1 bg-[var(--bg-canvas)] h-2 rounded-full overflow-hidden relative border border-[var(--border-alpha)]">
                             <div id="bar-latency-fill" class="h-full bg-emerald-400 meter-fill w-full" style="transform: scaleX(0.175);"></div>
-                            <div class="absolute left-1/2 top-0 bottom-0 w-0.5 bg-rose-500/50" title="Koyal ASR Limit: 200ms"></div>
+                            <div class="absolute left-1/2 top-0 bottom-0 w-0.5 bg-rose-500/70" title="Koyal ASR Limit: 200ms"></div>
                         </div>
                         <span id="delta-latency" class="w-16 text-right text-[11px] text-emerald-400 tabular-nums">0.0 ms</span>
                         <span id="gate-latency-badge" class="w-12 text-center text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded py-0.2">PASS</span>
@@ -444,12 +484,15 @@
                     <!-- Metric Bar 2: Packet Loss -->
                     <div class="flex items-center justify-between space-x-2">
                         <span class="w-20 text-[11px] font-sans text-[var(--text-secondary)]">Packet Loss:</span>
-                        <input id="in-loss" type="text" value="0.0" class="clean-input w-16 h-6 px-1 text-xs font-mono font-bold tabular-nums text-center">
+                        <div class="w-16 text-center">
+                            <span id="readout-loss" class="font-mono font-bold text-xs tabular-nums text-[var(--text-primary)]">0.0</span>
+                            <input id="in-loss" type="text" value="0.0" class="clean-input w-16 h-5 px-1 text-xs font-mono font-bold tabular-nums text-center hidden">
+                        </div>
                         <span class="text-[10px] text-[var(--text-muted)] w-5">%</span>
                         <!-- Visual Range Bar (0 - 5.0%) with 2.0% threshold tick -->
                         <div class="flex-1 bg-[var(--bg-canvas)] h-2 rounded-full overflow-hidden relative border border-[var(--border-alpha)]">
                             <div id="bar-loss-fill" class="h-full bg-emerald-400 meter-fill w-full" style="transform: scaleX(0.02);"></div>
-                            <div class="absolute left-[40%] top-0 bottom-0 w-0.5 bg-rose-500/50" title="Critical Limit: 2.0%"></div>
+                            <div class="absolute left-[40%] top-0 bottom-0 w-0.5 bg-rose-500/70" title="Critical Limit: 2.0%"></div>
                         </div>
                         <span id="delta-loss" class="w-16 text-right text-[11px] text-emerald-400 tabular-nums">0.0 %</span>
                         <span id="gate-loss-badge" class="w-12 text-center text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded py-0.2">PASS</span>
@@ -458,12 +501,15 @@
                     <!-- Metric Bar 3: Jitter -->
                     <div class="flex items-center justify-between space-x-2">
                         <span class="w-20 text-[11px] font-sans text-[var(--text-secondary)]">Jitter:</span>
-                        <input id="in-jitter" type="text" value="4.5" class="clean-input w-16 h-6 px-1 text-xs font-mono font-bold tabular-nums text-center">
+                        <div class="w-16 text-center">
+                            <span id="readout-jitter" class="font-mono font-bold text-xs tabular-nums text-[var(--text-primary)]">4.5</span>
+                            <input id="in-jitter" type="text" value="4.5" class="clean-input w-16 h-5 px-1 text-xs font-mono font-bold tabular-nums text-center hidden">
+                        </div>
                         <span class="text-[10px] text-[var(--text-muted)] w-5">ms</span>
                         <!-- Visual Range Bar (0 - 60ms) with 30ms threshold tick -->
                         <div class="flex-1 bg-[var(--bg-canvas)] h-2 rounded-full overflow-hidden relative border border-[var(--border-alpha)]">
                             <div id="bar-jitter-fill" class="h-full bg-emerald-400 meter-fill w-full" style="transform: scaleX(0.15);"></div>
-                            <div class="absolute left-1/2 top-0 bottom-0 w-0.5 bg-amber-500/50" title="Threshold: 30ms"></div>
+                            <div class="absolute left-1/2 top-0 bottom-0 w-0.5 bg-amber-500/70" title="Threshold: 30ms"></div>
                         </div>
                         <span id="delta-jitter" class="w-16 text-right text-[11px] text-emerald-400 tabular-nums">-0.5 ms</span>
                         <span id="gate-jitter-badge" class="w-12 text-center text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded py-0.2">PASS</span>
@@ -472,12 +518,15 @@
                     <!-- Metric Bar 4: WS Keepalive RTT -->
                     <div class="flex items-center justify-between space-x-2">
                         <span class="w-20 text-[11px] font-sans text-[var(--text-secondary)]">WS RTT:</span>
-                        <input id="in-ws-rtt" type="text" value="42.0" class="clean-input w-16 h-6 px-1 text-xs font-mono font-bold tabular-nums text-center">
+                        <div class="w-16 text-center">
+                            <span id="readout-ws-rtt" class="font-mono font-bold text-xs tabular-nums text-[var(--text-primary)]">42.0</span>
+                            <input id="in-ws-rtt" type="text" value="42.0" class="clean-input w-16 h-5 px-1 text-xs font-mono font-bold tabular-nums text-center hidden">
+                        </div>
                         <span class="text-[10px] text-[var(--text-muted)] w-5">ms</span>
                         <!-- Visual Range Bar (0 - 500ms) with 250ms threshold tick -->
                         <div class="flex-1 bg-[var(--bg-canvas)] h-2 rounded-full overflow-hidden relative border border-[var(--border-alpha)]">
                             <div id="bar-ws-fill" class="h-full bg-emerald-400 meter-fill w-full" style="transform: scaleX(0.168);"></div>
-                            <div class="absolute left-1/2 top-0 bottom-0 w-0.5 bg-rose-500/50" title="Timeout Limit: 250ms"></div>
+                            <div class="absolute left-1/2 top-0 bottom-0 w-0.5 bg-rose-500/70" title="Timeout Limit: 250ms"></div>
                         </div>
                         <span id="delta-ws-rtt" class="w-16 text-right text-[11px] text-emerald-400 tabular-nums">-3.0 ms</span>
                         <span id="gate-ws-badge" class="w-12 text-center text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded py-0.2">PASS</span>
@@ -485,7 +534,7 @@
                 </div>
             </div>
 
-            <!-- 5. Diagnostic Execution & Ephemeral Auto-Dismissing Verdict Banner -->
+            <!-- 6. Diagnostic Execution & Ephemeral Auto-Dismissing Verdict Banner (Peak-End Rule) -->
             <div class="space-y-1.5 flex-none">
                 <!-- Progress Indicator -->
                 <div id="progress-container" class="hidden space-y-1">
@@ -499,14 +548,14 @@
                 </div>
 
                 <!-- Primary Action Button -->
-                <button id="btn-run-diagnostic" class="btn-action-primary w-full h-9 flex items-center justify-center space-x-2 text-xs shadow-sm pressable">
+                <button id="btn-run-diagnostic" class="btn-action-primary w-full h-8 flex items-center justify-center space-x-2 text-xs shadow-sm pressable">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                     <span>Run 5-second pre-flight check</span>
                     <kbd class="text-[10px] font-mono text-emerald-100 bg-emerald-900/60 px-1 py-0.2 rounded ml-1">↵ Enter</kbd>
                 </button>
 
-                <!-- Verdict Notification Banner (Auto-dismisses on Optimal, with manual Dismiss & Reset) -->
-                <div id="verdict-banner" class="hidden surface-sub p-2.5 rounded border border-[var(--border-alpha)] flex items-center justify-between border-l-4">
+                <!-- Verdict Notification Banner (Peak-End Rule Affirmation) -->
+                <div id="verdict-banner" class="hidden surface-sub p-2 rounded border border-[var(--border-alpha)] flex items-center justify-between border-l-4">
                     <div class="flex items-center space-x-2.5">
                         <div id="verdict-icon-container" class="h-5 w-5 rounded flex items-center justify-center"></div>
                         <div>
@@ -536,50 +585,78 @@
         <!-- RIGHT WORKSTATION: Fleet Jurisdiction Subsections & Live Incident Stream (5 cols) -->
         <div class="lg:col-span-5 flex flex-col space-y-2 h-full overflow-hidden">
 
-            <!-- 1. 11-State Regional Fleet Jurisdiction Matrix (ROBUST LIST LAYOUT: ZERO COLLAPSE) -->
-            <div class="surface-panel p-2.5 flex-1 flex flex-col min-h-0 overflow-hidden space-y-1.5">
-                <div class="flex items-center justify-between flex-none">
+            <!-- 1. 11-State Regional Fleet Jurisdiction Matrix (STRICT 5-COLUMN GRID: ALL 11 STATES VISIBLE) -->
+            <div class="surface-panel p-2 flex-1 flex flex-col min-h-0 overflow-hidden space-y-1">
+                <div class="flex items-center justify-between flex-none pb-0.5">
                     <div class="flex items-center space-x-1.5">
                         <h3 class="text-xs font-semibold text-[var(--text-primary)] tracking-tight uppercase">11 Partner States Deployment</h3>
-                        <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1 py-0.2 rounded">100% COVERAGE</span>
+                        <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1 py-0.2 rounded">11 / 11 ACTIVE</span>
                     </div>
                     <span class="text-[10px] text-[var(--text-muted)] font-mono">Click state to view units</span>
                 </div>
 
+                <!-- Column Header Row -->
+                <div class="state-grid-row text-[10px] font-mono uppercase text-[var(--text-muted)] border-b border-[var(--border-alpha)] pb-1 px-2 flex-none">
+                    <span>St</span>
+                    <span>Jurisdiction Seat</span>
+                    <span class="text-right">Units</span>
+                    <span class="text-right">Health</span>
+                    <span class="text-right"></span>
+                </div>
+
                 <!-- Scrollable State Jurisdictions Container -->
-                <div id="regions-scroll-container" class="flex-1 overflow-y-auto border border-[var(--border-alpha)] rounded bg-[var(--bg-canvas)] divide-y divide-[var(--border-alpha)] font-mono text-xs">
-                    <!-- Populated dynamically: all 11 states rendered simultaneously -->
+                <div id="regions-scroll-container" class="flex-1 overflow-y-auto divide-y divide-[var(--border-alpha)] font-mono text-xs pr-0.5">
+                    <!-- Populated dynamically with all 11 states strictly aligned -->
                 </div>
             </div>
 
-            <!-- 2. Live Incident Routing Feed with Filters -->
-            <div class="surface-panel p-2.5 flex-1 flex flex-col min-h-0 overflow-hidden space-y-1.5">
-                <div class="flex items-center justify-between flex-none">
-                    <div class="flex items-center space-x-2">
-                        <h3 class="text-xs font-semibold text-[var(--text-primary)] tracking-tight uppercase">Live Incident Routing Log</h3>
-                        <div class="flex items-center space-x-1">
-                            <button id="filter-inc-all" type="button" class="px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 pressable">ALL</button>
-                            <button id="filter-inc-critical" type="button" class="px-1.5 py-0.2 rounded text-[10px] font-mono text-[var(--text-muted)] hover:text-rose-400 pressable">CRITICAL</button>
+            <!-- 2. Live Incident Routing Feed with Automated Dispatch Health Monitor (ZERO VOID) -->
+            <div class="surface-panel p-2 flex-1 flex flex-col min-h-0 overflow-hidden justify-between">
+                <div class="space-y-1 overflow-hidden flex flex-col flex-1">
+                    <div class="flex items-center justify-between flex-none pb-0.5">
+                        <div class="flex items-center space-x-2">
+                            <h3 class="text-xs font-semibold text-[var(--text-primary)] tracking-tight uppercase">Live Incident Routing Log</h3>
+                            <div class="flex items-center space-x-1">
+                                <button id="filter-inc-all" type="button" class="px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 pressable">ALL</button>
+                                <button id="filter-inc-critical" type="button" class="px-1.5 py-0.2 rounded text-[10px] font-mono text-[var(--text-muted)] hover:text-rose-400 pressable">CRITICAL</button>
+                            </div>
                         </div>
+                        <span class="text-[10px] text-rose-400 font-mono font-semibold">Automated P0 Dispatch</span>
                     </div>
-                    <span class="text-[10px] text-rose-400 font-mono font-semibold">Automated P0 Dispatch</span>
+
+                    <div class="flex-1 overflow-y-auto border border-[var(--border-alpha)] rounded bg-[var(--bg-canvas)]">
+                        <table class="w-full text-left text-xs">
+                            <thead class="sticky top-0 bg-[var(--bg-surface)] border-b border-[var(--border-alpha)] text-[var(--text-muted)] text-[10px] uppercase font-semibold">
+                                <tr>
+                                    <th class="py-1 px-2.5">Courtroom</th>
+                                    <th class="py-1 px-2">Severity</th>
+                                    <th class="py-1 px-2">Slack</th>
+                                    <th class="py-1 px-2">Linear</th>
+                                    <th class="py-1 px-2.5 text-right">Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="incidents-table-body" class="divide-y divide-[var(--border-alpha)] font-mono text-[11px]">
+                                <!-- Populated dynamically with rich history -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <div class="flex-1 overflow-y-auto border border-[var(--border-alpha)] rounded bg-[var(--bg-canvas)]">
-                    <table class="w-full text-left text-xs">
-                        <thead class="sticky top-0 bg-[var(--bg-surface)] border-b border-[var(--border-alpha)] text-[var(--text-muted)] text-[10px] uppercase font-semibold">
-                            <tr>
-                                <th class="py-1 px-2.5">Courtroom</th>
-                                <th class="py-1 px-2">Severity</th>
-                                <th class="py-1 px-2">Slack</th>
-                                <th class="py-1 px-2">Linear</th>
-                                <th class="py-1 px-2.5 text-right">Time</th>
-                            </tr>
-                        </thead>
-                        <tbody id="incidents-table-body" class="divide-y divide-[var(--border-alpha)] font-mono text-[11px]">
-                            <!-- Populated dynamically -->
-                        </tbody>
-                    </table>
+                <!-- Automated P0 Dispatch Health Monitor (Fills bottom void with comforting telemetry) -->
+                <div class="surface-sub p-1.5 px-2 mt-1.5 flex items-center justify-between text-[10px] font-mono border border-[var(--border-alpha)] rounded flex-none">
+                    <div class="flex items-center space-x-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        <span class="text-[var(--text-muted)]">Slack:</span>
+                        <span class="text-emerald-400 font-semibold">Active (#all-adalat-pulse-alerts)</span>
+                    </div>
+                    <div class="flex items-center space-x-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                        <span class="text-[var(--text-muted)]">Linear:</span>
+                        <span class="text-purple-400 font-semibold">Team ALL (Active)</span>
+                    </div>
+                    <div class="text-[var(--text-muted)]">
+                        Heartbeat: <span class="text-[var(--text-primary)]">1.5s</span>
+                    </div>
                 </div>
             </div>
 
