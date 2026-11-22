@@ -131,6 +131,7 @@ class TelemetryReportRequest(BaseModel):
     golden_profile_id: Optional[str] = "GOLDEN-HC-FIBER"
     interview_responses: Optional[Dict[str, str]] = None
     client_timestamp: Optional[datetime] = None
+    idempotency_key: Optional[str] = Field(default=None, max_length=128, description="Unique client idempotency token")
     app_version: str = Field(default="1.0.0", max_length=16)
 
     @field_validator("courtroom_id")

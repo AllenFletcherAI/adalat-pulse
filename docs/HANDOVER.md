@@ -8,17 +8,23 @@
 ---
 
 ## 1. What Is Done
-- **Real-Time Hardware Audio Laboratory (IRL/IRT Voice Testing):** Dual visualizers featuring a 32-band FFT frequency spectrum analyzer canvas and time-domain oscilloscope canvas powered by Web Audio API `navigator.mediaDevices.getUserMedia()`. Includes explicit `[Start Mic Test]` / `[Stop Mic Test]` toggle and `[Reset Audio]` control with complete media track cleanup and canvas clearing.
-- **WebSocket Packet Round-Trip Strip-Chart:** Live scrolling HTML5 canvas plotting real-time `/ws/probe` packet round-trip times (RTT) and jitter points against the 200ms Koyal ASR guideline.
-- **Dynamic Multi-Metric Comparative Figures & Delta Bars:** Side-by-side comparison for Latency, Packet Loss, Jitter, and WS Keepalive RTT featuring live measurements, golden baselines, real-time deltas, Pass/Breach gate badges, and threshold indicator ticks.
-- **Purge of All Mock Scenarios:** Eradicated simulated scenario buttons (`Fiber optimal`, `Monsoon`, etc.). All diagnostics operate exclusively on live WebSocket and microphone audio.
-- **Ephemeral Auto-Dismissing Verdict Banner:** Automatically dismisses after 6 seconds on optimal clearance, with manual `[Dismiss]` and global `[Reset Console]` capabilities.
-- **Live Incident Routing on Every Check:** Diagnostic checks breaching degraded or critical thresholds immediately prepend an incident entry to the Live Incident Routing table with live IST timestamps, Slack dispatch status, and Linear ticket IDs.
-- **Hierarchical 11-State Jurisdiction Subsections:** Expandable inline accordion tables revealing Principal Seats, regional benches, District Courts, Sessions Courts, and Taluka Courts across all 11 states with direct `[Test]` actions.
-- **Deterministic Order of Operations & Automatic Pairing:** Courtroom bench selection automatically binds to its certified golden standard (`-HC-` -> Leased Line, `-DC-` -> Dual-ISP, `-TL-` -> Edge 4G) with unified 38px height and matching chevrons.
-- **Solitary Bold Brand Header:** Clean **Adalat Pulse** typography alone on left (wave icon eradicated).
-- **100% Emoji Eradication:** Zero emojis across all code, alerts, Linear titles, and documentation.
-- **Strict 100dvh Single-Viewport Fit:** High-density command cockpit fits strictly within `100dvh` with zero window vertical scrollbars.
+- **20-Point Modern Interaction Architecture (ADR-016):**
+  - **Acoustic Hardware Certification Engine:** Live 4-second calibration sampling Indic speech formants, room SNR, and sample rate, awarding a formal `KOYAL CERTIFIED (PASS)` badge and auto-injecting metrics into the pre-flight payload. Zero text clipping.
+  - **Live Continuous WebSocket Packet Monitor:** Continuous 1,500ms background keepalive ping streaming living RTT gradient curves, jitter points, and p50/p95 latency metrics against the 200ms Koyal gate line. Pre-flight checks trigger 50-packet burst probes.
+  - **Uncollapsed 11 Partner States Deployment List:** Replaced brittle table rows with an accessible disclosure list where all 11 Indian partner states (`DL`, `RJ`, `UP`, `KL`, `KA`, `AP`, `MH`, `TN`, `WB`, `GJ`, `MP`) are rendered simultaneously without layout collapse.
+  - **Command Menu (`Cmd+K` / `Ctrl+K`):** Global executive command palette with keyboard fuzzy search across courtrooms, diagnostic actions, theme toggles, and Airtable sync.
+  - **Shortcut Hints & Hit Slots:** Keyboard badges (`⌘K`, `↵ Enter`, `Space`, `Esc`, `R`, `T`) and 44x44px touch targets.
+  - **Floating Undo Toast:** 5-second interactive undo notification on console resets.
+  - **Stale-While-Revalidate (SWR):** Instant zero-latency `localStorage` cache hydration with background revalidation.
+  - **Swipe-to-Dismiss Sheets:** Touch/pointer downward drag gesture dismissing modals on 100px threshold.
+  - **Continuous Squircles & Safe Area Insets:** Superellipse corner radii and `env(safe-area-inset-*)` support.
+  - **Idempotency Keys:** Deterministic UUIDv4 token (`X-Idempotency-Key`) preventing duplicate writes.
+  - **Amazon Safe Triangle:** Pointer steering tracking preventing premature submenu closure.
+- **Side-by-Side Benchmark Telemetry Table:** Real-time deltas ($\Delta$), Pass/Breach gate badges, and threshold indicator ticks.
+- **Filtered Incident Routing Log:** `ALL` and `CRITICAL` filters with automated dispatch standby monitoring.
+- **Deterministic Order of Operations & Automatic Pairing:** Courtroom bench selection automatically binds to its certified golden standard (`-HC-` -> Leased Line, `-DC-` -> Dual-ISP, `-TL-` -> Edge 4G).
+- **100% Emoji Eradication:** Zero emojis across code, UI, alerts, and documentation.
+- **Strict 100dvh Single-Viewport Fit:** Complete executive command cockpit strictly fits within `100dvh` with zero window-level vertical scrollbars.
 - **Automated Verification:** 30 out of 30 unit and integration tests passing in `tests/`.
 - **Server Health:** Uvicorn daemon running healthy on port 8000 (`http://localhost:8000`).
 

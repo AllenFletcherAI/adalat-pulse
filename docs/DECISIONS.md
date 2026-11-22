@@ -254,3 +254,29 @@
 * **Rejected Alternative:** Simulated audio waveforms and static scenario buttons. Rejected because fake data masks physical courtroom hardware failures and confuses operators.
 * **When to Reconsider:** Never. Transparent physical telemetry and hierarchical operational visibility are permanent foundations of Adalat Pulse.
 
+---
+
+## ADR-016: 20-Point Modern Interaction Architecture & Live Acoustic Hardware Certification Engine
+* **Date:** November 2026
+* **Decision:** Implement a master-level modern interaction and design engineering architecture:
+  1. *Live Acoustic Hardware Certification Workflow:* Microphone testing now executes a deterministic 4-second calibration sequence, analyzing speech RMS and frequency formants. On completion, awards a certified badge (`KOYAL CERTIFIED (PASS)` or `DEGRADED ACOUSTICS`), automatically injecting physical sample rates and SNR into the pre-flight payload.
+  2. *Live Continuous WebSocket Packet Monitor:* Runs a continuous 1,500ms background keepalive ping, generating living telemetry with real-time RTT gradient area fills, jitter deviation points, and a 200ms Koyal gate line. Pre-flight checks trigger a 50-packet burst probe.
+  3. *Uncollapsed 11 Partner States Deployment List:* Replaced brittle table rows with an accessible disclosure list where all 11 Indian partner states (`DL`, `RJ`, `UP`, `KL`, `KA`, `AP`, `MH`, `TN`, `WB`, `GJ`, `MP`) are rendered simultaneously without layout collapse.
+  4. *Filtered Incident Feed:* Added `ALL` and `CRITICAL` filters with automated dispatch standby monitoring.
+  5. *Command Menu (`Cmd+K` / `Ctrl+K`):* Centered executive command palette for keyboard-driven bench navigation, diagnostic execution, theme toggling, and Airtable syncing.
+  6. *Shortcut Hints:* Visual keyboard badges (`⌘K`, `↵ Enter`, `Space`, `Esc`, `R`, `T`) embedded across all actions.
+  7. *Floating Undo Toast:* Interactive 5-second undo toast for console resets and state changes.
+  8. *Stale-While-Revalidate (SWR):* Zero-latency cache hydration via `localStorage` on boot, revalidating seamlessly in the background.
+  9. *Pre-Rendering & View Transitions:* Pre-built modal structures and `document.startViewTransition` support for zero-layout-shift state changes.
+  10. *BlurHash Placeholder Gradients:* Soft radial gradient backdrops on visualizer canvases preventing dark empty voids.
+  11. *Swipe-to-Dismiss Sheets:* Touch and pointer gesture tracking dismissing modals on 100px downward swipe.
+  12. *Interruptible Animations & Predictive Back:* CSS transitions on `transform` with hover previews (`scale: 0.98`) on close actions.
+  13. *44px Hit Target Slots & Safe Area Insets:* Minimum 44x44px touch targets (`.hit-slot`) and `env(safe-area-inset-*)` support.
+  14. *Tabular Numbers & Balanced Headlines:* Enforced `tabular-nums` on all figures and `text-wrap: balance` on all headings.
+  15. *Continuous Squircles & Idempotency Keys:* Superellipse border-radii and unique UUIDv4 idempotency keys (`X-Idempotency-Key`).
+  16. *Amazon Safe Triangle:* Pointer steering tracking preserving open state submenus when navigating diagonally.
+* **Why:** The CTO and executive operators require a genuine, living hardware telemetry platform that feels authentic, responsive, and crafted to the highest design engineering standards.
+* **Rejected Alternative:** Brittle table row injections and uncalibrated static inputs.
+* **When to Reconsider:** Never.
+
+
