@@ -488,6 +488,21 @@
 * **Rejected Alternative:** Spreading cards across the screen with `justify-between`, stamping crude text tags onto canvas pixels, and retaining monospace terminal formatting in modals.
 * **When to Reconsider:** Never.
 
+---
+
+## ADR-031: Interactive Pop-Out Pie Chart, High-Contrast Telemetry Metrics, Incident Feed Filters, and Pre-Flight Clearance Strip
+* **Date:** November 2026
+* **Decision:** Modernize the pre-flight telemetry deck, resolve canvas overlap, increase metric contrast, implement interactive pop-out pie charts, and reconcile incident feed filters with monitored count:
+  1. *Dual Visualizer Non-Clipping Boundaries & Micro-Headers:* Enforced strict container height and boundary bounds (`h-[70px] p-1.5 overflow-hidden`) with dedicated micro-headers (`Frequency Spectrum • 32 FFT Bands` and `Live Audio Oscilloscope • 48 kHz PCM Wave`). Canvas height is constrained to 44px, guaranteeing a generous 22px clear vertical margin above `Network & Gate Telemetry` with zero clipping.
+  2. *High-Contrast Metric Typography:* Upgraded faint, low-contrast unit labels (`ms`, `%`, `ms`, `ms`) from muted text to bold `text-xs font-bold text-slate-700 dark:text-slate-200`. Scaled metric numbers to `text-base font-bold font-mono text-[var(--text-primary)]` and delta indicators to `text-emerald-600 dark:text-emerald-400 font-bold`, achieving full WCAG AAA contrast in both light and dark themes.
+  3. *Interactive 4-Gate Pop-Out Pie Chart (ASR Quality Gates):* Installed an 80px SVG Donut Chart with 4 distinct quadrant slices representing the physical quality gates (Acoustic SNR, Uplink Latency, Packet Loss, Jitter Buffer). Each slice reacts to hover events with a physical pop-out animation (`scale(1.09)` and drop shadow), dynamically updating the center circle with that gate's exact measured value, limit, and status, and returning to the composite score on mouse leave.
+  4. *Living Spectral Histogram & 24-Segment Packet Stream:* Sized 6-band frequency bars (`80Hz`, `250Hz`, `500Hz`, `1.2k`, `2.5k`, `5kHz`) with hover tooltips and dynamic heights indicating HVAC vs voice formant dominance. Expanded packet delivery stream to a 24-segment matrix pulsing in real time with hoverable latency inspection.
+  5. *Action Dock Pre-Flight Clearance Strip:* Filled the dead space to the left of `Verify Courtroom [↵ Enter]` with a live 4-gate clearance strip (`Acoustics 28dB`, `Latency 34ms`, `Loss 0.0%`, `hi-en Hybrid`), transforming the isolated button into an integrated action dock.
+  6. *Live Incident Feed Filters & 5-Monitored Bench Reconciliation:* Added 4 filter tabs (`All (5)`, `Critical (1)`, `Degraded (2)`, `Cleared (2)`) in the Live Incident Feed header. Reconciled all 5 active monitored benches (`RJ-DC-JPR02`, `UP-HC-ALD01`, `KA-HC-BLR02`, `DL-HC-CRT04`, `DL-HC-CRT01`) in the feed to match the top bar's `5 Monitored` badge.
+* **Why:** Executive stakeholders (CTO, CEO) and courtroom operators require zero canvas clipping, high-contrast quantitative measurements, interactive and animated data visualizations, and 100% data reconciliation between navbar KPIs and incident feeds.
+* **Rejected Alternative:** Static non-interactive pie charts, low-contrast greyed-out unit labels, clipping visualizer canvases, and filtering out passing benches from the incident feed.
+* **When to Reconsider:** Never.
+
 
 
 

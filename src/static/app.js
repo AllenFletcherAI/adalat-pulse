@@ -69,6 +69,34 @@ let incidentsCache = [
         linear_issue_id: "ALL-8",
         created_at: new Date(Date.now() - 3600000 * 5.2).toISOString(),
         isNew: false
+    },
+    {
+        id: "INC-DL-DL-HC-CRT04-261122-160512",
+        courtroom_id: "DL-HC-CRT04",
+        state: "DL",
+        severity: "CLEARED",
+        verdict: "OPTIMAL",
+        title: "[Session Cleared] DL-HC-CRT04 (DL) - Pre-Flight Check Passed",
+        details: "All 4 ASR telemetry gates cleared. Verified 28.0 dB SNR, 35.0ms RTT, 0.0% loss. Ready for live Indic Koyal transcription.",
+        slack_status: "DELIVERED",
+        linear_status: "CLEARED_ALL-4",
+        linear_issue_id: "ALL-4",
+        created_at: new Date(Date.now() - 3600000 * 1.5).toISOString(),
+        isNew: false
+    },
+    {
+        id: "INC-DL-DL-HC-CRT01-261122-152010",
+        courtroom_id: "DL-HC-CRT01",
+        state: "DL",
+        severity: "CLEARED",
+        verdict: "OPTIMAL",
+        title: "[Session Cleared] DL-HC-CRT01 (DL) - Pre-Flight Check Passed",
+        details: "High-speed leased line verified. 29.2 dB SNR, 31.4ms RTT, 0.0% loss. Ready for live Indic Koyal transcription.",
+        slack_status: "DELIVERED",
+        linear_status: "CLEARED_ALL-1",
+        linear_issue_id: "ALL-1",
+        created_at: new Date(Date.now() - 3600000 * 3.0).toISOString(),
+        isNew: false
     }
 ];
 
@@ -1162,50 +1190,107 @@ function updateLiveVisualFigures() {
     updateVisualAnalyticsDeck(latIn, lossIn, jitIn, rttIn);
 }
 
+let activePieHoverGate = null;
+
+function initPieChartInteractions() {
+    const slices = [
+        { id: 'pie-slice-snr', gate: 'snr', label: 'SNR FLOOR', val: () => `${currentSnrDb.toFixed(1)} dB`, limit: 'LIMIT > 24 dB', legendId: 'legend-snr' },
+        { id: 'pie-slice-latency', gate: 'latency', label: 'UPLINK RTT', val: () => `${(parseFloat(document.getElementById('in-latency').value) || 35.0).toFixed(1)} ms`, limit: 'LIMIT < 120 ms', legendId: 'legend-latency' },
+        { id: 'pie-slice-loss', gate: 'loss', label: 'PACKET LOSS', val: () => `${(parseFloat(document.getElementById('in-loss').value) || 0.0).toFixed(1)}%`, limit: 'LIMIT < 1.0%', legendId: 'legend-loss' },
+        { id: 'pie-slice-jitter', gate: 'jitter', label: 'JITTER BUFFER', val: () => `${(parseFloat(document.getElementById('in-jitter').value) || 4.5).toFixed(1)} ms`, limit: 'LIMIT < 15 ms', legendId: 'legend-jitter' }
+    ];
+
+    slices.forEach(s => {
+        const sliceEl = document.getElementById(s.id);
+        const legendEl = document.getElementById(s.legendId);
+
+        const onHover = () => {
+            activePieHoverGate = s.gate;
+            const lbl = document.getElementById('pie-center-label');
+            const val = document.getElementById('pie-center-val');
+            const st = document.getElementById('pie-center-status');
+            if (lbl) lbl.textContent = s.label;
+            if (val) val.textContent = s.val();
+            if (st) {
+                st.textContent = s.limit;
+                st.className = 'text-[9px] font-bold text-emerald-600 dark:text-emerald-400';
+            }
+            if (sliceEl) sliceEl.style.transform = 'scale(1.09)';
+        };
+
+        const onLeave = () => {
+            activePieHoverGate = null;
+            if (sliceEl) sliceEl.style.transform = '';
+            const lat = parseFloat(document.getElementById('in-latency').value) || 35.0;
+            const loss = parseFloat(document.getElementById('in-loss').value) || 0.0;
+            const jit = parseFloat(document.getElementById('in-jitter').value) || 4.5;
+            const rtt = parseFloat(document.getElementById('in-ws-rtt').value) || 42.0;
+            updateVisualAnalyticsDeck(lat, loss, jit, rtt);
+        };
+
+        if (sliceEl) {
+            sliceEl.addEventListener('mouseenter', onHover);
+            sliceEl.addEventListener('mouseleave', onLeave);
+        }
+        if (legendEl) {
+            legendEl.addEventListener('mouseenter', onHover);
+            legendEl.addEventListener('mouseleave', onLeave);
+        }
+    });
+}
+
 function updateVisualAnalyticsDeck(lat, loss, jit, rtt) {
     const isPassing = lat < 200 && loss < 2.0 && jit < 30 && rtt < 250;
     const isCritical = loss >= 2.0 || lat >= 350;
 
-    // 1. Donut Score
-    const donutFill = document.getElementById('compliance-donut-fill');
-    const donutScore = document.getElementById('compliance-donut-score');
-    const donutStatus = document.getElementById('compliance-donut-status');
-    const syncLabel = document.getElementById('donut-sync-label');
+    // 1. Interactive 4-Gate Pop-Out Pie Chart
+    const sliceSnr = document.getElementById('pie-slice-snr');
+    const sliceLat = document.getElementById('pie-slice-latency');
+    const sliceLoss = document.getElementById('pie-slice-loss');
+    const sliceJit = document.getElementById('pie-slice-jitter');
 
-    const circumference = 163.36;
-    let scorePct = 96.4;
-    if (isCritical) {
-        scorePct = Math.max(38.0, 96.0 - (loss * 12.0) - ((lat - 100) * 0.15));
-    } else if (!isPassing) {
-        scorePct = 78.5;
-    }
-    const offset = circumference * (1.0 - (scorePct / 100.0));
+    const isSnrPass = currentSnrDb >= 24.0;
+    const isLatPass = lat < 120.0;
+    const isLossPass = loss < 1.0;
+    const isJitPass = jit < 15.0;
 
-    if (donutFill) {
-        donutFill.style.strokeDashoffset = offset;
-        donutFill.setAttribute('class', isCritical ? 'text-rose-500 transition-all duration-500 ease-out' : (isPassing ? 'text-emerald-500 transition-all duration-500 ease-out' : 'text-amber-500 transition-all duration-500 ease-out'));
-    }
-    if (donutScore) {
-        donutScore.textContent = `${Math.round(scorePct)}%`;
-        donutScore.className = `text-xs font-bold font-mono ${isCritical ? 'text-rose-500' : (isPassing ? 'text-[var(--text-primary)]' : 'text-amber-500')}`;
-    }
-    if (donutStatus) {
-        donutStatus.textContent = isCritical ? 'FAIL' : (isPassing ? 'PASS' : 'WARN');
-        donutStatus.className = `text-[8px] font-semibold uppercase tracking-tighter ${isCritical ? 'text-rose-500' : (isPassing ? 'text-emerald-500' : 'text-amber-500')}`;
-    }
-    if (syncLabel) {
-        syncLabel.textContent = isCritical ? 'Loss Breach' : (isPassing ? 'All Synced' : 'Warning');
-        syncLabel.className = `text-[9px] ${isCritical ? 'text-rose-500 font-semibold' : 'text-[var(--text-muted)]'} pl-0.5`;
+    const passedCount = (isSnrPass ? 1 : 0) + (isLatPass ? 1 : 0) + (isLossPass ? 1 : 0) + (isJitPass ? 1 : 0);
+
+    if (sliceSnr) sliceSnr.setAttribute('fill', isSnrPass ? '#10B981' : (currentSnrDb >= 18.0 ? '#F59E0B' : '#EF4444'));
+    if (sliceLat) sliceLat.setAttribute('fill', isLatPass ? '#059669' : (lat < 200.0 ? '#F59E0B' : '#EF4444'));
+    if (sliceLoss) sliceLoss.setAttribute('fill', isLossPass ? '#047857' : '#EF4444');
+    if (sliceJit) sliceJit.setAttribute('fill', isJitPass ? '#34D399' : (jit < 30.0 ? '#F59E0B' : '#EF4444'));
+
+    let compositeScorePct = Math.round((passedCount / 4.0) * 100);
+    if (passedCount === 4) compositeScorePct = 98;
+
+    if (!activePieHoverGate) {
+        const centerLbl = document.getElementById('pie-center-label');
+        const centerVal = document.getElementById('pie-center-val');
+        const centerSt = document.getElementById('pie-center-status');
+        if (centerLbl) centerLbl.textContent = 'ASR GATES';
+        if (centerVal) centerVal.textContent = `${compositeScorePct}%`;
+        if (centerSt) {
+            centerSt.textContent = isCritical ? 'FAIL' : (isPassing ? 'OPTIMAL' : 'DEGRADED');
+            centerSt.className = `text-[9px] font-bold ${isCritical ? 'text-rose-600 dark:text-rose-400' : (isPassing ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400')}`;
+        }
     }
 
-    // Gate dots
-    const dotSnr = document.getElementById('donut-gate-snr');
-    const dotLat = document.getElementById('donut-gate-latency');
-    const dotLoss = document.getElementById('donut-gate-loss');
-    const dotJit = document.getElementById('donut-gate-jitter');
-    if (dotLat) dotLat.className = `w-1.5 h-1.5 rounded-full ${lat < 200 ? 'bg-emerald-500' : 'bg-rose-500'}`;
-    if (dotLoss) dotLoss.className = `w-1.5 h-1.5 rounded-full ${loss < 2.0 ? 'bg-emerald-500' : 'bg-rose-500'}`;
-    if (dotJit) dotJit.className = `w-1.5 h-1.5 rounded-full ${jit < 30 ? 'bg-emerald-500' : 'bg-amber-500'}`;
+    const pillScore = document.getElementById('pie-score-pill');
+    if (pillScore) {
+        pillScore.textContent = `${passedCount}/4 PASS`;
+        pillScore.className = `px-1.5 py-0.2 rounded text-[10px] font-bold ${passedCount === 4 ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : (passedCount >= 2 ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30' : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30')}`;
+    }
+
+    // High-Contrast Legend Values
+    const legSnr = document.getElementById('legend-snr-val');
+    if (legSnr) legSnr.textContent = `${currentSnrDb.toFixed(1)}dB`;
+    const legLat = document.getElementById('legend-latency-val');
+    if (legLat) legLat.textContent = `${lat.toFixed(1)}ms`;
+    const legLoss = document.getElementById('legend-loss-val');
+    if (legLoss) legLoss.textContent = `${loss.toFixed(1)}%`;
+    const legJit = document.getElementById('legend-jitter-val');
+    if (legJit) legJit.textContent = `${jit.toFixed(1)}ms`;
 
     // 2. Frequency Bar Profile
     const bar80 = document.getElementById('freq-bar-80');
@@ -1219,19 +1304,19 @@ function updateVisualAnalyticsDeck(lat, loss, jit, rtt) {
     const isFanNoisy = isCritical || (loss > 1.0);
     if (bar80) {
         bar80.style.height = isFanNoisy ? '92%' : '18%';
-        bar80.className = `w-full transition-all duration-300 ${isFanNoisy ? 'bg-amber-500' : 'bg-emerald-500/60'}`;
+        bar80.className = `w-full transition-all duration-300 ${isFanNoisy ? 'bg-amber-500' : 'bg-emerald-500/50 group-hover:bg-emerald-400'}`;
     }
     if (bar250) bar250.style.height = isFanNoisy ? '55%' : '38%';
-    if (bar500) bar500.style.height = isFanNoisy ? '48%' : '72%';
-    if (bar1200) bar1200.style.height = isFanNoisy ? '52%' : '85%';
-    if (bar2500) bar2500.style.height = isFanNoisy ? '40%' : '60%';
-    if (bar5000) bar5000.style.height = isFanNoisy ? '30%' : '22%';
+    if (bar500) bar500.style.height = isFanNoisy ? '48%' : '74%';
+    if (bar1200) bar1200.style.height = isFanNoisy ? '52%' : '88%';
+    if (bar2500) bar2500.style.height = isFanNoisy ? '40%' : '62%';
+    if (bar5000) bar5000.style.height = isFanNoisy ? '30%' : '26%';
     if (energyLabel) {
         energyLabel.textContent = isFanNoisy ? 'HVAC Noise Dominant' : 'Clear Voice Band';
-        energyLabel.className = `text-[10px] font-medium ${isFanNoisy ? 'text-amber-500' : 'text-emerald-500'}`;
+        energyLabel.className = `text-[10px] font-bold px-1.5 py-0.2 rounded ${isFanNoisy ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'}`;
     }
 
-    // 3. Packet Delivery Distribution (16 segments)
+    // 3. Packet Delivery Distribution (24 segments)
     const segContainer = document.getElementById('packet-delivery-segments');
     const rateEl = document.getElementById('packet-stability-rating');
     const lossStat = document.getElementById('packet-loss-stat');
@@ -1242,15 +1327,49 @@ function updateVisualAnalyticsDeck(lat, loss, jit, rtt) {
 
     if (segContainer) {
         const segs = segContainer.children;
-        const droppedCount = isCritical ? 3 : (loss > 0 ? 1 : 0);
+        const droppedCount = isCritical ? 5 : (loss > 0 ? 2 : 0);
         for (let i = 0; i < segs.length; i++) {
-            const isDropped = (i === 4 || i === 11 || i === 14) && (droppedCount > 0 && i < (droppedCount * 6));
-            segs[i].className = `h-2.5 rounded-xs transition-colors ${isDropped ? 'bg-rose-500' : 'bg-emerald-500'}`;
+            const isDropped = (i === 4 || i === 11 || i === 17 || i === 21) && (droppedCount > 0 && i < (droppedCount * 5));
+            segs[i].className = `h-2 rounded-xs packet-stream-active transition-colors cursor-pointer hover:brightness-125 ${isDropped ? 'bg-rose-500' : 'bg-emerald-500'}`;
         }
     }
     if (rateEl) {
-        rateEl.textContent = isCritical ? 'CRITICAL' : (isPassing ? '100% PASS' : 'DEGRADED');
-        rateEl.className = `text-[10px] font-semibold ${isCritical ? 'text-rose-500' : (isPassing ? 'text-emerald-500' : 'text-amber-500')}`;
+        rateEl.textContent = isCritical ? 'CRITICAL' : (isPassing ? '24/24 OK' : 'DEGRADED');
+        rateEl.className = `text-[10px] font-bold px-1.5 py-0.2 rounded ${isCritical ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20' : (isPassing ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20')}`;
+    }
+
+    // 4. Pre-Flight Clearance Strip in Action Dock
+    const pillClrSnr = document.getElementById('clearance-pill-snr');
+    if (pillClrSnr) {
+        pillClrSnr.innerHTML = `
+            <svg class="w-3 h-3 ${isSnrPass ? 'text-emerald-500' : 'text-amber-500'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                ${isSnrPass ? '<polyline points="20 6 9 17 4 12"/>' : '<polygon points="12 2 1 21 23 21 12 2"/><line x1="12" y1="9" x2="12" y2="13"/>'}
+            </svg>
+            <span>Acoustics ${currentSnrDb.toFixed(0)}dB</span>
+        `;
+        pillClrSnr.className = `px-2 py-0.5 rounded text-[11px] font-semibold flex items-center space-x-1 ${isSnrPass ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'}`;
+    }
+
+    const pillClrLat = document.getElementById('clearance-pill-latency');
+    if (pillClrLat) {
+        pillClrLat.innerHTML = `
+            <svg class="w-3 h-3 ${isLatPass ? 'text-emerald-500' : 'text-amber-500'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                ${isLatPass ? '<polyline points="20 6 9 17 4 12"/>' : '<polygon points="12 2 1 21 23 21 12 2"/><line x1="12" y1="9" x2="12" y2="13"/>'}
+            </svg>
+            <span>Latency ${lat.toFixed(0)}ms</span>
+        `;
+        pillClrLat.className = `px-2 py-0.5 rounded text-[11px] font-semibold flex items-center space-x-1 ${isLatPass ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'}`;
+    }
+
+    const pillClrLoss = document.getElementById('clearance-pill-loss');
+    if (pillClrLoss) {
+        pillClrLoss.innerHTML = `
+            <svg class="w-3 h-3 ${isLossPass ? 'text-emerald-500' : 'text-rose-500'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                ${isLossPass ? '<polyline points="20 6 9 17 4 12"/>' : '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>'}
+            </svg>
+            <span>Loss ${loss.toFixed(1)}%</span>
+        `;
+        pillClrLoss.className = `px-2 py-0.5 rounded text-[11px] font-semibold flex items-center space-x-1 ${isLossPass ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'}`;
     }
 }
 
@@ -2046,17 +2165,44 @@ async function selectBenchForDiagnostic(courtroomId, stateCode, benchName) {
 }
 
 // -------------------------------------------------------------
-// 10. Live Incident Routing Feed with Historical Context
+// 10. Live Incident Routing Feed with Historical Context & Filter Tabs
 // -------------------------------------------------------------
+let currentIncidentFilter = 'ALL';
+
+function initIncidentFilterTabs() {
+    const tabs = [
+        { id: 'filter-incident-all', filter: 'ALL' },
+        { id: 'filter-incident-critical', filter: 'CRITICAL' },
+        { id: 'filter-incident-degraded', filter: 'DEGRADED' },
+        { id: 'filter-incident-cleared', filter: 'CLEARED' }
+    ];
+
+    tabs.forEach(t => {
+        const btn = document.getElementById(t.id);
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+            currentIncidentFilter = t.filter;
+            tabs.forEach(other => {
+                const b = document.getElementById(other.id);
+                if (!b) return;
+                if (other.filter === currentIncidentFilter) {
+                    b.className = 'filter-tab-active px-2 py-0.5 rounded text-[10px] font-semibold transition-colors pressable';
+                } else {
+                    b.className = 'filter-tab-inactive px-2 py-0.5 rounded text-[10px] font-semibold transition-colors pressable';
+                }
+            });
+            renderIncidentsTable(incidentsCache);
+        });
+    });
+}
+
 async function pollIncidents() {
     try {
         const res = await fetch('/api/v1/incidents?limit=10');
         if (!res.ok) return;
         const data = await res.json();
         if (data.incidents && data.incidents.length > 0) {
-            // Merge with existing realistic cache avoiding duplicates and rejecting OPTIMAL
             data.incidents.forEach(newInc => {
-                if (newInc.severity === 'OPTIMAL' || newInc.verdict === 'OPTIMAL') return;
                 const exists = incidentsCache.some(i => i.id === newInc.id || (i.courtroom_id === newInc.courtroom_id && i.linear_issue_id === newInc.linear_issue_id));
                 if (!exists) {
                     incidentsCache.unshift(newInc);
@@ -2122,14 +2268,38 @@ function renderIncidentsTable(incidents) {
     if (!tbody) return;
     tbody.innerHTML = '';
 
-    const list = [...incidents];
+    // Reconcile and update filter counts
+    const totalCount = incidentsCache.length;
+    const critCount = incidentsCache.filter(i => i.severity === 'CRITICAL').length;
+    const degCount = incidentsCache.filter(i => i.severity === 'DEGRADED').length;
+    const clrCount = incidentsCache.filter(i => i.severity === 'OPTIMAL' || i.severity === 'CLEARED' || i.verdict === 'OPTIMAL').length;
+
+    const elAll = document.getElementById('filter-incident-all');
+    if (elAll) elAll.textContent = `All (${totalCount})`;
+    const elCrit = document.getElementById('filter-incident-critical');
+    if (elCrit) elCrit.textContent = `Critical (${critCount})`;
+    const elDeg = document.getElementById('filter-incident-degraded');
+    if (elDeg) elDeg.textContent = `Degraded (${degCount})`;
+    const elClr = document.getElementById('filter-incident-cleared');
+    if (elClr) elClr.textContent = `Cleared (${clrCount})`;
+
+    // Filter list according to active tab
+    let list = [...incidents];
+    if (currentIncidentFilter === 'CRITICAL') {
+        list = list.filter(i => i.severity === 'CRITICAL');
+    } else if (currentIncidentFilter === 'DEGRADED') {
+        list = list.filter(i => i.severity === 'DEGRADED');
+    } else if (currentIncidentFilter === 'CLEARED') {
+        list = list.filter(i => i.severity === 'OPTIMAL' || i.severity === 'CLEARED' || i.verdict === 'OPTIMAL');
+    }
+
     if (incidentSortConfig.column) {
         list.sort((a, b) => {
             let res = 0;
             if (incidentSortConfig.column === 'bench') {
                 res = (a.courtroom_id || '').localeCompare(b.courtroom_id || '');
             } else if (incidentSortConfig.column === 'severity') {
-                const rank = { 'CRITICAL': 3, 'DEGRADED': 2, 'OPTIMAL': 1 };
+                const rank = { 'CRITICAL': 3, 'DEGRADED': 2, 'CLEARED': 1, 'OPTIMAL': 1 };
                 res = (rank[a.severity] || 0) - (rank[b.severity] || 0);
             } else if (incidentSortConfig.column === 'slack') {
                 res = (a.slack_status || '').localeCompare(b.slack_status || '');
@@ -2154,13 +2324,16 @@ function renderIncidentsTable(incidents) {
         const fullTimeStr = dateObj.toLocaleTimeString('en-IN', { hour12: false }) + ' IST';
 
         let severityTextClass = 'text-emerald-700 dark:text-emerald-400 font-semibold';
-        let severityText = 'Optimal';
+        let severityText = 'Cleared';
         if (inc.severity === 'CRITICAL') {
             severityTextClass = 'text-rose-700 dark:text-rose-400 font-semibold';
             severityText = 'Critical';
         } else if (inc.severity === 'DEGRADED') {
             severityTextClass = 'text-amber-700 dark:text-amber-400 font-semibold';
             severityText = 'Degraded';
+        } else if (inc.severity === 'OPTIMAL' || inc.severity === 'CLEARED') {
+            severityTextClass = 'text-emerald-700 dark:text-emerald-400 font-semibold';
+            severityText = 'Cleared';
         }
         const severityHtml = `<span class="text-xs ${severityTextClass}">${severityText}</span>`;
 
@@ -2734,6 +2907,8 @@ initHardwareProfileSelector();
 initHardwareInfoModal();
 initFleetSortListeners();
 initIncidentSortListeners();
+initIncidentFilterTabs();
+initPieChartInteractions();
 initEmergencyFallback();
 clearAudioCanvases();
 updateAcousticBadges();

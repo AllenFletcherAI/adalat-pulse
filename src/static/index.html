@@ -342,12 +342,37 @@
             font-weight: 600;
         }
 
-        @keyframes incident-flash {
-            0% { background-color: rgba(239, 68, 68, 0.25); }
-            100% { background-color: transparent; }
+        /* Interactive Pop-Out Pie Chart */
+        .pie-slice {
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s ease, opacity 0.2s ease;
+            transform-origin: 50px 50px;
+            cursor: pointer;
         }
-        .row-incident-new {
-            animation: incident-flash 1.5s ease-out;
+        .pie-slice:hover {
+            transform: scale(1.08);
+            filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.6));
+            opacity: 1 !important;
+        }
+
+        /* Incident Feed Filter Tabs */
+        .filter-tab-active {
+            background-color: var(--bg-sub);
+            color: var(--text-primary);
+            border: 1px solid var(--border-alpha-hover);
+        }
+        .filter-tab-inactive {
+            color: var(--text-secondary);
+            background-color: transparent;
+            border: 1px solid transparent;
+        }
+
+        /* Pulse Stream Animation for Packet Blocks */
+        @keyframes stream-pulse {
+            0%, 100% { opacity: 0.95; }
+            50% { opacity: 0.45; }
+        }
+        .packet-stream-active {
+            animation: stream-pulse 1.8s infinite ease-in-out;
         }
     </style>
 </head>
@@ -421,10 +446,10 @@
     <main class="flex-1 w-full max-w-[1560px] mx-auto p-2.5 grid grid-cols-1 lg:grid-cols-12 gap-2.5 overflow-hidden">
 
         <!-- LEFT WORKSTATION: Diagnostic Instruments & Real-Time Test Engine (7 cols) -->
-        <div class="lg:col-span-7 surface-panel p-3 flex flex-col h-full overflow-hidden space-y-2.5">
+        <div class="lg:col-span-7 surface-panel p-2.5 flex flex-col justify-between h-full overflow-hidden space-y-1.5">
 
             <!-- Section 1: Bench & Configuration -->
-            <div class="space-y-1 relative z-30">
+            <div class="space-y-1 relative z-30 flex-none">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <!-- Courtroom Bench Input -->
                     <div class="space-y-1 relative">
@@ -476,7 +501,7 @@
             </div>
 
             <!-- Section 2: Acoustic Telemetry Scope -->
-            <div class="space-y-1.5">
+            <div class="space-y-1 flex-none">
                 <!-- Acoustic Header: Title & Specs on Left, Live Badges on Right -->
                 <div class="flex items-center justify-between pb-0.5">
                     <div class="flex items-center space-x-2">
@@ -495,7 +520,7 @@
                 <!-- Dedicated Audio Controls Bar: Full-Width Mic Dropdown + Actions -->
                 <div class="flex items-center space-x-1.5">
                     <div class="custom-select-wrapper relative flex-1 min-w-0 flex items-center">
-                        <select id="select-hardware-profile" class="clean-input w-full h-[28px] px-2.5 pr-7 text-xs text-[var(--text-primary)] font-medium cursor-pointer truncate" title="Detected Audio Input Hardware">
+                        <select id="select-hardware-profile" class="clean-input w-full h-[26px] px-2.5 pr-7 text-xs text-[var(--text-primary)] font-medium cursor-pointer truncate" title="Detected Audio Input Hardware">
                             <option value="default" selected>Default Audio Input (Hardware)</option>
                         </select>
                         <div class="pointer-events-none absolute right-2 flex items-center text-[var(--text-muted)]">
@@ -503,28 +528,42 @@
                         </div>
                     </div>
 
-                    <button id="btn-toggle-mic" type="button" class="h-[28px] px-3 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/30 hover:bg-emerald-500/20 transition-colors flex items-center space-x-1.5 flex-none pressable" title="Run live microphone calibration (Space)">
+                    <button id="btn-toggle-mic" type="button" class="h-[26px] px-2.5 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/30 hover:bg-emerald-500/20 transition-colors flex items-center space-x-1.5 flex-none pressable" title="Run live microphone calibration (Space)">
                         <span id="mic-btn-label">Calibrate</span>
                         <kbd class="text-[9px] font-mono px-1 py-0.2 rounded border border-emerald-500/30 text-emerald-500 bg-[var(--bg-canvas)]">Space</kbd>
                     </button>
-                    <button id="btn-reset-audio" type="button" class="h-[28px] px-2.5 rounded text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha-hover)] flex-none pressable transition-colors" title="Reset audio calibration">
+                    <button id="btn-reset-audio" type="button" class="h-[26px] px-2.5 rounded text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha-hover)] flex-none pressable transition-colors" title="Reset audio calibration">
                         Reset
                     </button>
                 </div>
 
-                <!-- Dual Visualizers in Seamless Frame -->
-                <div class="grid grid-cols-12 gap-2 h-[70px] p-1.5 rounded-md bg-[var(--bg-canvas)] border border-[var(--border-alpha)]">
-                    <div class="col-span-5 h-full relative">
-                        <canvas id="audio-spectrum-canvas" width="280" height="70" class="w-full h-full block rounded"></canvas>
-                    </div>
-                    <div class="col-span-7 h-full relative border-l border-[var(--border-alpha)] pl-2">
-                        <canvas id="audio-waveform-canvas" width="420" height="70" class="w-full h-full block rounded"></canvas>
+                <!-- Dual Visualizers in Seamless Frame with Non-Clipping Boundaries & Micro-Headers -->
+                <div class="h-[70px] p-1.5 rounded-md bg-[var(--bg-canvas)] border border-[var(--border-alpha)] overflow-hidden flex flex-col justify-between">
+                    <div class="grid grid-cols-12 gap-2 h-full">
+                        <div class="col-span-5 h-full flex flex-col justify-between">
+                            <div class="flex items-center justify-between text-[9px] text-slate-700 dark:text-slate-300 font-semibold leading-none select-none">
+                                <span>Frequency Spectrum</span>
+                                <span class="text-[8px] text-[var(--text-muted)] font-mono">32 FFT Bands</span>
+                            </div>
+                            <div class="h-[44px] w-full relative">
+                                <canvas id="audio-spectrum-canvas" width="280" height="44" class="w-full h-full block rounded"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-span-7 h-full flex flex-col justify-between border-l border-[var(--border-alpha)] pl-2">
+                            <div class="flex items-center justify-between text-[9px] text-slate-700 dark:text-slate-300 font-semibold leading-none select-none">
+                                <span>Live Audio Oscilloscope</span>
+                                <span class="text-[8px] text-[var(--text-muted)] font-mono">48 kHz PCM Wave</span>
+                            </div>
+                            <div class="h-[44px] w-full relative">
+                                <canvas id="audio-waveform-canvas" width="420" height="44" class="w-full h-full block rounded"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Section 3: Live Network Telemetry & Quality Gates -->
-            <div class="space-y-1.5">
+            <div class="space-y-1 flex-none">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3">
                         <span class="text-xs font-semibold text-[var(--text-primary)] tracking-tight">Network & Gate Telemetry</span>
@@ -538,208 +577,243 @@
                 </div>
 
                 <!-- Rolling Strip Chart Canvas -->
-                <div class="h-16 w-full p-1.5 rounded-md bg-[var(--bg-canvas)] border border-[var(--border-alpha)]">
-                    <canvas id="network-strip-chart" width="600" height="64" class="w-full h-full block rounded" title="Live WebSocket RTT in ms"></canvas>
+                <div class="h-12 w-full p-1 rounded-md bg-[var(--bg-canvas)] border border-[var(--border-alpha)]">
+                    <canvas id="network-strip-chart" width="600" height="46" class="w-full h-full block rounded" title="Live WebSocket RTT in ms"></canvas>
                 </div>
 
                 <!-- 4 High-Density Metric Health Cards -->
                 <div class="grid grid-cols-4 gap-2">
                     <!-- Metric 1: Latency -->
-                    <div class="surface-sub p-2 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between relative group">
+                    <div class="surface-sub p-1.5 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between relative group">
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-semibold text-label-contrast">Latency</span>
-                            <span id="gate-latency-badge" class="text-[9px] font-mono font-semibold px-1 py-0.2 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">PASS</span>
+                            <span class="text-xs font-semibold text-slate-800 dark:text-slate-100">Latency</span>
+                            <span id="gate-latency-badge" class="text-[9px] font-mono font-semibold px-1 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">PASS</span>
                         </div>
                         <div class="flex items-baseline space-x-1 my-0.5">
                             <span id="readout-latency" class="font-bold text-base tabular-nums font-mono text-[var(--text-primary)]">35.0</span>
                             <input id="in-latency" type="text" value="35.0" class="clean-input w-14 h-5 px-1 text-xs font-bold tabular-nums text-center font-mono hidden">
-                            <span class="text-[10px] text-[var(--text-muted)]">ms</span>
+                            <span class="text-xs font-bold text-slate-700 dark:text-slate-200">ms</span>
                         </div>
-                        <div class="flex items-center justify-between text-[9px] font-mono text-[var(--text-muted)]">
+                        <div class="flex items-center justify-between text-[10px] font-mono">
                             <span id="warn-latency" class="hidden text-amber-500 font-semibold">Approaching limit</span>
-                            <span id="delta-latency" class="text-emerald-700 dark:text-emerald-400 font-medium ml-auto">+0.0 ms</span>
+                            <span id="delta-latency" class="text-emerald-600 dark:text-emerald-400 font-bold ml-auto">+0.0 ms</span>
                         </div>
-                        <div class="w-full bg-[var(--bg-canvas)] h-1 rounded-full overflow-hidden mt-1 border border-[var(--border-alpha)]">
+                        <div class="w-full bg-[var(--bg-canvas)] h-1 rounded-full overflow-hidden mt-0.5 border border-[var(--border-alpha)]">
                             <div id="bar-latency-fill" class="h-full bg-emerald-500 meter-fill w-full" style="transform: scaleX(0.175);"></div>
                         </div>
                     </div>
 
                     <!-- Metric 2: Packet Loss -->
-                    <div class="surface-sub p-2 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between relative group">
+                    <div class="surface-sub p-1.5 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between relative group">
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-semibold text-label-contrast">Packet Loss</span>
-                            <span id="gate-loss-badge" class="text-[9px] font-mono font-semibold px-1 py-0.2 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">PASS</span>
+                            <span class="text-xs font-semibold text-slate-800 dark:text-slate-100">Packet Loss</span>
+                            <span id="gate-loss-badge" class="text-[9px] font-mono font-semibold px-1 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">PASS</span>
                         </div>
                         <div class="flex items-baseline space-x-1 my-0.5">
                             <span id="readout-loss" class="font-bold text-base tabular-nums font-mono text-[var(--text-primary)]">0.0</span>
                             <input id="in-loss" type="text" value="0.0" class="clean-input w-14 h-5 px-1 text-xs font-bold tabular-nums text-center font-mono hidden">
-                            <span class="text-[10px] text-[var(--text-muted)]">%</span>
+                            <span class="text-xs font-bold text-slate-700 dark:text-slate-200">%</span>
                         </div>
-                        <div class="flex items-center justify-between text-[9px] font-mono text-[var(--text-muted)]">
+                        <div class="flex items-center justify-between text-[10px] font-mono">
                             <span id="warn-loss" class="hidden text-amber-500 font-semibold">Approaching limit</span>
-                            <span id="delta-loss" class="text-emerald-700 dark:text-emerald-400 font-medium ml-auto">0.0%</span>
+                            <span id="delta-loss" class="text-emerald-600 dark:text-emerald-400 font-bold ml-auto">0.0%</span>
                         </div>
-                        <div class="w-full bg-[var(--bg-canvas)] h-1 rounded-full overflow-hidden mt-1 border border-[var(--border-alpha)]">
+                        <div class="w-full bg-[var(--bg-canvas)] h-1 rounded-full overflow-hidden mt-0.5 border border-[var(--border-alpha)]">
                             <div id="bar-loss-fill" class="h-full bg-emerald-500 meter-fill w-full" style="transform: scaleX(0.02);"></div>
                         </div>
                     </div>
 
                     <!-- Metric 3: Jitter -->
-                    <div class="surface-sub p-2 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between relative group">
+                    <div class="surface-sub p-1.5 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between relative group">
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-semibold text-label-contrast">Jitter</span>
-                            <span id="gate-jitter-badge" class="text-[9px] font-mono font-semibold px-1 py-0.2 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">PASS</span>
+                            <span class="text-xs font-semibold text-slate-800 dark:text-slate-100">Jitter</span>
+                            <span id="gate-jitter-badge" class="text-[9px] font-mono font-semibold px-1 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">PASS</span>
                         </div>
                         <div class="flex items-baseline space-x-1 my-0.5">
                             <span id="readout-jitter" class="font-bold text-base tabular-nums font-mono text-[var(--text-primary)]">4.5</span>
                             <input id="in-jitter" type="text" value="4.5" class="clean-input w-14 h-5 px-1 text-xs font-bold tabular-nums text-center font-mono hidden">
-                            <span class="text-[10px] text-[var(--text-muted)]">ms</span>
+                            <span class="text-xs font-bold text-slate-700 dark:text-slate-200">ms</span>
                         </div>
-                        <div class="flex items-center justify-between text-[9px] font-mono text-[var(--text-muted)]">
+                        <div class="flex items-center justify-between text-[10px] font-mono">
                             <span id="warn-jitter" class="hidden text-amber-500 font-semibold">Approaching limit</span>
-                            <span id="delta-jitter" class="text-emerald-700 dark:text-emerald-400 font-medium ml-auto">+0.0 ms</span>
+                            <span id="delta-jitter" class="text-emerald-600 dark:text-emerald-400 font-bold ml-auto">+0.0 ms</span>
                         </div>
-                        <div class="w-full bg-[var(--bg-canvas)] h-1 rounded-full overflow-hidden mt-1 border border-[var(--border-alpha)]">
+                        <div class="w-full bg-[var(--bg-canvas)] h-1 rounded-full overflow-hidden mt-0.5 border border-[var(--border-alpha)]">
                             <div id="bar-jitter-fill" class="h-full bg-emerald-500 meter-fill w-full" style="transform: scaleX(0.15);"></div>
                         </div>
                     </div>
 
                     <!-- Metric 4: WS RTT -->
-                    <div class="surface-sub p-2 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between relative group">
+                    <div class="surface-sub p-1.5 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between relative group">
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-semibold text-label-contrast">WS RTT</span>
-                            <span id="gate-ws-badge" class="text-[9px] font-mono font-semibold px-1 py-0.2 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">PASS</span>
+                            <span class="text-xs font-semibold text-slate-800 dark:text-slate-100">WS RTT</span>
+                            <span id="gate-ws-badge" class="text-[9px] font-mono font-semibold px-1 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">PASS</span>
                         </div>
                         <div class="flex items-baseline space-x-1 my-0.5">
                             <span id="readout-ws-rtt" class="font-bold text-base tabular-nums font-mono text-[var(--text-primary)]">42.0</span>
                             <input id="in-ws-rtt" type="text" value="42.0" class="clean-input w-14 h-5 px-1 text-xs font-bold tabular-nums text-center font-mono hidden">
-                            <span class="text-[10px] text-[var(--text-muted)]">ms</span>
+                            <span class="text-xs font-bold text-slate-700 dark:text-slate-200">ms</span>
                         </div>
-                        <div class="flex items-center justify-between text-[9px] font-mono text-[var(--text-muted)]">
+                        <div class="flex items-center justify-between text-[10px] font-mono">
                             <span id="warn-ws-rtt" class="hidden text-amber-500 font-semibold">Approaching limit</span>
-                            <span id="delta-ws-rtt" class="text-emerald-700 dark:text-emerald-400 font-medium ml-auto">+0.0 ms</span>
+                            <span id="delta-ws-rtt" class="text-emerald-600 dark:text-emerald-400 font-bold ml-auto">+0.0 ms</span>
                         </div>
-                        <div class="w-full bg-[var(--bg-canvas)] h-1 rounded-full overflow-hidden mt-1 border border-[var(--border-alpha)]">
+                        <div class="w-full bg-[var(--bg-canvas)] h-1 rounded-full overflow-hidden mt-0.5 border border-[var(--border-alpha)]">
                             <div id="bar-ws-fill" class="h-full bg-emerald-500 meter-fill w-full" style="transform: scaleX(0.168);"></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Section 4: Pre-Flight Acoustic & Telemetry Visual Analytics -->
-            <div class="grid grid-cols-12 gap-2 flex-1 min-h-[92px] max-h-[105px]">
-                <!-- Tile 1: Koyal Speech Quality Compliance Donut Gauge (4 cols) -->
-                <div class="col-span-4 surface-sub p-2 rounded-md border border-[var(--border-alpha)] flex items-center space-x-2.5">
-                    <div class="relative w-14 h-14 flex-none flex items-center justify-center">
-                        <svg class="w-14 h-14 transform -rotate-90" viewBox="0 0 64 64">
-                            <circle cx="32" cy="32" r="26" stroke="currentColor" stroke-width="5" fill="none" class="text-[var(--border-alpha)]" />
-                            <circle id="compliance-donut-fill" cx="32" cy="32" r="26" stroke="currentColor" stroke-width="5" fill="none"
-                                    stroke-dasharray="163.36" stroke-dashoffset="16.3" stroke-linecap="round"
-                                    class="text-emerald-500 transition-all duration-500 ease-out" />
+            <!-- Section 4: Pre-Flight Acoustic & Telemetry Visual Analytics Deck -->
+            <div class="grid grid-cols-12 gap-2 h-[105px] flex-none">
+                <!-- Tile 1: Interactive Pop-Out Pie Chart (ASR Quality Gates) (5 cols) -->
+                <div class="col-span-5 surface-sub p-2 rounded-md border border-[var(--border-alpha)] flex items-center space-x-2">
+                    <!-- 80px Pop-Out SVG Donut Chart with 4 Gate Slices -->
+                    <div class="relative w-20 h-20 flex-none flex items-center justify-center">
+                        <svg id="pie-gates-svg" class="w-20 h-20" viewBox="0 0 100 100">
+                            <!-- Background Track Circle -->
+                            <circle cx="50" cy="50" r="39" stroke="currentColor" stroke-width="14" fill="none" class="text-[var(--border-alpha)] opacity-30" />
+                            <!-- Slice 1: Acoustic SNR Gate (Top-Right: 12 to 3 o'clock) -->
+                            <path id="pie-slice-snr" class="pie-slice" d="M 50 4 A 46 46 0 0 1 96 50 L 82 50 A 32 32 0 0 0 50 18 Z"
+                                  fill="#10B981" data-gate="snr" data-name="Acoustic SNR" data-val="28.0 dB" data-limit="Floor > 24 dB" data-status="PASS" />
+                            <!-- Slice 2: Latency Gate (Bottom-Right: 3 to 6 o'clock) -->
+                            <path id="pie-slice-latency" class="pie-slice" d="M 96 50 A 46 46 0 0 1 50 96 L 50 82 A 32 32 0 0 0 82 50 Z"
+                                  fill="#059669" data-gate="latency" data-name="Uplink Latency" data-val="35.0 ms" data-limit="Limit < 120 ms" data-status="PASS" />
+                            <!-- Slice 3: Packet Loss Gate (Bottom-Left: 6 to 9 o'clock) -->
+                            <path id="pie-slice-loss" class="pie-slice" d="M 50 96 A 46 46 0 0 1 4 50 L 18 50 A 32 32 0 0 0 50 82 Z"
+                                  fill="#047857" data-gate="loss" data-name="Packet Loss" data-val="0.0%" data-limit="Limit < 1.0%" data-status="PASS" />
+                            <!-- Slice 4: Jitter Buffer Gate (Top-Left: 9 to 12 o'clock) -->
+                            <path id="pie-slice-jitter" class="pie-slice" d="M 4 50 A 46 46 0 0 1 50 4 L 50 18 A 32 32 0 0 0 18 50 Z"
+                                  fill="#34D399" data-gate="jitter" data-name="Jitter Buffer" data-val="4.5 ms" data-limit="Limit < 15 ms" data-status="PASS" />
                         </svg>
-                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-                            <span id="compliance-donut-score" class="text-xs font-bold font-mono text-[var(--text-primary)]">96%</span>
-                            <span id="compliance-donut-status" class="text-[8px] font-semibold text-emerald-500 uppercase tracking-tighter">PASS</span>
+                        <!-- Center Dynamic Readout -->
+                        <div id="pie-center-display" class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none select-none">
+                            <span id="pie-center-label" class="text-[8px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">ASR GATES</span>
+                            <span id="pie-center-val" class="text-xs font-bold font-mono text-[var(--text-primary)]">98%</span>
+                            <span id="pie-center-status" class="text-[8px] font-bold text-emerald-600 dark:text-emerald-400">OPTIMAL</span>
                         </div>
                     </div>
-                    <div class="flex-1 min-w-0 space-y-0.5">
-                        <span class="text-[11px] font-semibold text-[var(--text-primary)] block leading-tight">ASR Compliance</span>
-                        <p class="text-[10px] text-[var(--text-muted)] leading-tight">4 Gate Composite Index</p>
-                        <div class="flex items-center space-x-1 pt-0.5">
-                            <span id="donut-gate-snr" class="w-1.5 h-1.5 rounded-full bg-emerald-500" title="SNR Gate"></span>
-                            <span id="donut-gate-latency" class="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Latency Gate"></span>
-                            <span id="donut-gate-loss" class="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Packet Loss Gate"></span>
-                            <span id="donut-gate-jitter" class="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Jitter Gate"></span>
-                            <span id="donut-sync-label" class="text-[9px] text-[var(--text-muted)] pl-0.5">All Synced</span>
+                    <!-- High-Contrast Gate Legend -->
+                    <div class="flex-1 min-w-0 space-y-0.5 pl-1">
+                        <div class="flex items-center justify-between pb-0.5">
+                            <span class="text-[11px] font-bold text-[var(--text-primary)]">Compliance</span>
+                            <span id="pie-score-pill" class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">4/4 PASS</span>
+                        </div>
+                        <div class="space-y-0.5 text-[9px] font-medium text-slate-700 dark:text-slate-200">
+                            <div id="legend-snr" class="flex items-center justify-between cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+                                <span class="flex items-center space-x-1"><span class="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span><span>SNR Floor</span></span>
+                                <strong id="legend-snr-val" class="font-mono text-[var(--text-primary)]">28dB</strong>
+                            </div>
+                            <div id="legend-latency" class="flex items-center justify-between cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+                                <span class="flex items-center space-x-1"><span class="w-1.5 h-1.5 rounded-full bg-[#059669]"></span><span>Uplink RTT</span></span>
+                                <strong id="legend-latency-val" class="font-mono text-[var(--text-primary)]">35ms</strong>
+                            </div>
+                            <div id="legend-loss" class="flex items-center justify-between cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+                                <span class="flex items-center space-x-1"><span class="w-1.5 h-1.5 rounded-full bg-[#047857]"></span><span>Packet Loss</span></span>
+                                <strong id="legend-loss-val" class="font-mono text-[var(--text-primary)]">0.0%</strong>
+                            </div>
+                            <div id="legend-jitter" class="flex items-center justify-between cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+                                <span class="flex items-center space-x-1"><span class="w-1.5 h-1.5 rounded-full bg-[#34D399]"></span><span>Jitter Buffer</span></span>
+                                <strong id="legend-jitter-val" class="font-mono text-[var(--text-primary)]">4.5ms</strong>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Tile 2: Spectral Voice vs. Room Noise Bar Profile (5 cols) -->
-                <div class="col-span-5 surface-sub p-2 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between">
+                <!-- Tile 2: Spectral Voice vs. Room Noise Bar Profile (4 cols) -->
+                <div class="col-span-4 surface-sub p-2 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between">
                     <div class="flex items-center justify-between pb-0.5">
-                        <span class="text-[11px] font-semibold text-[var(--text-primary)] tracking-tight">Spectral Energy Profile</span>
-                        <span id="spectral-energy-label" class="text-[10px] text-emerald-500 font-medium">Clear Voice Band</span>
+                        <span class="text-[11px] font-bold text-[var(--text-primary)] tracking-tight">Spectral Profile</span>
+                        <span id="spectral-energy-label" class="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold px-1.5 py-0.2 rounded bg-emerald-500/10 border border-emerald-500/20">Clear Voice</span>
                     </div>
                     <!-- 6-Band Frequency Energy Histogram -->
-                    <div class="h-9 w-full flex items-end justify-between gap-1.5 px-1 pt-0.5">
-                        <div class="flex-1 flex flex-col items-center h-full justify-end">
-                            <div class="w-full bg-[var(--bg-canvas)] rounded-t h-full flex items-end overflow-hidden">
-                                <div id="freq-bar-80" class="w-full bg-emerald-500/60 transition-all duration-300" style="height: 18%;"></div>
+                    <div class="h-10 w-full flex items-end justify-between gap-1 px-0.5 pt-0.5">
+                        <div class="flex-1 flex flex-col items-center h-full justify-end group cursor-pointer" title="80Hz HVAC & Rumble: -34 dBFS">
+                            <div class="w-full bg-[var(--bg-canvas)] rounded-t h-full flex items-end overflow-hidden border border-[var(--border-alpha)]">
+                                <div id="freq-bar-80" class="w-full bg-emerald-500/50 group-hover:bg-emerald-400 transition-all duration-300" style="height: 18%;"></div>
                             </div>
-                            <span class="text-[8px] text-[var(--text-muted)] mt-0.5 font-medium">80Hz</span>
+                            <span class="text-[9px] text-slate-700 dark:text-slate-300 font-bold mt-0.5">80Hz</span>
                         </div>
-                        <div class="flex-1 flex flex-col items-center h-full justify-end">
-                            <div class="w-full bg-[var(--bg-canvas)] rounded-t h-full flex items-end overflow-hidden">
-                                <div id="freq-bar-250" class="w-full bg-emerald-500/75 transition-all duration-300" style="height: 38%;"></div>
+                        <div class="flex-1 flex flex-col items-center h-full justify-end group cursor-pointer" title="250Hz Room Resonance: -28 dBFS">
+                            <div class="w-full bg-[var(--bg-canvas)] rounded-t h-full flex items-end overflow-hidden border border-[var(--border-alpha)]">
+                                <div id="freq-bar-250" class="w-full bg-emerald-500/70 group-hover:bg-emerald-400 transition-all duration-300" style="height: 38%;"></div>
                             </div>
-                            <span class="text-[8px] text-[var(--text-muted)] mt-0.5 font-medium">250Hz</span>
+                            <span class="text-[9px] text-slate-700 dark:text-slate-300 font-bold mt-0.5">250Hz</span>
                         </div>
-                        <div class="flex-1 flex flex-col items-center h-full justify-end">
-                            <div class="w-full bg-[var(--bg-canvas)] rounded-t h-full flex items-end overflow-hidden">
-                                <div id="freq-bar-500" class="w-full bg-emerald-500 transition-all duration-300" style="height: 72%;"></div>
+                        <div class="flex-1 flex flex-col items-center h-full justify-end group cursor-pointer" title="500Hz Voice Fundamental: -18 dBFS">
+                            <div class="w-full bg-[var(--bg-canvas)] rounded-t h-full flex items-end overflow-hidden border border-[var(--border-alpha)]">
+                                <div id="freq-bar-500" class="w-full bg-emerald-500 group-hover:bg-emerald-400 transition-all duration-300" style="height: 74%;"></div>
                             </div>
-                            <span class="text-[8px] text-[var(--text-muted)] mt-0.5 font-medium">500Hz</span>
+                            <span class="text-[9px] text-slate-700 dark:text-slate-300 font-bold mt-0.5">500Hz</span>
                         </div>
-                        <div class="flex-1 flex flex-col items-center h-full justify-end">
-                            <div class="w-full bg-[var(--bg-canvas)] rounded-t h-full flex items-end overflow-hidden">
-                                <div id="freq-bar-1200" class="w-full bg-emerald-500 transition-all duration-300" style="height: 85%;"></div>
+                        <div class="flex-1 flex flex-col items-center h-full justify-end group cursor-pointer" title="1.2kHz Formant Peak: -14 dBFS">
+                            <div class="w-full bg-[var(--bg-canvas)] rounded-t h-full flex items-end overflow-hidden border border-[var(--border-alpha)]">
+                                <div id="freq-bar-1200" class="w-full bg-emerald-500 group-hover:bg-emerald-400 transition-all duration-300" style="height: 88%;"></div>
                             </div>
-                            <span class="text-[8px] text-[var(--text-muted)] mt-0.5 font-medium">1.2k</span>
+                            <span class="text-[9px] text-slate-700 dark:text-slate-300 font-bold mt-0.5">1.2k</span>
                         </div>
-                        <div class="flex-1 flex flex-col items-center h-full justify-end">
-                            <div class="w-full bg-[var(--bg-canvas)] rounded-t h-full flex items-end overflow-hidden">
-                                <div id="freq-bar-2500" class="w-full bg-emerald-500/80 transition-all duration-300" style="height: 60%;"></div>
+                        <div class="flex-1 flex flex-col items-center h-full justify-end group cursor-pointer" title="2.5kHz Clarity Band: -22 dBFS">
+                            <div class="w-full bg-[var(--bg-canvas)] rounded-t h-full flex items-end overflow-hidden border border-[var(--border-alpha)]">
+                                <div id="freq-bar-2500" class="w-full bg-emerald-500/80 group-hover:bg-emerald-400 transition-all duration-300" style="height: 62%;"></div>
                             </div>
-                            <span class="text-[8px] text-[var(--text-muted)] mt-0.5 font-medium">2.5k</span>
+                            <span class="text-[9px] text-slate-700 dark:text-slate-300 font-bold mt-0.5">2.5k</span>
                         </div>
-                        <div class="flex-1 flex flex-col items-center h-full justify-end">
-                            <div class="w-full bg-[var(--bg-canvas)] rounded-t h-full flex items-end overflow-hidden">
-                                <div id="freq-bar-5000" class="w-full bg-emerald-500/50 transition-all duration-300" style="height: 22%;"></div>
+                        <div class="flex-1 flex flex-col items-center h-full justify-end group cursor-pointer" title="5kHz Consonant Sibilance: -32 dBFS">
+                            <div class="w-full bg-[var(--bg-canvas)] rounded-t h-full flex items-end overflow-hidden border border-[var(--border-alpha)]">
+                                <div id="freq-bar-5000" class="w-full bg-emerald-500/60 group-hover:bg-emerald-400 transition-all duration-300" style="height: 26%;"></div>
                             </div>
-                            <span class="text-[8px] text-[var(--text-muted)] mt-0.5 font-medium">5kHz</span>
+                            <span class="text-[9px] text-slate-700 dark:text-slate-300 font-bold mt-0.5">5kHz</span>
                         </div>
                     </div>
-                    <div class="flex items-center justify-between text-[9px] text-[var(--text-muted)] px-0.5">
-                        <span>Fan Noise (&lt;120Hz)</span>
-                        <span>Speech Core (500Hz-2.5kHz)</span>
+                    <div class="flex items-center justify-between text-[9px] font-semibold text-slate-700 dark:text-slate-300 px-0.5 pt-0.5 border-t border-[var(--border-alpha)]">
+                        <span class="flex items-center space-x-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500/50"></span><span>HVAC (&lt;120Hz)</span></span>
+                        <span class="flex items-center space-x-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span><span>Voice (500-2.5k)</span></span>
                     </div>
                 </div>
 
                 <!-- Tile 3: Uplink Packet Delivery Distribution (3 cols) -->
                 <div class="col-span-3 surface-sub p-2 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between">
                     <div class="flex items-center justify-between pb-0.5">
-                        <span class="text-[11px] font-semibold text-[var(--text-primary)] tracking-tight">Packet Delivery</span>
-                        <span id="packet-stability-rating" class="text-[10px] text-emerald-500 font-semibold">100% PASS</span>
+                        <span class="text-[11px] font-bold text-[var(--text-primary)] tracking-tight">Packet Stream</span>
+                        <span id="packet-stability-rating" class="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold px-1.5 py-0.2 rounded bg-emerald-500/10 border border-emerald-500/20">24/24 OK</span>
                     </div>
-                    <!-- 16-Segment Delivery Timeline -->
-                    <div id="packet-delivery-segments" class="grid grid-cols-8 gap-1 py-1">
-                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
-                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
-                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
-                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
-                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
-                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
-                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
-                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
-                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
-                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
-                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
-                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
-                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
-                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
-                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
-                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
+                    <!-- 24-Segment Delivery Timeline Matrix -->
+                    <div id="packet-delivery-segments" class="grid grid-cols-8 gap-0.5 py-0.5">
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #1: 34ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #2: 35ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #3: 34ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #4: 36ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #5: 35ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #6: 34ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #7: 35ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #8: 34ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #9: 35ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #10: 34ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #11: 36ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #12: 35ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #13: 34ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #14: 35ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #15: 34ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #16: 35ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #17: 34ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #18: 35ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #19: 34ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #20: 36ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #21: 35ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #22: 34ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #23: 35ms ACK"></div>
+                        <div class="h-1.5 rounded-xs bg-emerald-500 packet-stream-active transition-colors cursor-pointer hover:brightness-125" title="Packet #24: 34ms ACK"></div>
                     </div>
-                    <div class="flex items-center justify-between text-[9px] text-[var(--text-muted)]">
-                        <span id="packet-loss-stat">0.0% Loss</span>
-                        <span>Jitter: <strong id="packet-jitter-stat" class="text-[var(--text-secondary)] font-normal">0.8ms</strong></span>
+                    <div class="flex items-center justify-between text-[9px] font-bold text-slate-800 dark:text-slate-100 px-0.5 pt-0.5 border-t border-[var(--border-alpha)]">
+                        <span id="packet-loss-stat" class="text-emerald-600 dark:text-emerald-400">0.0% Loss</span>
+                        <span>Jitter: <strong id="packet-jitter-stat" class="font-mono text-slate-800 dark:text-slate-100">4.5ms</strong></span>
                     </div>
                 </div>
             </div>
 
             <!-- Section 5: Pre-Flight Action Dock -->
-            <div class="space-y-1.5 flex-none">
+            <div class="space-y-1 flex-none">
                 <!-- Progress Indicator -->
                 <div id="progress-container" class="hidden space-y-1">
                     <div class="flex justify-between text-[11px] text-[var(--text-secondary)] font-mono">
@@ -751,9 +825,30 @@
                     </div>
                 </div>
 
-                <!-- Docked Action Toolbar: Clean Action Button on Right -->
-                <div class="flex items-center justify-end pt-1.5 border-t border-[var(--border-alpha)]">
-                    <button id="btn-run-diagnostic" class="btn-action-primary h-9 px-5 flex items-center justify-center space-x-2 text-xs flex-none pressable">
+                <!-- Docked Action Toolbar: Clearance Strip on Left + Verify Button on Right -->
+                <div class="flex items-center justify-between pt-1 border-t border-[var(--border-alpha)]">
+                    <!-- Left: Pre-Flight Gate Clearance Strip -->
+                    <div id="preflight-clearance-strip" class="flex items-center space-x-1.5 text-xs">
+                        <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 mr-1">Pre-Flight Gates:</span>
+                        <span id="clearance-pill-snr" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center space-x-1">
+                            <svg class="w-3 h-3 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Acoustics 28dB</span>
+                        </span>
+                        <span id="clearance-pill-latency" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center space-x-1">
+                            <svg class="w-3 h-3 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Latency 35ms</span>
+                        </span>
+                        <span id="clearance-pill-loss" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center space-x-1">
+                            <svg class="w-3 h-3 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Loss 0.0%</span>
+                        </span>
+                        <span id="clearance-pill-target" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-[var(--bg-sub)] text-slate-700 dark:text-slate-300 border border-[var(--border-alpha)]">
+                            hi-en Hybrid
+                        </span>
+                    </div>
+
+                    <!-- Right: Verify Courtroom Button -->
+                    <button id="btn-run-diagnostic" class="btn-action-primary h-8 px-4 flex items-center justify-center space-x-1.5 text-xs flex-none pressable">
                         <span class="label-default font-semibold">Verify Courtroom</span>
                         <span class="label-hover font-semibold">Authorize Proceeding</span>
                         <kbd class="text-[9px] font-mono text-emerald-950 dark:text-emerald-900 bg-emerald-100 dark:bg-emerald-200 px-1.5 py-0.2 rounded font-bold">↵ Enter</kbd>
@@ -761,7 +856,7 @@
                 </div>
 
                 <!-- Verdict Notification Banner -->
-                <div id="verdict-banner" class="hidden surface-sub p-2.5 rounded-lg border border-[var(--border-alpha)] flex items-center justify-between border-l-4">
+                <div id="verdict-banner" class="hidden surface-sub p-2 rounded-lg border border-[var(--border-alpha)] flex items-center justify-between border-l-4">
                     <div class="flex items-center space-x-2.5">
                         <div id="verdict-icon-container" class="h-5 w-5 rounded flex items-center justify-center"></div>
                         <div>
@@ -830,6 +925,13 @@
             <div class="surface-panel p-3 flex-[2_2_0%] flex flex-col min-h-0 overflow-hidden space-y-1.5">
                 <div class="flex items-center justify-between flex-none pb-0.5">
                     <h3 class="text-xs font-semibold text-[var(--text-primary)] tracking-tight">Live Incident Feed</h3>
+                    <!-- 4 Filter Tabs for Monitored Alignment -->
+                    <div id="incident-filter-tabs" class="flex items-center space-x-1 text-[11px]">
+                        <button id="filter-incident-all" type="button" class="filter-tab-active px-2 py-0.5 rounded text-[10px] font-semibold transition-colors pressable" data-filter="ALL">All (5)</button>
+                        <button id="filter-incident-critical" type="button" class="filter-tab-inactive px-2 py-0.5 rounded text-[10px] font-semibold transition-colors pressable" data-filter="CRITICAL">Critical (1)</button>
+                        <button id="filter-incident-degraded" type="button" class="filter-tab-inactive px-2 py-0.5 rounded text-[10px] font-semibold transition-colors pressable" data-filter="DEGRADED">Degraded (2)</button>
+                        <button id="filter-incident-cleared" type="button" class="filter-tab-inactive px-2 py-0.5 rounded text-[10px] font-semibold transition-colors pressable" data-filter="CLEARED">Cleared (2)</button>
+                    </div>
                 </div>
 
                 <div class="flex-1 overflow-y-auto border border-[var(--border-alpha)] rounded-md bg-[var(--bg-canvas)]">
