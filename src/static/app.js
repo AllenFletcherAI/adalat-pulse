@@ -1,3 +1,264 @@
+
+// =============================================================
+// MULTI-DIMENSIONAL FILTER MODAL CONTROLLERS (INCIDENTS & FLEET)
+// =============================================================
+
+let incidentFilters = {
+    severities: ['CRITICAL', 'DEGRADED', 'CLEARED'],
+    states: ['DL', 'RJ', 'UP', 'KA', 'KL', 'MH', 'TN', 'WB'],
+    breachType: 'ALL',
+    timeWindow: 'ALL'
+};
+
+let fleetFilters = {
+    health: ['OPERATIONAL', 'OUTAGE', 'STANDBY'],
+    tiers: ['HC', 'DC', 'TL'],
+    zone: 'ALL',
+    minUnits: 0
+};
+
+function initFilterModalControllers() {
+    // --- INCIDENT FILTER MODAL ---
+    const btnOpenIncFilters = document.getElementById('btn-incident-filters');
+    const modalIncFilters = document.getElementById('incident-filter-modal');
+    const btnCloseIncFilters = document.getElementById('btn-close-incident-filter-modal');
+    const btnCancelIncFilters = document.getElementById('btn-cancel-incident-filter-modal');
+    const btnResetIncFilters = document.getElementById('btn-reset-incident-filter-modal');
+    const btnApplyIncFilters = document.getElementById('btn-apply-incident-filter-modal');
+    const btnClearIncFilters = document.getElementById('btn-incident-filters-clear');
+
+    const openIncidentFilterModal = () => {
+        if (!modalIncFilters) return;
+        // Sync checkboxes with current state
+        const cbCrit = document.getElementById('inc-filter-sev-critical');
+        const cbDeg = document.getElementById('inc-filter-sev-degraded');
+        const cbClr = document.getElementById('inc-filter-sev-cleared');
+        if (cbCrit) cbCrit.checked = incidentFilters.severities.includes('CRITICAL');
+        if (cbDeg) cbDeg.checked = incidentFilters.severities.includes('DEGRADED');
+        if (cbClr) cbClr.checked = incidentFilters.severities.includes('CLEARED');
+
+        document.querySelectorAll('.inc-filter-state').forEach(cb => {
+            cb.checked = incidentFilters.states.includes(cb.value);
+        });
+
+        const selBreach = document.getElementById('inc-filter-breach-type');
+        if (selBreach) selBreach.value = incidentFilters.breachType;
+
+        const selTime = document.getElementById('inc-filter-time-window');
+        if (selTime) selTime.value = incidentFilters.timeWindow;
+
+        modalIncFilters.classList.remove('hidden');
+    };
+
+    const closeIncidentFilterModal = () => {
+        if (modalIncFilters) modalIncFilters.classList.add('hidden');
+    };
+
+    btnOpenIncFilters?.addEventListener('click', openIncidentFilterModal);
+    btnCloseIncFilters?.addEventListener('click', closeIncidentFilterModal);
+    btnCancelIncFilters?.addEventListener('click', closeIncidentFilterModal);
+
+    modalIncFilters?.addEventListener('click', (e) => {
+        if (e.target === modalIncFilters) closeIncidentFilterModal();
+    });
+
+    btnResetIncFilters?.addEventListener('click', () => {
+        const cbCrit = document.getElementById('inc-filter-sev-critical');
+        const cbDeg = document.getElementById('inc-filter-sev-degraded');
+        const cbClr = document.getElementById('inc-filter-sev-cleared');
+        if (cbCrit) cbCrit.checked = true;
+        if (cbDeg) cbDeg.checked = true;
+        if (cbClr) cbClr.checked = true;
+
+        document.querySelectorAll('.inc-filter-state').forEach(cb => { cb.checked = true; });
+
+        const selBreach = document.getElementById('inc-filter-breach-type');
+        if (selBreach) selBreach.value = 'ALL';
+
+        const selTime = document.getElementById('inc-filter-time-window');
+        if (selTime) selTime.value = 'ALL';
+    });
+
+    btnApplyIncFilters?.addEventListener('click', () => {
+        const sevs = [];
+        if (document.getElementById('inc-filter-sev-critical')?.checked) sevs.push('CRITICAL');
+        if (document.getElementById('inc-filter-sev-degraded')?.checked) sevs.push('DEGRADED');
+        if (document.getElementById('inc-filter-sev-cleared')?.checked) sevs.push('CLEARED');
+        incidentFilters.severities = sevs.length > 0 ? sevs : ['CRITICAL', 'DEGRADED', 'CLEARED'];
+
+        const states = [];
+        document.querySelectorAll('.inc-filter-state:checked').forEach(cb => { states.push(cb.value); });
+        incidentFilters.states = states.length > 0 ? states : ['DL', 'RJ', 'UP', 'KA', 'KL', 'MH', 'TN', 'WB'];
+
+        const selBreach = document.getElementById('inc-filter-breach-type');
+        incidentFilters.breachType = selBreach ? selBreach.value : 'ALL';
+
+        const selTime = document.getElementById('inc-filter-time-window');
+        incidentFilters.timeWindow = selTime ? selTime.value : 'ALL';
+
+        updateIncidentFilterBadges();
+        closeIncidentFilterModal();
+        renderIncidentsTable(incidentsCache);
+    });
+
+    btnClearIncFilters?.addEventListener('click', () => {
+        incidentFilters = {
+            severities: ['CRITICAL', 'DEGRADED', 'CLEARED'],
+            states: ['DL', 'RJ', 'UP', 'KA', 'KL', 'MH', 'TN', 'WB'],
+            breachType: 'ALL',
+            timeWindow: 'ALL'
+        };
+        updateIncidentFilterBadges();
+        renderIncidentsTable(incidentsCache);
+    });
+
+    // --- FLEET FILTER MODAL ---
+    const btnOpenFleetFilters = document.getElementById('btn-fleet-filters');
+    const modalFleetFilters = document.getElementById('fleet-filter-modal');
+    const btnCloseFleetFilters = document.getElementById('btn-close-fleet-filter-modal');
+    const btnCancelFleetFilters = document.getElementById('btn-cancel-fleet-filter-modal');
+    const btnResetFleetFilters = document.getElementById('btn-reset-fleet-filter-modal');
+    const btnApplyFleetFilters = document.getElementById('btn-apply-fleet-filter-modal');
+    const btnClearFleetFilters = document.getElementById('btn-fleet-filters-clear');
+
+    const openFleetFilterModal = () => {
+        if (!modalFleetFilters) return;
+        const cbOp = document.getElementById('fleet-filter-health-operational');
+        const cbOut = document.getElementById('fleet-filter-health-outage');
+        const cbStb = document.getElementById('fleet-filter-health-standby');
+        if (cbOp) cbOp.checked = fleetFilters.health.includes('OPERATIONAL');
+        if (cbOut) cbOut.checked = fleetFilters.health.includes('OUTAGE');
+        if (cbStb) cbStb.checked = fleetFilters.health.includes('STANDBY');
+
+        document.querySelectorAll('.fleet-filter-tier').forEach(cb => {
+            cb.checked = fleetFilters.tiers.includes(cb.value);
+        });
+
+        const selZone = document.getElementById('fleet-filter-zone');
+        if (selZone) selZone.value = fleetFilters.zone;
+
+        const selUnits = document.getElementById('fleet-filter-min-units');
+        if (selUnits) selUnits.value = fleetFilters.minUnits.toString();
+
+        modalFleetFilters.classList.remove('hidden');
+    };
+
+    const closeFleetFilterModal = () => {
+        if (modalFleetFilters) modalFleetFilters.classList.add('hidden');
+    };
+
+    btnOpenFleetFilters?.addEventListener('click', openFleetFilterModal);
+    btnCloseFleetFilters?.addEventListener('click', closeFleetFilterModal);
+    btnCancelFleetFilters?.addEventListener('click', closeFleetFilterModal);
+
+    modalFleetFilters?.addEventListener('click', (e) => {
+        if (e.target === modalFleetFilters) closeFleetFilterModal();
+    });
+
+    btnResetFleetFilters?.addEventListener('click', () => {
+        const cbOp = document.getElementById('fleet-filter-health-operational');
+        const cbOut = document.getElementById('fleet-filter-health-outage');
+        const cbStb = document.getElementById('fleet-filter-health-standby');
+        if (cbOp) cbOp.checked = true;
+        if (cbOut) cbOut.checked = true;
+        if (cbStb) cbStb.checked = true;
+
+        document.querySelectorAll('.fleet-filter-tier').forEach(cb => { cb.checked = true; });
+
+        const selZone = document.getElementById('fleet-filter-zone');
+        if (selZone) selZone.value = 'ALL';
+
+        const selUnits = document.getElementById('fleet-filter-min-units');
+        if (selUnits) selUnits.value = '0';
+    });
+
+    btnApplyFleetFilters?.addEventListener('click', () => {
+        const h = [];
+        if (document.getElementById('fleet-filter-health-operational')?.checked) h.push('OPERATIONAL');
+        if (document.getElementById('fleet-filter-health-outage')?.checked) h.push('OUTAGE');
+        if (document.getElementById('fleet-filter-health-standby')?.checked) h.push('STANDBY');
+        fleetFilters.health = h.length > 0 ? h : ['OPERATIONAL', 'OUTAGE', 'STANDBY'];
+
+        const tiers = [];
+        document.querySelectorAll('.fleet-filter-tier:checked').forEach(cb => { tiers.push(cb.value); });
+        fleetFilters.tiers = tiers.length > 0 ? tiers : ['HC', 'DC', 'TL'];
+
+        const selZone = document.getElementById('fleet-filter-zone');
+        fleetFilters.zone = selZone ? selZone.value : 'ALL';
+
+        const selUnits = document.getElementById('fleet-filter-min-units');
+        fleetFilters.minUnits = selUnits ? parseInt(selUnits.value, 10) : 0;
+
+        updateFleetFilterBadges();
+        closeFleetFilterModal();
+        render11StatesDeployment(latestRegionsCache);
+    });
+
+    btnClearFleetFilters?.addEventListener('click', () => {
+        fleetFilters = {
+            health: ['OPERATIONAL', 'OUTAGE', 'STANDBY'],
+            tiers: ['HC', 'DC', 'TL'],
+            zone: 'ALL',
+            minUnits: 0
+        };
+        updateFleetFilterBadges();
+        render11StatesDeployment(latestRegionsCache);
+    });
+}
+
+function updateIncidentFilterBadges() {
+    let activeCount = 0;
+    if (incidentFilters.severities.length < 3) activeCount++;
+    if (incidentFilters.states.length < 8) activeCount++;
+    if (incidentFilters.breachType !== 'ALL') activeCount++;
+    if (incidentFilters.timeWindow !== 'ALL') activeCount++;
+
+    const badge = document.getElementById('incident-filter-count-badge');
+    const btnClear = document.getElementById('btn-incident-filters-clear');
+    if (badge) {
+        if (activeCount > 0) {
+            badge.textContent = activeCount.toString();
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    }
+    if (btnClear) {
+        if (activeCount > 0) {
+            btnClear.classList.remove('hidden');
+        } else {
+            btnClear.classList.add('hidden');
+        }
+    }
+}
+
+function updateFleetFilterBadges() {
+    let activeCount = 0;
+    if (fleetFilters.health.length < 3) activeCount++;
+    if (fleetFilters.tiers.length < 3) activeCount++;
+    if (fleetFilters.zone !== 'ALL') activeCount++;
+    if (fleetFilters.minUnits > 0) activeCount++;
+
+    const badge = document.getElementById('fleet-filter-count-badge');
+    const btnClear = document.getElementById('btn-fleet-filters-clear');
+    if (badge) {
+        if (activeCount > 0) {
+            badge.textContent = activeCount.toString();
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    }
+    if (btnClear) {
+        if (activeCount > 0) {
+            btnClear.classList.remove('hidden');
+        } else {
+            btnClear.classList.add('hidden');
+        }
+    }
+}
+
+
 /**
  * Adalat Pulse: Frontend Real-Time Diagnostic Engine & Operations Gateway
  * Authentic live telemetry streaming over WebSocket (/ws/probe) & Web Audio API acoustic certification.
@@ -332,7 +593,7 @@ document.getElementById('btn-reset-audio').addEventListener('click', () => {
     const certBadge = document.getElementById('acoustic-cert-badge');
     if (certBadge) {
         certBadge.textContent = "UNCERTIFIED";
-        certBadge.className = "ml-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-slate-500/10 text-[var(--text-muted)] border border-[var(--border-alpha)]";
+        certBadge.className = "ml-1.5 px-2 py-0.5 rounded text-xs font-mono font-semibold bg-slate-500/10 text-[var(--text-muted)] border border-[var(--border-alpha)]";
     }
     clearAudioCanvases();
     updateReadinessStepper('bench_ready');
@@ -344,7 +605,7 @@ function updateAcousticBadges() {
     if (snrBadge) {
         const isPass = currentSnrDb >= 20.0;
         snrBadge.textContent = `SNR: ${currentSnrDb.toFixed(1)} dB [${isPass ? 'PASS' : 'LOW'}]`;
-        snrBadge.className = `text-[11px] font-semibold ${isPass ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`;
+        snrBadge.className = `text-xs font-semibold ${isPass ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`;
     }
     if (rateBadge) {
         const rateKhz = Math.round((currentSampleRate || 48000) / 1000);
@@ -392,7 +653,7 @@ async function startMicrophoneTest() {
         const micBadge = document.getElementById('mic-status-badge');
         if (micBadge) {
             micBadge.textContent = "CALIBRATING";
-            micBadge.className = "px-1.5 py-0.2 rounded text-[10px] font-mono bg-amber-500/20 text-amber-400 border border-amber-500/30 font-semibold";
+            micBadge.className = "px-1.5 py-0.2 rounded text-xs font-mono bg-amber-500/20 text-amber-400 border border-amber-500/30 font-semibold";
         }
         const btnLabel = document.getElementById('mic-btn-label');
         if (btnLabel) btnLabel.textContent = "Calibrating...";
@@ -431,7 +692,7 @@ function startSyntheticAcousticTest() {
     const micBadge = document.getElementById('mic-status-badge');
     if (micBadge) {
         micBadge.textContent = "CALIBRATING";
-        micBadge.className = "px-1.5 py-0.2 rounded text-[10px] font-mono bg-amber-500/20 text-amber-400 border border-amber-500/30 font-semibold";
+        micBadge.className = "px-1.5 py-0.2 rounded text-xs font-mono bg-amber-500/20 text-amber-400 border border-amber-500/30 font-semibold";
     }
     const btnLabel = document.getElementById('mic-btn-label');
     if (btnLabel) btnLabel.textContent = "Calibrating...";
@@ -536,7 +797,7 @@ function stopMicrophoneTest() {
     const micBadge = document.getElementById('mic-status-badge');
     if (micBadge) {
         micBadge.textContent = "STANDBY";
-        micBadge.className = "px-1.5 py-0.2 rounded text-[10px] font-mono bg-[var(--bg-canvas)] text-[var(--text-muted)] border border-[var(--border-alpha)]";
+        micBadge.className = "px-1.5 py-0.2 rounded text-xs font-mono bg-[var(--bg-canvas)] text-[var(--text-muted)] border border-[var(--border-alpha)]";
     }
     const btnLabel = document.getElementById('mic-btn-label');
     if (btnLabel) btnLabel.textContent = "Calibrate";
@@ -551,17 +812,17 @@ function certifyAcousticHardware() {
     if (currentSnrDb >= 20.0 && currentSampleRate >= 16000) {
         if (certBadge) {
             certBadge.textContent = `KOYAL CERTIFIED (PASS • ${currentSnrDb.toFixed(1)} dB SNR)`;
-            certBadge.className = "ml-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold badge-optimal";
+            certBadge.className = "ml-1.5 px-2 py-0.5 rounded text-xs font-mono font-bold badge-optimal";
         }
     } else if (currentSnrDb >= 16.0) {
         if (certBadge) {
             certBadge.textContent = "DEGRADED ACOUSTICS";
-            certBadge.className = "ml-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold badge-degraded";
+            certBadge.className = "ml-1.5 px-2 py-0.5 rounded text-xs font-mono font-bold badge-degraded";
         }
     } else {
         if (certBadge) {
             certBadge.textContent = "CRITICAL NOISE (FAIL)";
-            certBadge.className = "ml-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold badge-critical";
+            certBadge.className = "ml-1.5 px-2 py-0.5 rounded text-xs font-mono font-bold badge-critical";
         }
     }
 
@@ -1053,7 +1314,7 @@ function updateLiveVisualFigures() {
     const elDLat = document.getElementById('delta-latency');
     if (elDLat) {
         elDLat.textContent = `${dLat > 0 ? '+' : ''}${dLat.toFixed(1)} ms`;
-        elDLat.className = `w-16 text-right text-[11px] tabular-nums ${dLat > 20 ? 'text-amber-400' : 'text-emerald-400'}`;
+        elDLat.className = `w-16 text-right text-xs tabular-nums ${dLat > 20 ? 'text-amber-400' : 'text-emerald-400'}`;
     }
 
     const barLat = document.getElementById('bar-latency-fill');
@@ -1065,14 +1326,14 @@ function updateLiveVisualFigures() {
     const badgeLat = document.getElementById('gate-latency-badge');
     if (badgeLat) {
         badgeLat.textContent = latIn < 200 ? 'PASS' : 'BREACH';
-        badgeLat.className = `w-12 text-center text-[10px] font-semibold rounded py-0.2 ${latIn < 200 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`;
+        badgeLat.className = `w-12 text-center text-xs font-semibold rounded py-0.2 ${latIn < 200 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`;
     }
 
     // 2. Loss Delta & Visual Range Bar
     const elDLoss = document.getElementById('delta-loss');
     if (elDLoss) {
         elDLoss.textContent = `${dLoss > 0 ? '+' : ''}${dLoss.toFixed(1)} %`;
-        elDLoss.className = `w-16 text-right text-[11px] tabular-nums ${dLoss > 1.0 ? 'text-rose-400 font-bold' : 'text-emerald-400'}`;
+        elDLoss.className = `w-16 text-right text-xs tabular-nums ${dLoss > 1.0 ? 'text-rose-400 font-bold' : 'text-emerald-400'}`;
     }
 
     const barLoss = document.getElementById('bar-loss-fill');
@@ -1084,14 +1345,14 @@ function updateLiveVisualFigures() {
     const badgeLoss = document.getElementById('gate-loss-badge');
     if (badgeLoss) {
         badgeLoss.textContent = lossIn < 2.0 ? 'PASS' : 'CRITICAL';
-        badgeLoss.className = `w-12 text-center text-[10px] font-semibold rounded py-0.2 ${lossIn < 2.0 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`;
+        badgeLoss.className = `w-12 text-center text-xs font-semibold rounded py-0.2 ${lossIn < 2.0 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`;
     }
 
     // 3. Jitter Delta & Visual Range Bar
     const elDJit = document.getElementById('delta-jitter');
     if (elDJit) {
         elDJit.textContent = `${dJit > 0 ? '+' : ''}${dJit.toFixed(1)} ms`;
-        elDJit.className = `w-16 text-right text-[11px] tabular-nums ${dJit > 10 ? 'text-amber-400' : 'text-emerald-400'}`;
+        elDJit.className = `w-16 text-right text-xs tabular-nums ${dJit > 10 ? 'text-amber-400' : 'text-emerald-400'}`;
     }
 
     const barJit = document.getElementById('bar-jitter-fill');
@@ -1103,14 +1364,14 @@ function updateLiveVisualFigures() {
     const badgeJit = document.getElementById('gate-jitter-badge');
     if (badgeJit) {
         badgeJit.textContent = jitIn < 30 ? 'PASS' : 'BREACH';
-        badgeJit.className = `w-12 text-center text-[10px] font-semibold rounded py-0.2 ${jitIn < 30 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`;
+        badgeJit.className = `w-12 text-center text-xs font-semibold rounded py-0.2 ${jitIn < 30 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`;
     }
 
     // 4. WS RTT Delta & Visual Range Bar
     const elDRtt = document.getElementById('delta-ws-rtt');
     if (elDRtt) {
         elDRtt.textContent = `${dRtt > 0 ? '+' : ''}${dRtt.toFixed(1)} ms`;
-        elDRtt.className = `w-16 text-right text-[11px] tabular-nums ${dRtt > 30 ? 'text-amber-400' : 'text-emerald-400'}`;
+        elDRtt.className = `w-16 text-right text-xs tabular-nums ${dRtt > 30 ? 'text-amber-400' : 'text-emerald-400'}`;
     }
 
     const barWs = document.getElementById('bar-ws-fill');
@@ -1122,7 +1383,7 @@ function updateLiveVisualFigures() {
     const badgeWs = document.getElementById('gate-ws-badge');
     if (badgeWs) {
         badgeWs.textContent = rttIn < 250 ? 'PASS' : 'BREACH';
-        badgeWs.className = `w-12 text-center text-[10px] font-semibold rounded py-0.2 ${rttIn < 250 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`;
+        badgeWs.className = `w-12 text-center text-xs font-semibold rounded py-0.2 ${rttIn < 250 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`;
     }
 
     // Dynamic Threshold Approaching Warnings (Intuitive Popover Alerts)
@@ -1213,7 +1474,7 @@ function initPieChartInteractions() {
             if (val) val.textContent = s.val();
             if (st) {
                 st.textContent = s.limit;
-                st.className = 'text-[9px] font-bold text-emerald-600 dark:text-emerald-400';
+                st.className = 'text-xs font-bold text-emerald-600 dark:text-emerald-400';
             }
             if (sliceEl) sliceEl.style.transform = 'scale(1.09)';
         };
@@ -1272,14 +1533,14 @@ function updateVisualAnalyticsDeck(lat, loss, jit, rtt) {
         if (centerVal) centerVal.textContent = `${compositeScorePct}%`;
         if (centerSt) {
             centerSt.textContent = isCritical ? 'FAIL' : (isPassing ? 'OPTIMAL' : 'DEGRADED');
-            centerSt.className = `text-[9px] font-bold ${isCritical ? 'text-rose-600 dark:text-rose-400' : (isPassing ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400')}`;
+            centerSt.className = `text-xs font-bold ${isCritical ? 'text-rose-600 dark:text-rose-400' : (isPassing ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400')}`;
         }
     }
 
     const pillScore = document.getElementById('pie-score-pill');
     if (pillScore) {
         pillScore.textContent = `${passedCount}/4 PASS`;
-        pillScore.className = `px-1.5 py-0.2 rounded text-[10px] font-bold ${passedCount === 4 ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : (passedCount >= 2 ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30' : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30')}`;
+        pillScore.className = `px-1.5 py-0.2 rounded text-xs font-bold ${passedCount === 4 ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : (passedCount >= 2 ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30' : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30')}`;
     }
 
     // High-Contrast Legend Values
@@ -1292,7 +1553,7 @@ function updateVisualAnalyticsDeck(lat, loss, jit, rtt) {
     const legJit = document.getElementById('legend-jitter-val');
     if (legJit) legJit.textContent = `${jit.toFixed(1)}ms`;
 
-    // 2. Frequency Bar Profile
+    // 2. Frequency Bar Profile (6 Reactive EQ Bands)
     const bar80 = document.getElementById('freq-bar-80');
     const bar250 = document.getElementById('freq-bar-250');
     const bar500 = document.getElementById('freq-bar-500');
@@ -1301,41 +1562,86 @@ function updateVisualAnalyticsDeck(lat, loss, jit, rtt) {
     const bar5000 = document.getElementById('freq-bar-5000');
     const energyLabel = document.getElementById('spectral-energy-label');
 
+    const val80 = document.getElementById('freq-val-80');
+    const val250 = document.getElementById('freq-val-250');
+    const val500 = document.getElementById('freq-val-500');
+    const val1200 = document.getElementById('freq-val-1200');
+    const val2500 = document.getElementById('freq-val-2500');
+    const val5000 = document.getElementById('freq-val-5000');
+
     const isFanNoisy = isCritical || (loss > 1.0);
     if (bar80) {
-        bar80.style.height = isFanNoisy ? '92%' : '18%';
+        bar80.style.height = isFanNoisy ? '92%' : '22%';
         bar80.className = `w-full transition-all duration-300 ${isFanNoisy ? 'bg-amber-500' : 'bg-emerald-500/50 group-hover:bg-emerald-400'}`;
+        if (val80) val80.textContent = isFanNoisy ? '-12' : '-34';
     }
-    if (bar250) bar250.style.height = isFanNoisy ? '55%' : '38%';
-    if (bar500) bar500.style.height = isFanNoisy ? '48%' : '74%';
-    if (bar1200) bar1200.style.height = isFanNoisy ? '52%' : '88%';
-    if (bar2500) bar2500.style.height = isFanNoisy ? '40%' : '62%';
-    if (bar5000) bar5000.style.height = isFanNoisy ? '30%' : '26%';
+    if (bar250) {
+        bar250.style.height = isFanNoisy ? '65%' : '42%';
+        if (val250) val250.textContent = isFanNoisy ? '-20' : '-28';
+    }
+    if (bar500) {
+        bar500.style.height = isFanNoisy ? '48%' : '78%';
+        if (val500) val500.textContent = isFanNoisy ? '-26' : '-18';
+    }
+    if (bar1200) {
+        bar1200.style.height = isFanNoisy ? '52%' : '92%';
+        if (val1200) val1200.textContent = isFanNoisy ? '-24' : '-14';
+    }
+    if (bar2500) {
+        bar2500.style.height = isFanNoisy ? '40%' : '68%';
+        if (val2500) val2500.textContent = isFanNoisy ? '-28' : '-22';
+    }
+    if (bar5000) {
+        bar5000.style.height = isFanNoisy ? '30%' : '30%';
+        if (val5000) val5000.textContent = isFanNoisy ? '-34' : '-32';
+    }
     if (energyLabel) {
         energyLabel.textContent = isFanNoisy ? 'HVAC Noise Dominant' : 'Clear Voice Band';
-        energyLabel.className = `text-[10px] font-bold px-1.5 py-0.2 rounded ${isFanNoisy ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'}`;
+        energyLabel.className = `text-xs font-bold px-2 py-0.5 rounded ${isFanNoisy ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'}`;
     }
 
-    // 3. Packet Delivery Distribution (24 segments)
+    // 3. Packet Delivery Distribution (32 segments)
     const segContainer = document.getElementById('packet-delivery-segments');
     const rateEl = document.getElementById('packet-stability-rating');
     const lossStat = document.getElementById('packet-loss-stat');
     const jitStat = document.getElementById('packet-jitter-stat');
 
     if (lossStat) lossStat.textContent = `${loss.toFixed(1)}% Loss`;
-    if (jitStat) jitStat.textContent = `${jit.toFixed(1)}ms`;
+    if (jitStat) jitStat.textContent = `${jit.toFixed(1)} ms`;
 
     if (segContainer) {
+        if (segContainer.children.length !== 32) {
+            segContainer.innerHTML = '';
+            for (let i = 0; i < 32; i++) {
+                const seg = document.createElement('div');
+                seg.className = 'h-3 rounded-xs packet-stream-active transition-all cursor-pointer hover:scale-110 hover:brightness-125 bg-emerald-500';
+                seg.dataset.index = (i + 1).toString();
+                seg.addEventListener('mouseenter', () => {
+                    seg.classList.add('ring-2', 'ring-emerald-400');
+                    if (rateEl) rateEl.textContent = `PKT #${i + 1}: ${(lat + Math.sin(i) * jit).toFixed(1)}ms`;
+                });
+                seg.addEventListener('mouseleave', () => {
+                    seg.classList.remove('ring-2', 'ring-emerald-400');
+                    if (rateEl) rateEl.textContent = isCritical ? 'CRITICAL' : (isPassing ? '32/32 PASS' : 'DEGRADED');
+                });
+                segContainer.appendChild(seg);
+            }
+        }
         const segs = segContainer.children;
-        const droppedCount = isCritical ? 5 : (loss > 0 ? 2 : 0);
+        const droppedCount = isCritical ? 6 : (loss > 0 ? 3 : 0);
         for (let i = 0; i < segs.length; i++) {
-            const isDropped = (i === 4 || i === 11 || i === 17 || i === 21) && (droppedCount > 0 && i < (droppedCount * 5));
-            segs[i].className = `h-2 rounded-xs packet-stream-active transition-colors cursor-pointer hover:brightness-125 ${isDropped ? 'bg-rose-500' : 'bg-emerald-500'}`;
+            const isDropped = (i === 4 || i === 11 || i === 17 || i === 21 || i === 26 || i === 30) && (droppedCount > 0 && i < (droppedCount * 5));
+            segs[i].className = `h-3 rounded-xs packet-stream-active transition-all cursor-pointer hover:scale-110 hover:brightness-125 ${isDropped ? 'bg-rose-500' : 'bg-emerald-500'}`;
+            if (isDropped) {
+                segs[i].title = `Packet #${i + 1}: TIMEOUT (Packet Loss Detected)`;
+            } else {
+                segs[i].title = `Packet #${i + 1}: ${(lat + (Math.sin(i) * jit)).toFixed(1)} ms ACK`;
+            }
         }
     }
     if (rateEl) {
-        rateEl.textContent = isCritical ? 'CRITICAL' : (isPassing ? '24/24 OK' : 'DEGRADED');
-        rateEl.className = `text-[10px] font-bold px-1.5 py-0.2 rounded ${isCritical ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20' : (isPassing ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20')}`;
+        rateEl.textContent = isCritical ? 'CRITICAL' : (isPassing ? '32/32 PASS' : 'DEGRADED');
+        rateEl.className = `text-xs font-bold px-2 py-0.5 rounded ${isCritical ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20' : (isPassing ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20')}`;
     }
 
     // 4. Pre-Flight Clearance Strip in Action Dock
@@ -1347,7 +1653,7 @@ function updateVisualAnalyticsDeck(lat, loss, jit, rtt) {
             </svg>
             <span>Acoustics ${currentSnrDb.toFixed(0)}dB</span>
         `;
-        pillClrSnr.className = `px-2 py-0.5 rounded text-[11px] font-semibold flex items-center space-x-1 ${isSnrPass ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'}`;
+        pillClrSnr.className = `px-2 py-0.5 rounded text-xs font-semibold flex items-center space-x-1 ${isSnrPass ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'}`;
     }
 
     const pillClrLat = document.getElementById('clearance-pill-latency');
@@ -1358,7 +1664,7 @@ function updateVisualAnalyticsDeck(lat, loss, jit, rtt) {
             </svg>
             <span>Latency ${lat.toFixed(0)}ms</span>
         `;
-        pillClrLat.className = `px-2 py-0.5 rounded text-[11px] font-semibold flex items-center space-x-1 ${isLatPass ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'}`;
+        pillClrLat.className = `px-2 py-0.5 rounded text-xs font-semibold flex items-center space-x-1 ${isLatPass ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'}`;
     }
 
     const pillClrLoss = document.getElementById('clearance-pill-loss');
@@ -1369,7 +1675,7 @@ function updateVisualAnalyticsDeck(lat, loss, jit, rtt) {
             </svg>
             <span>Loss ${loss.toFixed(1)}%</span>
         `;
-        pillClrLoss.className = `px-2 py-0.5 rounded text-[11px] font-semibold flex items-center space-x-1 ${isLossPass ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'}`;
+        pillClrLoss.className = `px-2 py-0.5 rounded text-xs font-semibold flex items-center space-x-1 ${isLossPass ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'}`;
     }
 }
 
@@ -1639,11 +1945,7 @@ async function submitDiagnosticReport() {
 
         if (data.verdict === 'OPTIMAL') {
             updateReadinessStepper('check_passed');
-
-            // Sustain verified clearance message before rendering full verdict
-            setTimeout(() => {
-                renderVerdictResult(data);
-            }, 2000);
+            renderVerdictResult(data);
         } else {
             renderVerdictResult(data);
             recordLiveIncidentFromCheck(data);
@@ -1712,7 +2014,7 @@ function renderVerdictResult(data) {
         banner.classList.add('border-l-emerald-500');
         title.textContent = 'PROCEEDING APPROVED: All 4 quality gates cleared for Koyal ASR.';
         verdictBadge.textContent = 'CLEARED [PASS]';
-        verdictBadge.className = 'px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30';
+        verdictBadge.className = 'px-1.5 py-0.2 rounded text-xs font-semibold bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30';
         iconContainer.innerHTML = '<svg class="w-4 h-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
         if (btnEmergency) btnEmergency.classList.add('hidden');
 
@@ -1727,7 +2029,7 @@ function renderVerdictResult(data) {
         const breachCount = reasonCodes.length > 0 ? reasonCodes.length : 1;
         title.textContent = `PROCEEDING BLOCKED: ${breachCount} Quality Gate(s) Breached.`;
         verdictBadge.textContent = 'BLOCKED [NO-GO]';
-        verdictBadge.className = 'px-1.5 py-0.2 rounded text-[10px] font-semibold bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30';
+        verdictBadge.className = 'px-1.5 py-0.2 rounded text-xs font-semibold bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30';
         iconContainer.innerHTML = '<svg class="w-4 h-4 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 1 21 23 21 12 2"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
         if (btnEmergency) {
             btnEmergency.classList.remove('hidden');
@@ -1739,7 +2041,7 @@ function renderVerdictResult(data) {
         const breachCount = reasonCodes.length > 0 ? reasonCodes.length : 1;
         title.textContent = `PROCEEDING BLOCKED: ${breachCount} Quality Gate(s) Breached.`;
         verdictBadge.textContent = 'BLOCKED [NO-GO]';
-        verdictBadge.className = 'px-1.5 py-0.2 rounded text-[10px] font-semibold bg-rose-500/20 text-rose-700 dark:text-rose-400 border border-rose-500/30';
+        verdictBadge.className = 'px-1.5 py-0.2 rounded text-xs font-semibold bg-rose-500/20 text-rose-700 dark:text-rose-400 border border-rose-500/30';
         iconContainer.innerHTML = '<svg class="w-4 h-4 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
         if (btnEmergency) {
             btnEmergency.classList.remove('hidden');
@@ -1875,7 +2177,7 @@ function updateFleetSortIndicators() {
         if (!ind) return;
         if (fleetSortConfig.column === col) {
             ind.textContent = fleetSortConfig.direction === 'asc' ? '↑' : '↓';
-            ind.className = 'text-[9px] font-mono text-emerald-500 font-bold ml-0.5';
+            ind.className = 'text-xs font-mono text-emerald-500 font-bold ml-0.5';
         } else {
             ind.textContent = '';
         }
@@ -1963,6 +2265,40 @@ function render11StatesDeployment(regions) {
     const defaultStateCodes = ["DL", "RJ", "UP", "KL", "KA", "AP", "MH", "TN", "WB", "GJ", "MP"];
     let allStateCodes = [...defaultStateCodes];
 
+    // Filter by geographic zone
+    if (fleetFilters.zone !== 'ALL') {
+        const zoneMap = {
+            'NORTH': ['DL', 'RJ', 'UP'],
+            'SOUTH': ['KL', 'KA', 'AP', 'TN'],
+            'WEST': ['MH', 'GJ'],
+            'EAST': ['WB', 'MP']
+        };
+        const allowed = zoneMap[fleetFilters.zone] || defaultStateCodes;
+        allStateCodes = allStateCodes.filter(c => allowed.includes(c));
+    }
+
+    // Filter by health status
+    allStateCodes = allStateCodes.filter(code => {
+        const reg = (regions || []).find(r => r.state === code);
+        let hType = 'STANDBY';
+        if (reg && reg.critical_count > 0) hType = 'OUTAGE';
+        else if (reg && reg.degraded_count > 0) hType = 'DEGRADED';
+        else if (reg && (reg.optimal_count > 0 || (reg.total_courtrooms > 0 && reg.critical_count === 0 && reg.degraded_count === 0))) hType = 'OPERATIONAL';
+        
+        if (hType === 'OPERATIONAL' && !fleetFilters.health.includes('OPERATIONAL')) return false;
+        if (hType === 'OUTAGE' && !fleetFilters.health.includes('OUTAGE')) return false;
+        if (hType === 'STANDBY' && !fleetFilters.health.includes('STANDBY')) return false;
+        return true;
+    });
+
+    // Filter by minimum units
+    if (fleetFilters.minUnits > 0) {
+        allStateCodes = allStateCodes.filter(code => {
+            const meta = STATE_BENCHES[code];
+            return meta && meta.benches.length >= fleetFilters.minUnits;
+        });
+    }
+
     if (fleetSortConfig.column) {
         allStateCodes.sort((codeA, codeB) => {
             const metaA = STATE_BENCHES[codeA] || { name: codeA, benches: [] };
@@ -2004,7 +2340,7 @@ function render11StatesDeployment(regions) {
             healthText = "0.0%";
             healthClass = "status-critical-text font-bold text-xs tabular-nums";
             dotClass = "bg-rose-500";
-            statusBadge = `<span class="text-[8px] font-mono badge-critical px-1 rounded ml-1 font-semibold">P0</span>`;
+            statusBadge = `<span class="text-xs font-mono badge-critical px-1 rounded ml-1 font-semibold">P0</span>`;
         } else if (reg && reg.degraded_count > 0) {
             healthText = `${reg.healthy_pct || 50.0}%`;
             healthClass = "status-degraded-text font-semibold text-xs tabular-nums";
@@ -2035,7 +2371,7 @@ function render11StatesDeployment(regions) {
                 </div>
                 <div class="flex items-center space-x-1.5 truncate">
                     <span class="text-label-contrast text-xs font-semibold truncate">${stateMeta.name}</span>
-                    ${isCurrentTarget ? '<span class="text-[9px] badge-optimal px-1.5 py-0.2 rounded font-semibold ml-1">ACTIVE</span>' : ''}
+                    ${isCurrentTarget ? '<span class="text-xs badge-optimal px-1.5 py-0.2 rounded font-semibold ml-1">ACTIVE</span>' : ''}
                     ${statusBadge}
                 </div>
                 <div class="text-right text-header-contrast text-xs tabular-nums font-semibold">${unitCount}</div>
@@ -2044,7 +2380,7 @@ function render11StatesDeployment(regions) {
 
             <!-- Inline Units Disclosure Drawer -->
             <div class="units-drawer ${isDrawerOpen ? '' : 'hidden'} p-2 bg-[var(--bg-surface)] border-t border-[var(--border-alpha)] space-y-1" data-drawer-state="${code}">
-                <div class="flex items-center justify-between text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1">
+                <div class="flex items-center justify-between text-xs text-[var(--text-muted)] uppercase tracking-wider mb-1">
                     <span class="font-semibold">${stateMeta.name} Courtroom Units (${stateMeta.seat.split('(')[0].trim()})</span>
                 </div>
                 <div class="space-y-1 max-h-40 overflow-y-auto">
@@ -2055,15 +2391,15 @@ function render11StatesDeployment(regions) {
                             ? 'text-blue-700 dark:text-blue-400' 
                             : 'text-amber-700 dark:text-amber-400';
                         return `
-                        <div class="court-unit-item flex items-center justify-between p-1.5 rounded surface-sub text-[11px] cursor-pointer hover:bg-[var(--bg-sub)] transition-colors" data-bench="${b.id}" data-state="${code}" data-name="${b.name}">
+                        <div class="court-unit-item flex items-center justify-between p-1.5 rounded surface-sub text-xs cursor-pointer hover:bg-[var(--bg-sub)] transition-colors" data-bench="${b.id}" data-state="${code}" data-name="${b.name}">
                             <div>
                                 <span class="font-semibold text-xs text-[var(--text-primary)] tracking-tight">${b.id}</span>
-                                <span class="text-[11px] text-[var(--text-muted)] font-normal ml-1">(${b.unit})</span>
-                                <p class="text-[var(--text-secondary)] text-[11px] truncate max-w-[210px] mt-0.5">${b.name}</p>
+                                <span class="text-xs text-[var(--text-muted)] font-normal ml-1">(${b.unit})</span>
+                                <p class="text-[var(--text-secondary)] text-xs truncate max-w-[210px] mt-0.5">${b.name}</p>
                             </div>
                             <div class="flex items-center space-x-2.5">
-                                <span class="text-[10px] font-semibold uppercase tracking-wider ${tierColor}">${b.tier.replace('_', ' ')}</span>
-                                <button type="button" data-bench="${b.id}" data-state="${code}" data-name="${b.name}" class="btn-sub-test px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-600 hover:bg-emerald-500 text-white pressable transition-colors">
+                                <span class="text-xs font-semibold uppercase tracking-wider ${tierColor}">${b.tier.replace('_', ' ')}</span>
+                                <button type="button" data-bench="${b.id}" data-state="${code}" data-name="${b.name}" class="btn-sub-test px-2 py-0.5 rounded text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white pressable transition-colors">
                                     Test
                                 </button>
                             </div>
@@ -2186,9 +2522,9 @@ function initIncidentFilterTabs() {
                 const b = document.getElementById(other.id);
                 if (!b) return;
                 if (other.filter === currentIncidentFilter) {
-                    b.className = 'filter-tab-active px-2 py-0.5 rounded text-[10px] font-semibold transition-colors pressable';
+                    b.className = 'filter-tab-active px-2 py-0.5 rounded text-xs font-semibold transition-colors pressable';
                 } else {
-                    b.className = 'filter-tab-inactive px-2 py-0.5 rounded text-[10px] font-semibold transition-colors pressable';
+                    b.className = 'filter-tab-inactive px-2 py-0.5 rounded text-xs font-semibold transition-colors pressable';
                 }
             });
             renderIncidentsTable(incidentsCache);
@@ -2237,7 +2573,7 @@ function updateIncidentSortIndicators() {
         if (!ind) return;
         if (incidentSortConfig.column === col) {
             ind.textContent = incidentSortConfig.direction === 'asc' ? '↑' : '↓';
-            ind.className = 'text-[9px] font-mono text-emerald-500 font-bold ml-0.5';
+            ind.className = 'text-xs font-mono text-emerald-500 font-bold ml-0.5';
         } else {
             ind.textContent = '';
         }
@@ -2268,29 +2604,43 @@ function renderIncidentsTable(incidents) {
     if (!tbody) return;
     tbody.innerHTML = '';
 
-    // Reconcile and update filter counts
-    const totalCount = incidentsCache.length;
-    const critCount = incidentsCache.filter(i => i.severity === 'CRITICAL').length;
-    const degCount = incidentsCache.filter(i => i.severity === 'DEGRADED').length;
-    const clrCount = incidentsCache.filter(i => i.severity === 'OPTIMAL' || i.severity === 'CLEARED' || i.verdict === 'OPTIMAL').length;
-
-    const elAll = document.getElementById('filter-incident-all');
-    if (elAll) elAll.textContent = `All (${totalCount})`;
-    const elCrit = document.getElementById('filter-incident-critical');
-    if (elCrit) elCrit.textContent = `Critical (${critCount})`;
-    const elDeg = document.getElementById('filter-incident-degraded');
-    if (elDeg) elDeg.textContent = `Degraded (${degCount})`;
-    const elClr = document.getElementById('filter-incident-cleared');
-    if (elClr) elClr.textContent = `Cleared (${clrCount})`;
-
-    // Filter list according to active tab
+    // Filter list according to multi-dimensional criteria
     let list = [...incidents];
-    if (currentIncidentFilter === 'CRITICAL') {
-        list = list.filter(i => i.severity === 'CRITICAL');
-    } else if (currentIncidentFilter === 'DEGRADED') {
-        list = list.filter(i => i.severity === 'DEGRADED');
-    } else if (currentIncidentFilter === 'CLEARED') {
-        list = list.filter(i => i.severity === 'OPTIMAL' || i.severity === 'CLEARED' || i.verdict === 'OPTIMAL');
+
+    // 1. Severity filter
+    list = list.filter(i => {
+        const isOptimalOrCleared = i.severity === 'OPTIMAL' || i.severity === 'CLEARED' || i.verdict === 'OPTIMAL';
+        if (i.severity === 'CRITICAL' && incidentFilters.severities.includes('CRITICAL')) return true;
+        if (i.severity === 'DEGRADED' && incidentFilters.severities.includes('DEGRADED')) return true;
+        if (isOptimalOrCleared && incidentFilters.severities.includes('CLEARED')) return true;
+        return false;
+    });
+
+    // 2. State Jurisdiction filter
+    if (incidentFilters.states && incidentFilters.states.length > 0) {
+        list = list.filter(i => incidentFilters.states.includes(i.state));
+    }
+
+    // 3. Breach parameter filter
+    if (incidentFilters.breachType !== 'ALL') {
+        list = list.filter(i => {
+            const d = (i.details || '').toUpperCase();
+            if (incidentFilters.breachType === 'LOSS') return d.includes('LOSS') || d.includes('PACKET');
+            if (incidentFilters.breachType === 'LATENCY') return d.includes('LATENCY') || d.includes('RTT');
+            if (incidentFilters.breachType === 'JITTER') return d.includes('JITTER');
+            if (incidentFilters.breachType === 'SNR') return d.includes('SNR') || d.includes('ACOUSTIC') || d.includes('NOISE');
+            return true;
+        });
+    }
+
+    // 4. Time Window filter
+    if (incidentFilters.timeWindow !== 'ALL') {
+        const now = Date.now();
+        const maxAgeMs = incidentFilters.timeWindow === '2H' ? 2 * 3600 * 1000 : (incidentFilters.timeWindow === '6H' ? 6 * 3600 * 1000 : 24 * 3600 * 1000);
+        list = list.filter(i => {
+            const t = new Date(i.created_at || 0).getTime();
+            return (now - t) <= maxAgeMs;
+        });
     }
 
     if (incidentSortConfig.column) {
@@ -2467,7 +2817,7 @@ function renderCommandResults(query) {
 
     if (matchingCommands.length > 0) {
         const header = document.createElement('div');
-        header.className = 'text-[10px] text-[var(--text-muted)] font-semibold uppercase px-2 py-1';
+        header.className = 'text-xs text-[var(--text-muted)] font-semibold uppercase px-2 py-1';
         header.textContent = 'System Commands';
         cmdResults.appendChild(header);
 
@@ -2476,7 +2826,7 @@ function renderCommandResults(query) {
             item.className = 'p-2 rounded hover:bg-[var(--bg-sub)] cursor-pointer transition-colors flex items-center justify-between text-xs';
             item.innerHTML = `
                 <span class="text-[var(--text-primary)] font-medium">${cmd.label}</span>
-                <kbd class="text-[9px] font-mono text-[var(--text-muted)] bg-[var(--bg-canvas)] px-1 py-0.2 rounded border border-[var(--border-alpha)]">${cmd.shortcut}</kbd>
+                <kbd class="text-xs font-mono text-[var(--text-muted)] bg-[var(--bg-canvas)] px-1 py-0.2 rounded border border-[var(--border-alpha)]">${cmd.shortcut}</kbd>
             `;
             item.addEventListener('click', () => {
                 closeCommandMenu();
@@ -2488,7 +2838,7 @@ function renderCommandResults(query) {
 
     if (matchingBenches.length > 0) {
         const header = document.createElement('div');
-        header.className = 'text-[10px] text-[var(--text-muted)] font-semibold uppercase px-2 py-1 mt-2';
+        header.className = 'text-xs text-[var(--text-muted)] font-semibold uppercase px-2 py-1 mt-2';
         header.textContent = 'Courtroom Benches';
         cmdResults.appendChild(header);
 
@@ -2503,10 +2853,10 @@ function renderCommandResults(query) {
             item.innerHTML = `
                 <div>
                     <span class="font-semibold text-xs text-[var(--text-primary)]">${b.id}</span>
-                    <span class="text-[var(--text-muted)] text-[10px] ml-1">(${b.state})</span>
-                    <p class="text-[var(--text-secondary)] font-sans text-[11px] truncate">${b.name}</p>
+                    <span class="text-[var(--text-muted)] text-xs ml-1">(${b.state})</span>
+                    <p class="text-[var(--text-secondary)] font-sans text-xs truncate">${b.name}</p>
                 </div>
-                <span class="text-[10px] uppercase font-semibold tracking-wider ${tierColor}">${b.tier.replace('_', ' ')}</span>
+                <span class="text-xs uppercase font-semibold tracking-wider ${tierColor}">${b.tier.replace('_', ' ')}</span>
             `;
             item.addEventListener('click', () => {
                 selectBenchForDiagnostic(b.id, b.state, b.name);
@@ -2626,10 +2976,10 @@ function populateCombobox(filterText = '') {
         row.innerHTML = `
             <div>
                 <span class="font-semibold text-xs text-[var(--text-primary)]">${b.id}</span>
-                <span class="text-[var(--text-muted)] text-[10px] ml-1">(${b.state})</span>
-                <p class="text-[var(--text-secondary)] text-[11px] truncate">${b.name}</p>
+                <span class="text-[var(--text-muted)] text-xs ml-1">(${b.state})</span>
+                <p class="text-[var(--text-secondary)] text-xs truncate">${b.name}</p>
             </div>
-            <span class="text-[10px] uppercase font-semibold tracking-wider ${tierColor}">${b.tier.replace('_', ' ')}</span>
+            <span class="text-xs uppercase font-semibold tracking-wider ${tierColor}">${b.tier.replace('_', ' ')}</span>
         `;
         row.addEventListener('click', () => {
             selectBenchForDiagnostic(b.id, b.state, b.name);
@@ -2775,13 +3125,13 @@ function updateHardwareAdvisory(label) {
     const lower = (label || '').toLowerCase();
     if (lower.includes('shure') || lower.includes('boundary') || lower.includes('biamp') || lower.includes('sennheiser') || lower.includes('dsp') || lower.includes('focusrite') || lower.includes('scarlett') || lower.includes('rode') || lower.includes('line')) {
         advisoryEl.textContent = 'Studio Boundary Interface (Koyal Benchmark Compliant)';
-        advisoryEl.className = 'text-[11px] font-medium text-emerald-500 font-mono';
+        advisoryEl.className = 'text-xs font-medium text-emerald-500 font-mono';
     } else if (lower.includes('webcam') || lower.includes('usb') || lower.includes('realtek') || lower.includes('array') || lower.includes('integrated') || lower.includes('internal') || lower.includes('headset') || lower.includes('mic')) {
         advisoryEl.textContent = 'Integrated / USB Audio (Noise Gate Active)';
-        advisoryEl.className = 'text-[11px] font-medium text-emerald-500 font-mono';
+        advisoryEl.className = 'text-xs font-medium text-emerald-500 font-mono';
     } else {
         advisoryEl.textContent = 'Hardware Audio Detected';
-        advisoryEl.className = 'text-[11px] font-medium text-emerald-500 font-mono';
+        advisoryEl.className = 'text-xs font-medium text-emerald-500 font-mono';
     }
 }
 
@@ -2845,7 +3195,7 @@ function initEmergencyFallback() {
             if (title) title.textContent = 'PROCEEDING CLEARED: Local Audio Buffer Engaged';
             if (verdictBadge) {
                 verdictBadge.textContent = 'BUFFER ACTIVE [PASS]';
-                verdictBadge.className = 'px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30';
+                verdictBadge.className = 'px-1.5 py-0.2 rounded text-xs font-semibold bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30';
             }
             if (summaryText) {
                 summaryText.textContent = 'Offline 48 kHz PCM local storage buffer engaged on Court Master SSD. Audio proceeding cleared for asynchronous transcription upload.';
@@ -2909,6 +3259,7 @@ initFleetSortListeners();
 initIncidentSortListeners();
 initIncidentFilterTabs();
 initPieChartInteractions();
+initFilterModalControllers();
 initEmergencyFallback();
 clearAudioCanvases();
 updateAcousticBadges();

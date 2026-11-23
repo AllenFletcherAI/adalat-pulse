@@ -503,6 +503,25 @@
 * **Rejected Alternative:** Static non-interactive pie charts, low-contrast greyed-out unit labels, clipping visualizer canvases, and filtering out passing benches from the incident feed.
 * **When to Reconsider:** Never.
 
+---
+
+## ADR-032: Top Navbar Action Relocation, Expansive Visual Telemetry Suite, 12px Font Minimum, and Modal Filter Architecture
+* **Date:** November 2026
+* **Decision:** Relocate the primary action trigger to the top navigation header, expand the visual analytics deck into a dedicated lower-workstation suite, enforce a universal 12px minimum font size, and implement multi-dimensional filter modals for incidents and fleet deployment:
+  1. *Relocated Verify Courtroom Trigger:* Moved `#btn-run-diagnostic` (`[Verify Courtroom ↵ Enter]`) directly into `<header>` immediately to the left of the search trigger. Installed a hairline burst telemetry progress bar (`#progress-container`) and a slide-down executive verdict notification banner (`#verdict-banner`).
+  2. *Acoustic Scope Cleanup:* Removed the redundant acoustic badges (`#acoustic-snr-badge` and `#acoustic-rate-badge`), scaled micro-headers (`Frequency Spectrum • 32 FFT Bands` and `Live Audio Oscilloscope • 48 kHz PCM`) to `text-xs font-semibold` (12px), made the microphone selector full width, and tightened vertical spacing with top dropdowns.
+  3. *Network Telemetry Legend Removal:* Removed the inline strip chart legend (`RTT Jitter Limit`) and tightened vertical rhythm with acoustic instruments.
+  4. *Strict 12px Font Minimum:* Eradicated all sub-12px classes (`text-[8px]`, `text-[9px]`, `text-[10px]`, `text-[11px]`) across 100% of HTML markup and JS templates. Every piece of text across all cards, badges, and modals is at least `text-xs` (12px) with bold weights and high contrast.
+  5. *Expansive Visual Analytics Suite:* Recovered the bottom workstation space by removing the legacy action dock and clearance strip. Expanded Section 4 into three spacious, interactive cards:
+     - *Large Pop-Out Donut Chart (116px):* 4-quadrant SVG with interactive slice pop-out, dynamic center score (`98% OPTIMAL`), and a non-overlapping 4-row legend with exact numbers (`28.0dB`, `35.0ms`, `0.0%`, `4.5ms`).
+     - *Spectral Voice vs Room Noise EQ Bar Graph:* 6 wide reactive frequency bars (`80Hz`, `250Hz`, `500Hz`, `1.2k`, `2.5k`, `5kHz`) with hover dBFS tooltips and clear `HVAC Noise` vs `Speech Core` indicators.
+     - *Live Uplink Packet Stream:* 32-segment pulsing delivery matrix with individual packet latency inspection tooltips, `32/32 PASS` rating, and loss/jitter statistics.
+  6. *Multi-Dimensional Filter Modals:* Replaced raw filter tabs in Live Incident Feed and Fleet Deployment with structured pop-up modal dialogs (`#incident-filter-modal` and `#fleet-filter-modal`). Features multi-criteria filtering (severity, state jurisdiction, breach type, time window, health status, court tier, geographic zone, unit capacity), dynamic badge counter, and single-click reset.
+* **Why:** Executive stakeholders (CTO, CEO) and technical operators require an uncompromised visual telemetry deck with zero sub-12px illegibility, uncluttered tables with deep filtering capabilities, and an executive workflow where verification actions and results are prominently visible.
+* **Rejected Alternative:** Keeping action buttons at the bottom edge, using sub-12px micro-text, and cluttering table headers with sprawling rows of raw filter buttons.
+* **When to Reconsider:** Never.
+
+
 
 
 

@@ -8,6 +8,16 @@
 ---
 
 ## 1. What Is Done
+- **Top Navbar Action Relocation, Expansive Visual Suite, 12px Font Minimum & Modal Filters (ADR-032):**
+  - **Relocated Verify Courtroom Action:** Moved `#btn-run-diagnostic` (`[Verify Courtroom ↵ Enter]`) directly into `<header>` immediately to the left of Search. Installed a hairline burst telemetry progress bar (`#progress-container`) and a slide-down executive verdict notification banner (`#verdict-banner`).
+  - **Acoustic Scope Cleanup:** Removed redundant acoustic badges (`#acoustic-snr-badge` and `#acoustic-rate-badge`), scaled micro-headers (`Frequency Spectrum • 32 FFT Bands` and `Live Audio Oscilloscope • 48 kHz PCM`) to `text-xs font-semibold` (12px), made the microphone selector full width, and tightened vertical spacing with top dropdowns.
+  - **Network Telemetry Cleanup:** Removed the inline strip chart legend (`RTT Jitter Limit`) and tightened vertical rhythm with acoustic instruments.
+  - **Strict 12px Font Minimum:** Eradicated all sub-12px classes (`text-[8px]`, `text-[9px]`, `text-[10px]`, `text-[11px]`) across 100% of HTML markup and JS templates. Every piece of text across all cards, badges, and modals is at least `text-xs` (12px) with bold weights and high contrast.
+  - **Expansive Visual Analytics Suite:** Recovered the bottom workstation space by removing the legacy action dock and clearance strip. Expanded Section 4 into three spacious, interactive cards:
+    - *Large Pop-Out Donut Chart (116px):* 4-quadrant SVG with interactive slice pop-out, dynamic center score (`98% OPTIMAL`), and a non-overlapping 4-row legend with exact numbers (`28.0dB`, `35.0ms`, `0.0%`, `4.5ms`).
+    - *Spectral Voice vs Room Noise EQ Bar Graph:* 6 wide reactive frequency bars (`80Hz`, `250Hz`, `500Hz`, `1.2k`, `2.5k`, `5kHz`) with hover dBFS tooltips and clear `HVAC Noise` vs `Speech Core` indicators.
+    - *Live Uplink Packet Stream:* 32-segment pulsing delivery matrix with individual packet latency inspection tooltips, `32/32 PASS` rating, and loss/jitter statistics.
+  - **Multi-Dimensional Filter Modals:** Replaced raw filter tabs in Live Incident Feed and Fleet Deployment with structured pop-up modal dialogs (`#incident-filter-modal` and `#fleet-filter-modal`). Features multi-criteria filtering (severity, state jurisdiction, breach type, time window, health status, court tier, geographic zone, unit capacity), dynamic badge counter, and single-click reset.
 - **Pop-Out Pie Chart, High-Contrast Telemetry Metrics, Incident Feed Filters & Clearance Strip (ADR-031):**
   - **Dual Visualizer Non-Clipping Boundaries & Micro-Headers:** Enforced container boundary constraint (`h-[70px] p-1.5 overflow-hidden`) with dedicated micro-headers (`Frequency Spectrum • 32 FFT Bands` and `Live Audio Oscilloscope • 48 kHz PCM Wave`). Ensured a generous 22px clear vertical margin above `Network & Gate Telemetry` with zero clipping.
   - **High-Contrast Metric Typography:** Upgraded faint unit labels (`ms`, `%`, `ms`, `ms`) from muted text to bold `text-xs font-bold text-slate-700 dark:text-slate-200`. Scaled metric numbers to `text-base font-bold font-mono text-[var(--text-primary)]` and delta indicators to `text-emerald-600 dark:text-emerald-400 font-bold`, achieving full WCAG AAA contrast in both light and dark themes.
