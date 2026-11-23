@@ -8,6 +8,11 @@
 ---
 
 ## 1. What Is Done
+- **Interactive Dual-Table Sorting, Calibrated Search Geometry & Command Menu Close Button (ADR-025):**
+  - **Fleet Deployment Table Sorting:** Converted static headers (`STATE`, `JURISDICTION SEAT`, `UNITS`, `HEALTH`) into interactive sort buttons (`#sort-fleet-state`, `#sort-fleet-seat`, `#sort-fleet-units`, `#sort-fleet-health`) with tri-state cycle (`asc` -> `desc` -> default judicial order) and dynamic `↑`/`↓` indicators. Deterministically prioritizes critical and degraded health tiers.
+  - **Incident Feed Table Sorting:** Converted static headers (`BENCH`, `SEVERITY`, `SLACK`, `LINEAR`, `TIME`) into interactive sort buttons (`#sort-incident-bench`, `#sort-incident-severity`, `#sort-incident-slack`, `#sort-incident-linear`, `#sort-incident-time`) with two-way sort cycling and visual indicators. Supports microsecond chronological ordering and multi-field triage.
+  - **Calibrated Search Pill Geometry:** Reduced expanded `#btn-trigger-cmd` width to `11.75rem` and `#search-pill-expanded` max-width to `9.75rem`. Eradicated trailing dead whitespace after `<kbd>Ctrl+K</kbd>`.
+  - **Mouse-Accessible Command Menu Close Button:** Added `#btn-close-cmd-menu` (`X` button) beside `<kbd>ESC</kbd>` in the command palette modal and enabled overlay background clicks for full mouse/touch dismissibility.
 - **Dynamic Acoustic Hardware Inspector & Dual-Theme Contrast Engineering (ADR-024):**
   - **Dynamic Acoustic Hardware Modal:** Replaced the hardcoded inline string `Integrated / USB Audio (Noise Gate Active)` with an interactive `[Hardware Specs]` button that opens an on-demand `#hardware-info-modal`. Queries and displays live browser `AudioContext` and `navigator.mediaDevices` data (endpoint label, 48 kHz clock, 16 kHz Koyal ASR downsample requirement, mono topology, real-time measured SNR, and DSP flags).
   - **Dark Mode Button Visibility:** Replaced dark canvas backgrounds on `#btn-reset-audio` and `#btn-toggle-override` with elevated surface tokens (`bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha-hover)] text-[var(--text-secondary)] font-medium`).

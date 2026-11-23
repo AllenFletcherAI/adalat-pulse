@@ -406,6 +406,20 @@
 * **Rejected Alternative:** Hardcoded inline advisory strings and washed-out text tokens.
 * **When to Reconsider:** Never.
 
+---
+
+## ADR-025: Interactive Dual-Table Sorting, Calibrated Search Geometry, and Mouse-Accessible Command Menu
+* **Date:** November 2026
+* **Decision:** Implement interactive sorting across Fleet Deployment and Incident tables, calibrate search pill dimensions, and add mouse-accessible command menu dismissal:
+  1. *Interactive Fleet Deployment Table Sorting:* Replaced static header labels (`STATE`, `JURISDICTION SEAT`, `UNITS`, `HEALTH`) with interactive button triggers (`#sort-fleet-state`, `#sort-fleet-seat`, `#sort-fleet-units`, `#sort-fleet-health`). Implemented tri-state sort cycling (ascending -> descending -> default judicial deployment order) with dynamic direction arrows (`↑`/`↓`). Health sorting evaluates critical (0%), degraded (<100%), optimal (100%), and standby tiers deterministically.
+  2. *Interactive Incident Feed Sorting:* Replaced static incident headers (`BENCH`, `SEVERITY`, `SLACK`, `LINEAR`, `TIME`) with interactive button triggers (`#sort-incident-bench`, `#sort-incident-severity`, `#sort-incident-slack`, `#sort-incident-linear`, `#sort-incident-time`). Implemented two-way sort cycling with directional indicators. Bench sorts alphabetically; severity sorts by priority weight (Critical > Degraded > Optimal); Slack sorts by dispatch status; Linear sorts by issue key; Time sorts chronologically by microsecond timestamp.
+  3. *Calibrated Search Pill Geometry:* Calibrated `#btn-trigger-cmd` expanded width from `16rem` to `11.75rem` and `#search-pill-expanded` max-width from `13rem` to `9.75rem`. Completely eradicated dead white space after `Ctrl+K` while preserving fluid expand-on-hover animations.
+  4. *Mouse-Accessible Command Menu Close Button:* Added an explicit close button (`#btn-close-cmd-menu`) with an `X` SVG icon adjacent to `<kbd>ESC</kbd>` in `#command-menu-modal`. Bound click listeners and background overlay click listeners to `closeCommandMenu()`, ensuring mouse and touch operators can dismiss the palette without keyboard inputs.
+* **Why:** Judicial console operators require multi-dimensional sorting to rapidly identify failing benches, clean navigation geometry without trailing whitespace, and complete mouse ergonomics across all overlays.
+* **Rejected Alternative:** Static non-interactive tables, over-extended search bars with empty space, and keyboard-only modal exits.
+* **When to Reconsider:** Never.
+
+
 
 
 

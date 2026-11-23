@@ -1567,8 +1567,47 @@ function showUndoToast(message, onUndoAction = null, durationMs = 5000) {
 }
 
 // -------------------------------------------------------------
-// 9. 11-State Regional Fleet Table (STRICT 5-COLUMN GRID, VON RESTORFF TARGET HIGHLIGHT)
+// 9. 11-State Regional Fleet Table (STRICT 5-COLUMN GRID, SORTABLE & VON RESTORFF TARGET HIGHLIGHT)
 // -------------------------------------------------------------
+let fleetSortConfig = { column: null, direction: 'asc' };
+let latestRegionsCache = [];
+
+function updateFleetSortIndicators() {
+    ['state', 'seat', 'units', 'health'].forEach(col => {
+        const ind = document.getElementById(`sort-indicator-${col}`);
+        if (!ind) return;
+        if (fleetSortConfig.column === col) {
+            ind.textContent = fleetSortConfig.direction === 'asc' ? '↑' : '↓';
+            ind.className = 'text-[9px] font-mono text-emerald-500 font-bold ml-0.5';
+        } else {
+            ind.textContent = '';
+        }
+    });
+}
+
+function toggleFleetSort(column) {
+    if (fleetSortConfig.column === column) {
+        if (fleetSortConfig.direction === 'asc') {
+            fleetSortConfig.direction = 'desc';
+        } else {
+            fleetSortConfig.column = null;
+            fleetSortConfig.direction = 'asc';
+        }
+    } else {
+        fleetSortConfig.column = column;
+        fleetSortConfig.direction = 'asc';
+    }
+    updateFleetSortIndicators();
+    render11StatesDeployment(latestRegionsCache);
+}
+
+function initFleetSortListeners() {
+    document.getElementById('sort-fleet-state')?.addEventListener('click', () => toggleFleetSort('state'));
+    document.getElementById('sort-fleet-seat')?.addEventListener('click', () => toggleFleetSort('seat'));
+    document.getElementById('sort-fleet-units')?.addEventListener('click', () => toggleFleetSort('units'));
+    document.getElementById('sort-fleet-health')?.addEventListener('click', () => toggleFleetSort('health'));
+}
+
 async function pollFleetOverview() {
     try {
         const res = await fetch('/api/v1/courtrooms/status');
@@ -1609,12 +1648,41 @@ async function pollFleetOverview() {
 }
 
 function render11StatesDeployment(regions) {
+    latestRegionsCache = regions || [];
     const container = document.getElementById('regions-scroll-container');
     if (!container) return;
     container.innerHTML = '';
 
     // All 11 partner state codes in exact sequence
-    const allStateCodes = ["DL", "RJ", "UP", "KL", "KA", "AP", "MH", "TN", "WB", "GJ", "MP"];
+    const defaultStateCodes = ["DL", "RJ", "UP", "KL", "KA", "AP", "MH", "TN", "WB", "GJ", "MP"];
+    let allStateCodes = [...defaultStateCodes];
+
+    if (fleetSortConfig.column) {
+        allStateCodes.sort((codeA, codeB) => {
+            const metaA = STATE_BENCHES[codeA] || { name: codeA, benches: [] };
+            const metaB = STATE_BENCHES[codeB] || { name: codeB, benches: [] };
+            const regA = latestRegionsCache.find(r => r.state === codeA);
+            const regB = latestRegionsCache.find(r => r.state === codeB);
+
+            let res = 0;
+            if (fleetSortConfig.column === 'state') {
+                res = codeA.localeCompare(codeB);
+            } else if (fleetSortConfig.column === 'seat') {
+                res = (metaA.name || '').localeCompare(metaB.name || '');
+            } else if (fleetSortConfig.column === 'units') {
+                res = metaA.benches.length - metaB.benches.length;
+            } else if (fleetSortConfig.column === 'health') {
+                const getHealthScore = (r) => {
+                    if (r && r.critical_count > 0) return 0;
+                    if (r && r.degraded_count > 0) return r.healthy_pct || 50;
+                    if (r && (r.optimal_count > 0 || (r.total_courtrooms > 0 && r.critical_count === 0 && r.degraded_count === 0))) return 100;
+                    return 75; // Standby
+                };
+                res = getHealthScore(regA) - getHealthScore(regB);
+            }
+            return fleetSortConfig.direction === 'asc' ? res : -res;
+        });
+    }
 
     allStateCodes.forEach(code => {
         const reg = regions.find(r => r.state === code);
@@ -1784,12 +1852,68 @@ function formatRelativeTime(dateIso) {
     }
 }
 
+let incidentSortConfig = { column: 'time', direction: 'desc' };
+
+function updateIncidentSortIndicators() {
+    ['bench', 'severity', 'slack', 'linear', 'time'].forEach(col => {
+        const ind = document.getElementById(`sort-indicator-${col}`);
+        if (!ind) return;
+        if (incidentSortConfig.column === col) {
+            ind.textContent = incidentSortConfig.direction === 'asc' ? '↑' : '↓';
+            ind.className = 'text-[9px] font-mono text-emerald-500 font-bold ml-0.5';
+        } else {
+            ind.textContent = '';
+        }
+    });
+}
+
+function toggleIncidentSort(column) {
+    if (incidentSortConfig.column === column) {
+        incidentSortConfig.direction = incidentSortConfig.direction === 'asc' ? 'desc' : 'asc';
+    } else {
+        incidentSortConfig.column = column;
+        incidentSortConfig.direction = (column === 'time' ? 'desc' : 'asc');
+    }
+    updateIncidentSortIndicators();
+    renderIncidentsTable(incidentsCache);
+}
+
+function initIncidentSortListeners() {
+    document.getElementById('sort-incident-bench')?.addEventListener('click', () => toggleIncidentSort('bench'));
+    document.getElementById('sort-incident-severity')?.addEventListener('click', () => toggleIncidentSort('severity'));
+    document.getElementById('sort-incident-slack')?.addEventListener('click', () => toggleIncidentSort('slack'));
+    document.getElementById('sort-incident-linear')?.addEventListener('click', () => toggleIncidentSort('linear'));
+    document.getElementById('sort-incident-time')?.addEventListener('click', () => toggleIncidentSort('time'));
+}
+
 function renderIncidentsTable(incidents) {
     const tbody = document.getElementById('incidents-table-body');
     if (!tbody) return;
     tbody.innerHTML = '';
 
-    incidents.forEach(inc => {
+    const list = [...incidents];
+    if (incidentSortConfig.column) {
+        list.sort((a, b) => {
+            let res = 0;
+            if (incidentSortConfig.column === 'bench') {
+                res = (a.courtroom_id || '').localeCompare(b.courtroom_id || '');
+            } else if (incidentSortConfig.column === 'severity') {
+                const rank = { 'CRITICAL': 3, 'DEGRADED': 2, 'OPTIMAL': 1 };
+                res = (rank[a.severity] || 0) - (rank[b.severity] || 0);
+            } else if (incidentSortConfig.column === 'slack') {
+                res = (a.slack_status || '').localeCompare(b.slack_status || '');
+            } else if (incidentSortConfig.column === 'linear') {
+                res = (a.linear_issue_id || '').localeCompare(b.linear_issue_id || '');
+            } else if (incidentSortConfig.column === 'time') {
+                const tA = new Date(a.created_at || 0).getTime();
+                const tB = new Date(b.created_at || 0).getTime();
+                res = tA - tB;
+            }
+            return incidentSortConfig.direction === 'asc' ? res : -res;
+        });
+    }
+
+    list.forEach(inc => {
         const tr = document.createElement('tr');
         tr.className = `hover:bg-[var(--bg-sub)] cursor-pointer transition-colors ${inc.isNew ? 'row-incident-new' : ''}`;
         tr.title = "Click to inspect incident root cause and Linear/Slack dispatch receipts";
@@ -1885,6 +2009,13 @@ const cmdInput = document.getElementById('cmd-menu-input');
 const cmdResults = document.getElementById('cmd-menu-results');
 
 document.getElementById('btn-trigger-cmd').addEventListener('click', openCommandMenu);
+document.getElementById('btn-close-cmd-menu')?.addEventListener('click', closeCommandMenu);
+
+cmdModal?.addEventListener('click', (e) => {
+    if (e.target.id === 'command-menu-modal') {
+        closeCommandMenu();
+    }
+});
 
 function openCommandMenu() {
     cmdModal.classList.remove('hidden');
@@ -2342,11 +2473,15 @@ detectAndApplyOsShortcut();
 initTheme();
 initHardwareProfileSelector();
 initHardwareInfoModal();
+initFleetSortListeners();
+initIncidentSortListeners();
 initEmergencyFallback();
 clearAudioCanvases();
 autoPairGoldenProfile("DL-HC-CRT04");
 initContinuousWebSocketTelemetry();
 updateReadinessStepper('bench_ready');
+updateFleetSortIndicators();
+updateIncidentSortIndicators();
 renderIncidentsTable(incidentsCache);
 
 // Immediately render all 11 states synchronously so the matrix is never blank on 0ms cold boot
