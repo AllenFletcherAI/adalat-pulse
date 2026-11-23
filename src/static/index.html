@@ -53,6 +53,9 @@
             --color-degraded-bg: rgba(245, 158, 11, 0.10);
             --color-critical: oklch(0.72 0.20 25);
             --color-critical-bg: rgba(239, 68, 68, 0.10);
+
+            --label-contrast: #F1F5F9;
+            --table-header-contrast: #E2E8F0;
         }
 
         html.light {
@@ -75,6 +78,50 @@
             --color-degraded-bg: rgba(245, 158, 11, 0.08);
             --color-critical: oklch(0.52 0.22 25);
             --color-critical-bg: rgba(239, 68, 68, 0.08);
+
+            --label-contrast: #0F172A;
+            --table-header-contrast: #1E293B;
+        }
+
+        .text-label-contrast {
+            color: var(--label-contrast);
+        }
+        .text-header-contrast {
+            color: var(--table-header-contrast);
+        }
+
+        /* Dynamic Expandable Search */
+        #search-pill-container:hover #btn-trigger-cmd,
+        #btn-trigger-cmd:focus-within,
+        #btn-trigger-cmd.expanded {
+            width: 16rem !important;
+            padding-left: 0.625rem !important;
+            padding-right: 0.625rem !important;
+            justify-content: flex-start !important;
+        }
+        #search-pill-container:hover #search-pill-expanded,
+        #btn-trigger-cmd:focus-within #search-pill-expanded,
+        #btn-trigger-cmd.expanded #search-pill-expanded {
+            max-width: 13rem !important;
+            opacity: 1 !important;
+            margin-left: 0.375rem !important;
+        }
+
+        /* Airtable Sync Slide-Out */
+        .sync-sliding-active #airtable-sync-slider {
+            max-width: 90px !important;
+            opacity: 1 !important;
+            margin-left: 4px !important;
+        }
+
+        /* Expandable Reset Button */
+        #btn-reset-console:hover {
+            width: 4.5rem !important;
+        }
+        #btn-reset-console:hover .reset-label {
+            max-width: 2.5rem !important;
+            opacity: 1 !important;
+            margin-left: 0.25rem !important;
         }
 
         html, body {
@@ -310,8 +357,7 @@
     <header class="h-[40px] flex-none border-b border-[var(--border-alpha)] bg-[var(--bg-canvas)] px-3 flex items-center justify-between z-30 overflow-hidden whitespace-nowrap">
         <!-- Left: Brand & Micro-KPI Bar -->
         <div class="flex items-center space-x-2.5 flex-none">
-            <button id="brand-home" type="button" class="text-sm font-bold text-[var(--text-primary)] tracking-tight hover:opacity-80 transition-opacity pressable flex items-center space-x-1.5" title="Reset diagnostic console to default bench">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <button id="brand-home" type="button" class="text-base font-bold text-[var(--text-primary)] tracking-tight hover:opacity-85 transition-opacity pressable flex items-center" title="Reset diagnostic console to default bench">
                 <span>Adalat Pulse</span>
             </button>
 
@@ -331,33 +377,40 @@
                 </button>
             </div>
 
-            <!-- Interactive Airtable Sync Button -->
-            <button id="btn-sync-airtable" type="button" class="flex items-center space-x-1.5 bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] px-2 py-0.5 rounded-md border border-[var(--border-alpha)] text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors pressable" title="Sync with Airtable Cloud Base (S)">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                <span class="font-medium text-emerald-500">Airtable</span>
-                <span id="header-airtable-sync-time" class="text-[10px] text-[var(--text-muted)] font-mono">Synced</span>
+            <!-- Interactive Airtable Sync Button with Slide-Out Drawer -->
+            <button id="btn-sync-airtable" type="button" class="flex items-center bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] px-2.5 py-1 rounded-md border border-[var(--border-alpha)] text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all pressable overflow-hidden group" title="Sync with Airtable Cloud Base (S)">
+                <svg class="w-3.5 h-3.5 text-emerald-500 mr-1.5 flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span class="font-medium text-emerald-500 flex-none">Airtable</span>
+                <span id="airtable-sync-slider" class="max-w-0 opacity-0 overflow-hidden whitespace-nowrap transition-all duration-300 ease-out font-mono text-[10px] text-[var(--text-muted)] flex items-center">
+                    <span class="mx-1">•</span>
+                    <span id="header-airtable-sync-time">Synced</span>
+                </span>
             </button>
         </div>
 
-        <!-- Center: Search Widget -->
-        <button id="btn-trigger-cmd" type="button" class="h-6 px-2.5 rounded text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha)] hover:border-[var(--border-alpha-hover)] flex items-center space-x-2 transition-all pressable" title="Search benches, states or actions">
-            <svg class="w-3 h-3 text-[var(--text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <span id="search-pill-label" class="text-[11px] text-[var(--text-muted)]">Find bench or state...</span>
-            <kbd id="shortcut-hint-kbd" class="text-[9px] font-mono bg-[var(--bg-canvas)] border border-[var(--border-alpha)] px-1 py-0.2 rounded text-[var(--text-secondary)]">Ctrl+K</kbd>
-        </button>
+        <!-- Center: Search Widget (Collapsed Icon at Rest, Expands on Hover/Focus) -->
+        <div id="search-pill-container" class="relative flex items-center group">
+            <button id="btn-trigger-cmd" type="button" class="h-7 w-7 rounded-md text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha)] hover:border-[var(--border-alpha-hover)] flex items-center justify-center transition-all duration-300 ease-out pressable overflow-hidden" title="Search benches, states or actions (Ctrl+K)">
+                <svg class="w-3.5 h-3.5 text-[var(--text-muted)] flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <span id="search-pill-expanded" class="max-w-0 opacity-0 overflow-hidden whitespace-nowrap transition-all duration-300 ease-out flex items-center ml-0">
+                    <span id="search-pill-label" class="text-[11px] text-[var(--text-muted)] pl-2">Find bench or state...</span>
+                    <kbd id="shortcut-hint-kbd" class="text-[9px] font-mono bg-[var(--bg-canvas)] border border-[var(--border-alpha)] px-1 py-0.2 rounded text-[var(--text-secondary)] ml-2 mr-1">Ctrl+K</kbd>
+                </span>
+            </button>
+        </div>
 
         <!-- Right: Reset, Theme -->
         <div class="flex items-center space-x-1.5 flex-none">
-            <button id="btn-reset-console" type="button" class="h-6 px-2 rounded text-[11px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha)] flex items-center space-x-1 pressable" title="Reset diagnostic console (R)">
-                <svg class="w-2.5 h-2.5 text-[var(--text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                <span>Reset</span>
+            <button id="btn-reset-console" type="button" class="h-7 w-7 rounded-md text-[11px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha)] flex items-center justify-center transition-all duration-300 ease-out pressable overflow-hidden group px-1.5" title="Reset diagnostic console (R)">
+                <svg class="w-3.5 h-3.5 text-[var(--text-muted)] group-hover:text-[var(--text-primary)] flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span class="reset-label max-w-0 opacity-0 overflow-hidden whitespace-nowrap transition-all duration-300 ease-out text-[11px]">Reset</span>
             </button>
 
-            <button id="btn-toggle-theme" type="button" aria-label="Toggle Light/Dark Theme" class="h-6 w-6 rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha)] flex items-center justify-center hit-slot pressable" title="Toggle Theme (T)">
-                <svg id="icon-theme-sun" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <button id="btn-toggle-theme" type="button" aria-label="Toggle Light/Dark Theme" class="h-7 w-7 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha)] flex items-center justify-center hit-slot pressable" title="Toggle Theme (T)">
+                <svg id="icon-theme-sun" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
                 </svg>
-                <svg id="icon-theme-moon" class="w-3 h-3 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg id="icon-theme-moon" class="w-3.5 h-3.5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                 </svg>
             </button>
@@ -375,7 +428,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <!-- Courtroom Bench Input -->
                     <div class="space-y-1 relative">
-                        <label class="block text-[11px] font-medium text-[var(--text-secondary)]">Courtroom Bench</label>
+                        <label class="block text-xs font-semibold text-label-contrast">Courtroom Bench</label>
                         <div class="relative flex items-center">
                             <input id="input-courtroom-id" type="text" value="DL-HC-CRT04" autocomplete="one-time-code" role="combobox" aria-expanded="false" class="clean-input w-full h-[30px] px-2.5 pr-7 text-xs font-mono font-semibold" placeholder="Courtroom ID...">
                             <button id="btn-combo-toggle" type="button" aria-label="Toggle bench dropdown" class="absolute right-1.5 h-5 w-5 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hit-slot pressable">
@@ -387,7 +440,7 @@
 
                     <!-- Uplink Baseline Select -->
                     <div class="space-y-1">
-                        <label class="block text-[11px] font-medium text-[var(--text-secondary)]">Uplink Baseline</label>
+                        <label class="block text-xs font-semibold text-label-contrast">Uplink Baseline</label>
                         <div class="custom-select-wrapper relative flex items-center">
                             <select id="select-golden-profile" class="clean-input w-full h-[30px] px-2.5 pr-7 text-xs text-[var(--text-primary)] font-medium cursor-pointer truncate">
                                 <option value="GOLDEN-HC-FIBER" selected>HC Leased Line (35ms)</option>
@@ -402,7 +455,7 @@
 
                     <!-- Language Model Select -->
                     <div class="space-y-1">
-                        <label class="block text-[11px] font-medium text-[var(--text-secondary)]">Language Model</label>
+                        <label class="block text-xs font-semibold text-label-contrast">Language Model</label>
                         <div class="custom-select-wrapper relative flex items-center">
                             <select id="select-koyal-language" class="clean-input w-full h-[30px] px-2.5 pr-7 text-xs text-[var(--text-primary)] font-medium cursor-pointer truncate">
                                 <option value="hi-en" selected>Hindi-English Hybrid</option>
@@ -423,21 +476,18 @@
             </div>
 
             <!-- Section 2: Acoustic Telemetry Scope -->
-            <div class="space-y-1.5">
+            <div class="space-y-1">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-2">
                         <span class="text-xs font-semibold text-[var(--text-primary)] tracking-tight">Acoustic Scope</span>
-                        <span class="text-[10px] text-[var(--text-muted)] font-mono">48k → 16kHz PCM (Koyal)</span>
+                        <span id="mic-hardware-advisory" class="text-[11px] font-medium text-emerald-500 font-mono"></span>
                     </div>
 
                     <!-- Mic Controls -->
                     <div class="flex items-center space-x-1.5">
                         <div class="custom-select-wrapper relative">
-                            <select id="select-hardware-profile" class="clean-input h-6 px-2 pr-6 text-xs text-[var(--text-primary)] font-medium bg-transparent cursor-pointer">
-                                <option value="SHURE_MX393" selected>Shure MX393 Boundary Mic</option>
-                                <option value="BIAMP_DSP">Judicial DSP Line-Out (Biamp)</option>
-                                <option value="SENNHEISER_ME36">Court Master Goose-neck (ME36)</option>
-                                <option value="CONSUMER_WEBCAM">Consumer USB / Laptop Webcam</option>
+                            <select id="select-hardware-profile" class="clean-input h-6 px-2 pr-6 text-xs text-[var(--text-primary)] font-medium bg-transparent cursor-pointer max-w-[220px] truncate" title="Detected Audio Input Hardware">
+                                <option value="" disabled selected>Querying hardware...</option>
                             </select>
                             <div class="pointer-events-none absolute right-1.5 top-1.5 flex items-center text-[var(--text-muted)]">
                                 <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -455,12 +505,12 @@
                 </div>
 
                 <!-- Dual Visualizers in Seamless Frame -->
-                <div class="grid grid-cols-12 gap-2 h-14 p-1 rounded-md bg-[var(--bg-canvas)] border border-[var(--border-alpha)]">
+                <div class="grid grid-cols-12 gap-2 h-12 p-1 rounded-md bg-[var(--bg-canvas)] border border-[var(--border-alpha)]">
                     <div class="col-span-5 h-full relative">
-                        <canvas id="audio-spectrum-canvas" width="250" height="48" class="w-full h-full block rounded"></canvas>
+                        <canvas id="audio-spectrum-canvas" width="250" height="42" class="w-full h-full block rounded"></canvas>
                     </div>
                     <div class="col-span-7 h-full relative border-l border-[var(--border-alpha)] pl-1.5">
-                        <canvas id="audio-waveform-canvas" width="380" height="48" class="w-full h-full block rounded"></canvas>
+                        <canvas id="audio-waveform-canvas" width="380" height="42" class="w-full h-full block rounded"></canvas>
                     </div>
                 </div>
             </div>
@@ -468,27 +518,21 @@
             <!-- Section 3: Live Network Telemetry & Quality Gates -->
             <div class="space-y-1.5">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
-                        <span class="text-xs font-semibold text-[var(--text-primary)] tracking-tight">Network & Gate Telemetry</span>
-                        <span class="inline-flex items-center space-x-1 text-[10px] text-[var(--text-muted)] font-mono">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            <span>/ws/probe (Keepalive 1.5s)</span>
-                        </span>
-                    </div>
+                    <span class="text-xs font-semibold text-[var(--text-primary)] tracking-tight">Network & Gate Telemetry</span>
                     <button id="btn-toggle-override" type="button" class="text-[10px] px-2 py-0.5 rounded bg-[var(--bg-canvas)] border border-[var(--border-alpha)] text-[var(--text-muted)] hover:text-[var(--text-primary)] pressable" title="Toggle manual metric simulation override">Override</button>
                 </div>
 
                 <!-- Rolling Strip Chart Canvas -->
-                <div class="h-12 w-full p-1 rounded-md bg-[var(--bg-canvas)] border border-[var(--border-alpha)]">
-                    <canvas id="network-strip-chart" width="600" height="40" class="w-full h-full block rounded" title="Live WebSocket RTT in ms"></canvas>
+                <div class="h-11 w-full p-1 rounded-md bg-[var(--bg-canvas)] border border-[var(--border-alpha)]">
+                    <canvas id="network-strip-chart" width="600" height="38" class="w-full h-full block rounded" title="Live WebSocket RTT in ms"></canvas>
                 </div>
 
-                <!-- 4 Datadog-Style High-Density Metric Health Cards -->
+                <!-- 4 High-Density Metric Health Cards -->
                 <div class="grid grid-cols-4 gap-2">
                     <!-- Metric 1: Latency -->
-                    <div class="surface-sub p-2 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between">
+                    <div class="surface-sub p-2 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between relative group">
                         <div class="flex items-center justify-between">
-                            <span class="text-[10px] font-medium text-[var(--text-muted)]">Latency</span>
+                            <span class="text-xs font-semibold text-label-contrast">Latency</span>
                             <span id="gate-latency-badge" class="text-[9px] font-mono font-semibold px-1 py-0.2 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">PASS</span>
                         </div>
                         <div class="flex items-baseline space-x-1 my-0.5">
@@ -497,8 +541,8 @@
                             <span class="text-[10px] text-[var(--text-muted)]">ms</span>
                         </div>
                         <div class="flex items-center justify-between text-[9px] font-mono text-[var(--text-muted)]">
-                            <span>Limit: &lt;200ms</span>
-                            <span id="delta-latency" class="text-emerald-500">+0.0 ms</span>
+                            <span id="warn-latency" class="hidden text-amber-500 font-semibold">Approaching limit</span>
+                            <span id="delta-latency" class="text-emerald-500 ml-auto">+0.0 ms</span>
                         </div>
                         <div class="w-full bg-[var(--bg-canvas)] h-1 rounded-full overflow-hidden mt-1 border border-[var(--border-alpha)]">
                             <div id="bar-latency-fill" class="h-full bg-emerald-500 meter-fill w-full" style="transform: scaleX(0.175);"></div>
@@ -506,9 +550,9 @@
                     </div>
 
                     <!-- Metric 2: Packet Loss -->
-                    <div class="surface-sub p-2 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between">
+                    <div class="surface-sub p-2 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between relative group">
                         <div class="flex items-center justify-between">
-                            <span class="text-[10px] font-medium text-[var(--text-muted)]">Packet Loss</span>
+                            <span class="text-xs font-semibold text-label-contrast">Packet Loss</span>
                             <span id="gate-loss-badge" class="text-[9px] font-mono font-semibold px-1 py-0.2 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">PASS</span>
                         </div>
                         <div class="flex items-baseline space-x-1 my-0.5">
@@ -517,8 +561,8 @@
                             <span class="text-[10px] text-[var(--text-muted)]">%</span>
                         </div>
                         <div class="flex items-center justify-between text-[9px] font-mono text-[var(--text-muted)]">
-                            <span>Limit: &lt;2.0%</span>
-                            <span id="delta-loss" class="text-emerald-500">0.0%</span>
+                            <span id="warn-loss" class="hidden text-amber-500 font-semibold">Approaching limit</span>
+                            <span id="delta-loss" class="text-emerald-500 ml-auto">0.0%</span>
                         </div>
                         <div class="w-full bg-[var(--bg-canvas)] h-1 rounded-full overflow-hidden mt-1 border border-[var(--border-alpha)]">
                             <div id="bar-loss-fill" class="h-full bg-emerald-500 meter-fill w-full" style="transform: scaleX(0.02);"></div>
@@ -526,9 +570,9 @@
                     </div>
 
                     <!-- Metric 3: Jitter -->
-                    <div class="surface-sub p-2 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between">
+                    <div class="surface-sub p-2 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between relative group">
                         <div class="flex items-center justify-between">
-                            <span class="text-[10px] font-medium text-[var(--text-muted)]">Jitter</span>
+                            <span class="text-xs font-semibold text-label-contrast">Jitter</span>
                             <span id="gate-jitter-badge" class="text-[9px] font-mono font-semibold px-1 py-0.2 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">PASS</span>
                         </div>
                         <div class="flex items-baseline space-x-1 my-0.5">
@@ -537,8 +581,8 @@
                             <span class="text-[10px] text-[var(--text-muted)]">ms</span>
                         </div>
                         <div class="flex items-center justify-between text-[9px] font-mono text-[var(--text-muted)]">
-                            <span>Limit: &lt;30ms</span>
-                            <span id="delta-jitter" class="text-emerald-500">+0.0 ms</span>
+                            <span id="warn-jitter" class="hidden text-amber-500 font-semibold">Approaching limit</span>
+                            <span id="delta-jitter" class="text-emerald-500 ml-auto">+0.0 ms</span>
                         </div>
                         <div class="w-full bg-[var(--bg-canvas)] h-1 rounded-full overflow-hidden mt-1 border border-[var(--border-alpha)]">
                             <div id="bar-jitter-fill" class="h-full bg-emerald-500 meter-fill w-full" style="transform: scaleX(0.15);"></div>
@@ -546,9 +590,9 @@
                     </div>
 
                     <!-- Metric 4: WS RTT -->
-                    <div class="surface-sub p-2 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between">
+                    <div class="surface-sub p-2 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between relative group">
                         <div class="flex items-center justify-between">
-                            <span class="text-[10px] font-medium text-[var(--text-muted)]">WS RTT</span>
+                            <span class="text-xs font-semibold text-label-contrast">WS RTT</span>
                             <span id="gate-ws-badge" class="text-[9px] font-mono font-semibold px-1 py-0.2 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">PASS</span>
                         </div>
                         <div class="flex items-baseline space-x-1 my-0.5">
@@ -557,8 +601,8 @@
                             <span class="text-[10px] text-[var(--text-muted)]">ms</span>
                         </div>
                         <div class="flex items-center justify-between text-[9px] font-mono text-[var(--text-muted)]">
-                            <span>Limit: &lt;250ms</span>
-                            <span id="delta-ws-rtt" class="text-emerald-500">+0.0 ms</span>
+                            <span id="warn-ws-rtt" class="hidden text-amber-500 font-semibold">Approaching limit</span>
+                            <span id="delta-ws-rtt" class="text-emerald-500 ml-auto">+0.0 ms</span>
                         </div>
                         <div class="w-full bg-[var(--bg-canvas)] h-1 rounded-full overflow-hidden mt-1 border border-[var(--border-alpha)]">
                             <div id="bar-ws-fill" class="h-full bg-emerald-500 meter-fill w-full" style="transform: scaleX(0.168);"></div>
@@ -582,9 +626,9 @@
 
                 <!-- Docked Action Toolbar: Status on Left, Contained Button on Right -->
                 <div class="flex items-center justify-between pt-1 border-t border-[var(--border-alpha)]">
-                    <div class="flex items-center space-x-2">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        <span class="text-xs text-[var(--text-secondary)] font-medium">All 4 Quality Gates Cleared • Koyal Hardware Ready</span>
+                    <div id="dock-status-container" class="flex items-center space-x-2">
+                        <span id="dock-status-indicator" class="w-2 h-2 rounded-full bg-slate-500"></span>
+                        <span id="dock-status-message" class="text-xs text-[var(--text-secondary)] font-medium">Ready for courtroom verification</span>
                     </div>
 
                     <button id="btn-run-diagnostic" class="btn-action-primary h-9 px-4 flex items-center justify-center space-x-2 text-xs pressable">
@@ -629,13 +673,13 @@
 
             <!-- 1. Regional Fleet Deployment Matrix (11 States) -->
             <div class="surface-panel p-3 flex-1 flex flex-col min-h-0 overflow-hidden space-y-1.5">
-                <div class="flex items-center justify-between flex-none pb-0.5">
-                    <h3 class="text-xs font-semibold text-[var(--text-primary)] tracking-tight">Fleet Deployment</h3>
-                    <span class="text-[10px] text-[var(--text-muted)] font-mono">11 Partner States • 43 Units</span>
+                <div class="flex items-center justify-between flex-none pb-0.5 group relative">
+                    <h3 class="text-xs font-semibold text-[var(--text-primary)] tracking-tight cursor-default">Fleet Deployment</h3>
+                    <span id="fleet-hover-pill" class="text-[10px] text-[var(--text-muted)] font-mono opacity-0 group-hover:opacity-100 transition-opacity duration-200 px-1.5 py-0.5 rounded bg-[var(--bg-sub)] border border-[var(--border-alpha)]">11 Partner States • 43 Units</span>
                 </div>
 
                 <!-- Column Header Row (Clean 4-column alignment, zero dead chevrons) -->
-                <div class="state-grid-row text-[10px] uppercase font-medium text-[var(--text-muted)] border-b border-[var(--border-alpha)] pb-1 px-2 flex-none">
+                <div class="state-grid-row text-xs uppercase font-semibold text-header-contrast border-b border-[var(--border-alpha)] pb-1 px-2 flex-none">
                     <span>State</span>
                     <span>Jurisdiction Seat</span>
                     <span class="text-right">Units</span>
@@ -651,18 +695,12 @@
             <!-- 2. Incident Routing Feed -->
             <div class="surface-panel p-3 flex-1 flex flex-col min-h-0 overflow-hidden justify-between space-y-1.5">
                 <div class="flex items-center justify-between flex-none pb-0.5">
-                    <div class="flex items-center space-x-2">
-                        <h3 class="text-xs font-semibold text-[var(--text-primary)] tracking-tight">Live Incident Feed</h3>
-                        <div class="flex items-center space-x-1">
-                            <button id="filter-inc-all" type="button" class="px-2 py-0.2 rounded text-[10px] font-medium badge-optimal pressable">All</button>
-                            <button id="filter-inc-critical" type="button" class="px-2 py-0.2 rounded text-[10px] font-medium text-[var(--text-muted)] hover:text-rose-500 pressable">P0 Critical</button>
-                        </div>
-                    </div>
+                    <h3 class="text-xs font-semibold text-[var(--text-primary)] tracking-tight">Live Incident Feed</h3>
                 </div>
 
                 <div class="flex-1 overflow-y-auto border border-[var(--border-alpha)] rounded-md bg-[var(--bg-canvas)]">
                     <table class="w-full text-left text-xs">
-                        <thead class="sticky top-0 bg-[var(--bg-surface)] border-b border-[var(--border-alpha)] text-[var(--text-muted)] text-[10px] uppercase font-medium">
+                        <thead class="sticky top-0 bg-[var(--bg-surface)] border-b border-[var(--border-alpha)] text-header-contrast text-xs uppercase font-semibold">
                             <tr>
                                 <th class="py-1.5 px-2.5">Bench</th>
                                 <th class="py-1.5 px-2">Severity</th>

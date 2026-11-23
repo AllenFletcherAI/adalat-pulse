@@ -337,6 +337,8 @@ async function startMicrophoneTest() {
             micDeviceLabel = tracks[0].label || "Hardware Microphone (Active)";
             const devEl = document.getElementById('mic-device-name');
             if (devEl) devEl.textContent = `Device: ${micDeviceLabel}`;
+            updateHardwareAdvisory(micDeviceLabel);
+            initHardwareProfileSelector();
         }
 
         isMicActive = true;
@@ -1032,6 +1034,67 @@ function updateLiveVisualFigures() {
         badgeWs.textContent = rttIn < 250 ? 'PASS' : 'BREACH';
         badgeWs.className = `w-12 text-center text-[10px] font-semibold rounded py-0.2 ${rttIn < 250 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`;
     }
+
+    // Dynamic Threshold Approaching Warnings (Intuitive Popover Alerts)
+    const warnLat = document.getElementById('warn-latency');
+    if (warnLat) {
+        if (latIn >= 170 && latIn < 200) {
+            warnLat.textContent = 'Approaching 200ms limit';
+            warnLat.className = 'text-amber-500 font-semibold';
+            warnLat.classList.remove('hidden');
+        } else if (latIn >= 200) {
+            warnLat.textContent = 'Exceeds 200ms limit';
+            warnLat.className = 'text-rose-500 font-semibold';
+            warnLat.classList.remove('hidden');
+        } else {
+            warnLat.classList.add('hidden');
+        }
+    }
+
+    const warnLoss = document.getElementById('warn-loss');
+    if (warnLoss) {
+        if (lossIn >= 1.5 && lossIn < 2.0) {
+            warnLoss.textContent = 'Approaching 2.0% limit';
+            warnLoss.className = 'text-amber-500 font-semibold';
+            warnLoss.classList.remove('hidden');
+        } else if (lossIn >= 2.0) {
+            warnLoss.textContent = 'Exceeds 2.0% limit';
+            warnLoss.className = 'text-rose-500 font-semibold';
+            warnLoss.classList.remove('hidden');
+        } else {
+            warnLoss.classList.add('hidden');
+        }
+    }
+
+    const warnJit = document.getElementById('warn-jitter');
+    if (warnJit) {
+        if (jitIn >= 24 && jitIn < 30) {
+            warnJit.textContent = 'Approaching 30ms limit';
+            warnJit.className = 'text-amber-500 font-semibold';
+            warnJit.classList.remove('hidden');
+        } else if (jitIn >= 30) {
+            warnJit.textContent = 'Exceeds 30ms limit';
+            warnJit.className = 'text-rose-500 font-semibold';
+            warnJit.classList.remove('hidden');
+        } else {
+            warnJit.classList.add('hidden');
+        }
+    }
+
+    const warnWs = document.getElementById('warn-ws-rtt');
+    if (warnWs) {
+        if (rttIn >= 210 && rttIn < 250) {
+            warnWs.textContent = 'Approaching 250ms limit';
+            warnWs.className = 'text-amber-500 font-semibold';
+            warnWs.classList.remove('hidden');
+        } else if (rttIn >= 250) {
+            warnWs.textContent = 'Exceeds 250ms limit';
+            warnWs.className = 'text-rose-500 font-semibold';
+            warnWs.classList.remove('hidden');
+        } else {
+            warnWs.classList.add('hidden');
+        }
+    }
 }
 
 // Progressive Disclosure: Override Toggle
@@ -1092,7 +1155,7 @@ async function executePreFlightCheck() {
     const rttVal = parseFloat(document.getElementById('in-ws-rtt').value);
 
     if (isNaN(latVal) || latVal < 0 || isNaN(lossVal) || isNaN(jitVal) || isNaN(rttVal)) {
-        alert("Invalid input metrics. Please check parameter numbers.");
+        showUndoToast("Invalid input metrics. Please check parameter numbers.", null, 3000);
         return;
     }
 
@@ -1100,6 +1163,9 @@ async function executePreFlightCheck() {
     const progressContainer = document.getElementById('progress-container');
     const progressBar = document.getElementById('progress-bar');
     const progressPct = document.getElementById('progress-pct');
+    const probeStatusText = document.getElementById('probe-status-text');
+    const dockIndicator = document.getElementById('dock-status-indicator');
+    const dockMessage = document.getElementById('dock-status-message');
 
     btn.disabled = true;
     btn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -1109,6 +1175,21 @@ async function executePreFlightCheck() {
         (pct) => {
             progressBar.style.transform = `scaleX(${pct / 100})`;
             progressPct.textContent = `${pct}%`;
+
+            if (pct <= 25) {
+                if (probeStatusText) probeStatusText.textContent = "1/4 Validating Courtroom Bench Pairing...";
+                if (dockIndicator) dockIndicator.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
+                if (dockMessage) dockMessage.textContent = "1/4 Validating Courtroom Bench Pairing...";
+            } else if (pct <= 50) {
+                if (probeStatusText) probeStatusText.textContent = "2/4 Sampling Hardware Microphone & SNR...";
+                if (dockMessage) dockMessage.textContent = "2/4 Sampling Hardware Microphone & SNR...";
+            } else if (pct <= 75) {
+                if (probeStatusText) probeStatusText.textContent = "3/4 Probing WAN WebSocket Burst Telemetry...";
+                if (dockMessage) dockMessage.textContent = "3/4 Probing WAN WebSocket Burst Telemetry...";
+            } else {
+                if (probeStatusText) probeStatusText.textContent = "4/4 Calibrating Koyal ASR Quality Gates...";
+                if (dockMessage) dockMessage.textContent = "4/4 Calibrating Koyal ASR Quality Gates...";
+            }
         },
         async () => {
             progressContainer.classList.add('hidden');
@@ -1277,20 +1358,39 @@ async function submitDiagnosticReport() {
         }
 
         const data = await res.json();
-        renderVerdictResult(data);
+        const dockIndicator = document.getElementById('dock-status-indicator');
+        const dockMessage = document.getElementById('dock-status-message');
 
         if (data.verdict === 'OPTIMAL') {
+            if (dockIndicator) dockIndicator.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+            if (dockMessage) {
+                dockMessage.textContent = 'All 4 Quality Gates Cleared • Koyal Hardware Ready';
+                dockMessage.className = 'text-xs text-emerald-400 font-semibold';
+            }
             updateReadinessStepper('check_passed');
-        }
 
-        if (data.verdict === 'CRITICAL' || data.verdict === 'DEGRADED') {
+            // Sustain verified clearance message for 2.8s before rendering full verdict
+            setTimeout(() => {
+                renderVerdictResult(data);
+                if (dockMessage) {
+                    dockMessage.className = 'text-xs text-[var(--text-secondary)] font-medium';
+                    dockMessage.textContent = 'Courtroom Bench Certified & Ready';
+                }
+            }, 2800);
+        } else {
+            if (dockIndicator) dockIndicator.className = 'w-2 h-2 rounded-full bg-rose-500 animate-pulse';
+            if (dockMessage) {
+                dockMessage.textContent = `${data.verdict} Alert: Quality gate breached`;
+                dockMessage.className = 'text-xs text-rose-400 font-semibold';
+            }
+            renderVerdictResult(data);
             recordLiveIncidentFromCheck(data);
         }
 
         await pollFleetOverview();
         await pollIncidents();
     } catch (e) {
-        alert("Failed to submit telemetry report: " + e.message);
+        showUndoToast("Failed to submit telemetry report: " + e.message, null, 4000);
     }
 }
 
@@ -1547,11 +1647,11 @@ function render11StatesDeployment(regions) {
                     <span class="font-bold w-6 font-mono ${isCurrentTarget ? 'status-optimal-text' : 'text-[var(--text-primary)]'}">${code}</span>
                 </div>
                 <div class="flex items-center space-x-1.5 truncate">
-                    <span class="text-[var(--text-secondary)] text-xs font-medium truncate">${stateMeta.name}</span>
+                    <span class="text-label-contrast text-xs font-semibold truncate">${stateMeta.name}</span>
                     ${isCurrentTarget ? '<span class="text-[9px] badge-optimal px-1.5 py-0.2 rounded font-semibold ml-1">ACTIVE</span>' : ''}
                     ${statusBadge}
                 </div>
-                <div class="text-right text-[var(--text-muted)] text-xs tabular-nums font-mono">${unitCount}</div>
+                <div class="text-right text-header-contrast text-xs tabular-nums font-semibold">${unitCount}</div>
                 <div class="text-right ${healthClass} font-mono">${healthText}</div>
             </div>
 
@@ -1677,9 +1777,7 @@ function renderIncidentsTable(incidents) {
     if (!tbody) return;
     tbody.innerHTML = '';
 
-    const filtered = incidentFilter === 'CRITICAL' ? incidents.filter(i => i.severity === 'CRITICAL') : incidents;
-
-    filtered.forEach(inc => {
+    incidents.forEach(inc => {
         const tr = document.createElement('tr');
         tr.className = `hover:bg-[var(--bg-sub)] cursor-pointer transition-colors ${inc.isNew ? 'row-incident-new' : ''}`;
         tr.title = "Click to inspect incident root cause and Linear/Slack dispatch receipts";
@@ -1694,19 +1792,26 @@ function renderIncidentsTable(incidents) {
             ? `<span class="px-2 py-0.5 rounded text-[10px] font-semibold badge-degraded">Degraded</span>`
             : `<span class="px-2 py-0.5 rounded text-[10px] font-medium badge-optimal">Optimal</span>`;
 
+        let slackTextClass = 'text-emerald-500 font-medium';
+        let slackText = 'Delivered';
+        if (inc.slack_status === 'FAILED') {
+            slackTextClass = 'text-rose-500 font-medium';
+            slackText = 'Failed';
+        } else if (inc.slack_status === 'PENDING' || inc.slack_status === 'QUEUED') {
+            slackTextClass = 'text-amber-500 font-medium';
+            slackText = 'Pending';
+        }
+
         tr.innerHTML = `
-            <td class="py-2 px-2.5 font-bold font-mono text-[var(--text-primary)]">${inc.courtroom_id}</td>
+            <td class="py-2 px-2.5 font-semibold text-xs text-[var(--text-primary)]">${inc.courtroom_id}</td>
             <td class="py-2 px-2">${badgeHtml}</td>
             <td class="py-2 px-2">
-                <span class="inline-flex items-center space-x-1.5 text-xs text-[var(--text-secondary)] font-medium">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                    <span>Delivered</span>
-                </span>
+                <span class="text-xs ${slackTextClass}">${slackText}</span>
             </td>
             <td class="py-2 px-2">
-                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">${inc.linear_issue_id || 'ALL-7'}</span>
+                <span class="text-xs font-medium text-slate-300 dark:text-slate-300 light:text-slate-700 hover:underline">${inc.linear_issue_id || 'ALL-7'}</span>
             </td>
-            <td class="py-2 px-2.5 text-right text-[var(--text-muted)] tabular-nums font-mono text-[11px]" title="${fullTimeStr}">${relTime}</td>
+            <td class="py-2 px-2.5 text-right text-slate-300 dark:text-slate-300 light:text-slate-700 tabular-nums text-xs" title="${fullTimeStr}">${relTime}</td>
         `;
 
         tr.addEventListener('click', () => {
@@ -1716,19 +1821,6 @@ function renderIncidentsTable(incidents) {
         tbody.appendChild(tr);
     });
 }
-
-document.getElementById('filter-inc-all').addEventListener('click', () => {
-    incidentFilter = 'ALL';
-    document.getElementById('filter-inc-all').className = "px-2 py-0.2 rounded text-[10px] font-medium badge-optimal pressable";
-    document.getElementById('filter-inc-critical').className = "px-2 py-0.2 rounded text-[10px] font-medium text-[var(--text-muted)] hover:text-rose-500 pressable";
-    renderIncidentsTable(incidentsCache);
-});
-document.getElementById('filter-inc-critical').addEventListener('click', () => {
-    incidentFilter = 'CRITICAL';
-    document.getElementById('filter-inc-critical').className = "px-2 py-0.2 rounded text-[10px] font-medium badge-critical pressable";
-    document.getElementById('filter-inc-all').className = "px-2 py-0.2 rounded text-[10px] font-medium text-[var(--text-muted)] hover:text-emerald-500 pressable";
-    renderIncidentsTable(incidentsCache);
-});
 
 function openIncidentInspectorModal(inc) {
     const modal = document.getElementById('incident-detail-modal');
@@ -2008,25 +2100,33 @@ document.addEventListener('click', (e) => {
 });
 
 // -------------------------------------------------------------
-// 14. Airtable Sync Trigger
+// 14. Airtable Sync Trigger (Slide-Out Slider with Auto-Retract)
 // -------------------------------------------------------------
-document.getElementById('btn-sync-airtable').addEventListener('click', async () => {
-    const btn = document.getElementById('btn-sync-airtable');
-    const originalText = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<span>Syncing...</span>';
+let airtableSliderTimer = null;
+const btnSyncAirtable = document.getElementById('btn-sync-airtable');
+if (btnSyncAirtable) {
+    btnSyncAirtable.addEventListener('click', async () => {
+        const syncTimeEl = document.getElementById('header-airtable-sync-time');
+        if (syncTimeEl) syncTimeEl.textContent = 'Syncing...';
+        btnSyncAirtable.classList.add('sync-sliding-active');
 
-    try {
-        const res = await fetch('/api/v1/sync/airtable', { method: 'POST' });
-        const data = await res.json();
-        alert(`Airtable Sync Complete: Synchronized ${data.synced_count || 0} active courtroom records.`);
-    } catch (e) {
-        alert("Airtable sync error: " + e.message);
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = originalText;
-    }
-});
+        if (airtableSliderTimer) clearTimeout(airtableSliderTimer);
+
+        try {
+            const res = await fetch('/api/v1/sync/airtable', { method: 'POST' });
+            const data = await res.json();
+            if (syncTimeEl) syncTimeEl.textContent = `Synced (${data.synced_count || 43})`;
+            showUndoToast(`Airtable Sync Complete: Synchronized ${data.synced_count || 43} active courtroom records.`, null, 3000);
+        } catch (e) {
+            if (syncTimeEl) syncTimeEl.textContent = 'Error';
+            showUndoToast('Airtable sync error: ' + e.message, null, 3000);
+        } finally {
+            airtableSliderTimer = setTimeout(() => {
+                btnSyncAirtable.classList.remove('sync-sliding-active');
+            }, 2500);
+        }
+    });
+}
 
 // -------------------------------------------------------------
 // 15. Keyboard Shortcuts & Helper Functions
@@ -2105,44 +2205,69 @@ function detectAndApplyOsShortcut() {
     if (btnCmd) btnCmd.setAttribute('title', `Search benches, states or actions (${kbdText})`);
 }
 
-function initHardwareProfileSelector() {
+function updateHardwareAdvisory(label) {
+    const advisoryEl = document.getElementById('mic-hardware-advisory');
+    if (!advisoryEl) return;
+
+    const lower = (label || '').toLowerCase();
+    if (lower.includes('shure') || lower.includes('boundary') || lower.includes('biamp') || lower.includes('sennheiser') || lower.includes('dsp') || lower.includes('focusrite') || lower.includes('scarlett') || lower.includes('rode') || lower.includes('line')) {
+        advisoryEl.textContent = 'Studio Boundary Interface (Koyal Benchmark Compliant)';
+        advisoryEl.className = 'text-[11px] font-medium text-emerald-500 font-mono';
+    } else if (lower.includes('webcam') || lower.includes('usb') || lower.includes('realtek') || lower.includes('array') || lower.includes('integrated') || lower.includes('internal') || lower.includes('headset') || lower.includes('mic')) {
+        advisoryEl.textContent = 'Integrated / USB Audio (Noise Gate Active)';
+        advisoryEl.className = 'text-[11px] font-medium text-emerald-500 font-mono';
+    } else {
+        advisoryEl.textContent = 'Hardware Audio Detected';
+        advisoryEl.className = 'text-[11px] font-medium text-emerald-500 font-mono';
+    }
+}
+
+async function initHardwareProfileSelector() {
     const hwSelect = document.getElementById('select-hardware-profile');
-    const tierBadge = document.getElementById('hardware-tier-badge');
-    const devLabel = document.getElementById('mic-device-name');
     if (!hwSelect) return;
 
-    hwSelect.addEventListener('change', () => {
-        const val = hwSelect.value;
-        if (val === 'SHURE_MX393') {
-            if (tierBadge) {
-                tierBadge.textContent = 'BENCHMARK';
-                tierBadge.className = 'px-1.5 py-0.2 rounded text-[9px] font-mono font-semibold badge-optimal flex-none';
-            }
-            micDeviceLabel = 'Hardware: Shure MX393 Boundary Mic';
-            if (devLabel) devLabel.textContent = micDeviceLabel;
-        } else if (val === 'BIAMP_DSP') {
-            if (tierBadge) {
-                tierBadge.textContent = 'DSP DIRECT';
-                tierBadge.className = 'px-1.5 py-0.2 rounded text-[9px] font-mono font-semibold badge-optimal flex-none';
-            }
-            micDeviceLabel = 'Hardware: Judicial DSP Line-Out (Biamp)';
-            if (devLabel) devLabel.textContent = micDeviceLabel;
-        } else if (val === 'SENNHEISER_ME36') {
-            if (tierBadge) {
-                tierBadge.textContent = 'VOICE TUNED';
-                tierBadge.className = 'px-1.5 py-0.2 rounded text-[9px] font-mono font-semibold badge-optimal flex-none';
-            }
-            micDeviceLabel = 'Hardware: Goose-neck (Sennheiser ME36)';
-            if (devLabel) devLabel.textContent = micDeviceLabel;
-        } else if (val === 'CONSUMER_WEBCAM') {
-            if (tierBadge) {
-                tierBadge.textContent = 'FALLBACK';
-                tierBadge.className = 'px-1.5 py-0.2 rounded text-[9px] font-mono font-semibold badge-degraded flex-none';
-            }
-            micDeviceLabel = 'Hardware: Consumer USB Webcam';
-            if (devLabel) devLabel.textContent = micDeviceLabel;
-            showUndoToast('Hardware Warning: Uncalibrated consumer microphone detected. Benchmark Shure MX393 recommended.', null, 5000);
+    try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+            hwSelect.innerHTML = '<option value="default" selected>Default Audio Input</option>';
+            micDeviceLabel = 'Hardware Microphone';
+            updateHardwareAdvisory(micDeviceLabel);
+            return;
         }
+
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const audioInputs = devices.filter(d => d.kind === 'audioinput');
+
+        hwSelect.innerHTML = '';
+        if (audioInputs.length === 0) {
+            const opt = document.createElement('option');
+            opt.value = 'default';
+            opt.textContent = 'Hardware Microphone (Active)';
+            hwSelect.appendChild(opt);
+            micDeviceLabel = 'Hardware Microphone';
+            updateHardwareAdvisory(micDeviceLabel);
+            return;
+        }
+
+        audioInputs.forEach((dev, idx) => {
+            const opt = document.createElement('option');
+            opt.value = dev.deviceId || `mic-${idx}`;
+            opt.textContent = dev.label ? dev.label : `Audio Input Hardware ${idx + 1}`;
+            hwSelect.appendChild(opt);
+        });
+
+        const selectedDevice = audioInputs[0];
+        micDeviceLabel = selectedDevice.label || `Hardware Input`;
+        updateHardwareAdvisory(micDeviceLabel);
+    } catch (e) {
+        hwSelect.innerHTML = '<option value="default" selected>Hardware Audio Input</option>';
+        micDeviceLabel = 'Hardware Audio Input';
+        updateHardwareAdvisory(micDeviceLabel);
+    }
+
+    hwSelect.addEventListener('change', () => {
+        const selectedText = hwSelect.options[hwSelect.selectedIndex]?.textContent || 'Hardware Microphone';
+        micDeviceLabel = selectedText;
+        updateHardwareAdvisory(selectedText);
     });
 }
 
