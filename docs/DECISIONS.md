@@ -419,6 +419,18 @@
 * **Rejected Alternative:** Static non-interactive tables, over-extended search bars with empty space, and keyboard-only modal exits.
 * **When to Reconsider:** Never.
 
+---
+
+## ADR-026: Pixel-Calibrated Shortcut Hint Geometry and Persistent State Units Drawer
+* **Date:** November 2026
+* **Decision:** Calibrate search container dimensions to eliminate shortcut text clipping and persist state courtroom drawers across background polling cycles:
+  1. *Pixel-Calibrated Search Pill Geometry:* Adjusted `#btn-trigger-cmd` expanded width from `11.75rem` to `12.75rem` (204.0px) and `#search-pill-expanded` max-width from `9.75rem` to `10.6rem` (169.6px). Eliminated clipping across `<kbd>Ctrl+K</kbd>` (`kbdClippedByPx: 0.0px`), providing full visual clearance for the letter `K` while keeping trailing whitespace after the badge down to ~8px.
+  2. *Persistent State Units Disclosure Drawer:* Introduced an in-memory Set (`expandedStateDrawers`) tracking open regional jurisdictions. When background telemetry polling (`pollFleetOverview`, 5000ms) or table sorting re-renders the fleet table, open drawers are dynamically populated with their expanded state preserved and their internal scroll positions restored. Drawers now remain open indefinitely until the operator explicitly clicks to collapse them.
+* **Why:** Operators require legible system keyboard shortcuts without character truncation, and persistent disclosure drawers that never snap shut during active monitoring workflows.
+* **Rejected Alternative:** Truncated shortcut text and stateless DOM clearing that closes active courtroom units every 5 seconds.
+* **When to Reconsider:** Never.
+
+
 
 
 

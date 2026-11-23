@@ -1571,6 +1571,7 @@ function showUndoToast(message, onUndoAction = null, durationMs = 5000) {
 // -------------------------------------------------------------
 let fleetSortConfig = { column: null, direction: 'asc' };
 let latestRegionsCache = [];
+const expandedStateDrawers = new Set();
 
 function updateFleetSortIndicators() {
     ['state', 'seat', 'units', 'health'].forEach(col => {
@@ -1651,6 +1652,15 @@ function render11StatesDeployment(regions) {
     latestRegionsCache = regions || [];
     const container = document.getElementById('regions-scroll-container');
     if (!container) return;
+
+    // Preserve scroll position of any currently open drawer before re-rendering
+    const drawerScrollMap = {};
+    container.querySelectorAll('.units-drawer').forEach(d => {
+        const s = d.getAttribute('data-drawer-state');
+        const scrollEl = d.querySelector('.overflow-y-auto');
+        if (s && scrollEl) drawerScrollMap[s] = scrollEl.scrollTop;
+    });
+
     container.innerHTML = '';
 
     // All 11 partner state codes in exact sequence
@@ -1716,6 +1726,7 @@ function render11StatesDeployment(regions) {
 
         // Von Restorff Effect: Highlight currently targeted bench state
         const isCurrentTarget = (code === currentTargetState);
+        const isDrawerOpen = expandedStateDrawers.has(code);
 
         const stateCard = document.createElement('div');
         stateCard.className = `state-item transition-colors rounded ${isCurrentTarget ? 'bg-emerald-500/10 border border-emerald-500/30' : 'hover:bg-[var(--bg-sub)]'}`;
@@ -1736,7 +1747,7 @@ function render11StatesDeployment(regions) {
             </div>
 
             <!-- Inline Units Disclosure Drawer -->
-            <div class="units-drawer hidden p-2 bg-[var(--bg-surface)] border-t border-[var(--border-alpha)] space-y-1">
+            <div class="units-drawer ${isDrawerOpen ? '' : 'hidden'} p-2 bg-[var(--bg-surface)] border-t border-[var(--border-alpha)] space-y-1" data-drawer-state="${code}">
                 <div class="flex items-center justify-between text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1">
                     <span class="font-semibold">${stateMeta.name} Courtroom Units (${stateMeta.seat.split('(')[0].trim()})</span>
                     <span class="text-emerald-500 font-mono">Airtable Synced</span>
@@ -1763,11 +1774,12 @@ function render11StatesDeployment(regions) {
 
         stateCard.querySelector('.state-header').addEventListener('click', () => {
             const drawer = stateCard.querySelector('.units-drawer');
-            const isHidden = drawer.classList.contains('hidden');
-            if (isHidden) {
-                drawer.classList.remove('hidden');
-            } else {
+            if (expandedStateDrawers.has(code)) {
+                expandedStateDrawers.delete(code);
                 drawer.classList.add('hidden');
+            } else {
+                expandedStateDrawers.add(code);
+                drawer.classList.remove('hidden');
             }
         });
 
@@ -1782,6 +1794,15 @@ function render11StatesDeployment(regions) {
         });
 
         container.appendChild(stateCard);
+    });
+
+    // Restore scroll positions of preserved open drawers
+    container.querySelectorAll('.units-drawer').forEach(d => {
+        const s = d.getAttribute('data-drawer-state');
+        if (s && drawerScrollMap[s] !== undefined) {
+            const scrollEl = d.querySelector('.overflow-y-auto');
+            if (scrollEl) scrollEl.scrollTop = drawerScrollMap[s];
+        }
     });
 }
 

@@ -8,6 +8,9 @@
 ---
 
 ## 1. What Is Done
+- **Pixel-Calibrated Shortcut Geometry & Persistent State Units Drawer (ADR-026):**
+  - **Calibrated Search Pill Dimensions:** Adjusted `#btn-trigger-cmd` expanded width to `12.75rem` (204.0px) and `#search-pill-expanded` max-width to `10.6rem` (169.6px). Completely eliminated text clipping across `<kbd>Ctrl+K</kbd>` (`kbdClippedByPx: 0.0px`), providing 4px clearance for the letter `K` and maintaining balanced padding without dead margin.
+  - **Persistent State Units Disclosure Drawer:** Implemented persistent state drawer tracking via `expandedStateDrawers = new Set()`. Background telemetry polling (`pollFleetOverview`, 5000ms) and table sorting re-renders now preserve all opened state drawers and restore their internal scroll offsets, allowing operators to keep courtroom units open indefinitely until explicitly clicked closed.
 - **Interactive Dual-Table Sorting, Calibrated Search Geometry & Command Menu Close Button (ADR-025):**
   - **Fleet Deployment Table Sorting:** Converted static headers (`STATE`, `JURISDICTION SEAT`, `UNITS`, `HEALTH`) into interactive sort buttons (`#sort-fleet-state`, `#sort-fleet-seat`, `#sort-fleet-units`, `#sort-fleet-health`) with tri-state cycle (`asc` -> `desc` -> default judicial order) and dynamic `↑`/`↓` indicators. Deterministically prioritizes critical and degraded health tiers.
   - **Incident Feed Table Sorting:** Converted static headers (`BENCH`, `SEVERITY`, `SLACK`, `LINEAR`, `TIME`) into interactive sort buttons (`#sort-incident-bench`, `#sort-incident-severity`, `#sort-incident-slack`, `#sort-incident-linear`, `#sort-incident-time`) with two-way sort cycling and visual indicators. Supports microsecond chronological ordering and multi-field triage.
