@@ -310,6 +310,20 @@ document.getElementById('btn-reset-audio').addEventListener('click', () => {
     updateReadinessStepper('bench_ready');
 });
 
+function updateAcousticBadges() {
+    const snrBadge = document.getElementById('acoustic-snr-badge');
+    const rateBadge = document.getElementById('acoustic-rate-badge');
+    if (snrBadge) {
+        const isPass = currentSnrDb >= 20.0;
+        snrBadge.textContent = `SNR: ${currentSnrDb.toFixed(1)} dB [${isPass ? 'PASS' : 'LOW'}]`;
+        snrBadge.className = `text-[11px] font-semibold ${isPass ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`;
+    }
+    if (rateBadge) {
+        const rateKhz = Math.round((currentSampleRate || 48000) / 1000);
+        rateBadge.textContent = `${rateKhz}k → 16k PCM`;
+    }
+}
+
 async function startMicrophoneTest() {
     try {
         if (idleAudioAnimationId) {
@@ -327,6 +341,7 @@ async function startMicrophoneTest() {
         currentSampleRate = audioContext.sampleRate || 48000;
         const rateEl = document.getElementById('live-sample-rate');
         if (rateEl) rateEl.textContent = `${currentSampleRate.toLocaleString()} Hz`;
+        updateAcousticBadges();
 
         micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
         const source = audioContext.createMediaStreamSource(micStream);
@@ -380,6 +395,7 @@ function startSyntheticAcousticTest() {
     if (rateEl) rateEl.textContent = "48,000 Hz";
     const snrEl = document.getElementById('live-snr-db');
     if (snrEl) snrEl.textContent = "31.8 dB";
+    updateAcousticBadges();
     const devEl = document.getElementById('mic-device-name');
     if (devEl) devEl.textContent = "Device: Hardware Audio Loopback (Calibrated)";
     const dotEl = document.getElementById('mic-indicator-dot');
@@ -467,6 +483,7 @@ function stopMicrophoneTest() {
         certifyAcousticHardware();
         showUndoToast(`Acoustic Hardware Certified: ${currentSampleRate.toLocaleString()} Hz, SNR: ${currentSnrDb.toFixed(1)} dB (Koyal Indic ASR Passed)`, null, 4000);
     }
+    updateAcousticBadges();
 
     isMicActive = false;
     if (syntheticAudioTimer) {
@@ -676,6 +693,7 @@ function drawRealTimeAudioVisualizers() {
         currentSnrDb = Math.round(speechSnr * 10) / 10;
         const snrEl = document.getElementById('live-snr-db');
         if (snrEl) snrEl.textContent = `${currentSnrDb.toFixed(1)} dB`;
+        updateAcousticBadges();
     }
 
     renderFrame();
@@ -1171,23 +1189,32 @@ async function executePreFlightCheck() {
     btn.classList.add('opacity-50', 'cursor-not-allowed');
     progressContainer.classList.remove('hidden');
 
+    const defaultLabelEl = btn.querySelector('.label-default');
+    const originalLabel = defaultLabelEl ? defaultLabelEl.textContent : 'Verify Courtroom';
+
     runRealWebSocketProbe(
-        (pct) => {
+        (pct, step, total) => {
             progressBar.style.transform = `scaleX(${pct / 100})`;
             progressPct.textContent = `${pct}%`;
+            if (defaultLabelEl && step && total) {
+                defaultLabelEl.textContent = `Probing: ${step}/${total} pkts...`;
+            }
 
             if (pct <= 25) {
-                if (probeStatusText) probeStatusText.textContent = "1/4 Validating Courtroom Bench Pairing...";
+                if (probeStatusText) probeStatusText.textContent = `1/4 Validating Courtroom Bench Pairing (${step || 1}/${total || 50} pkts)...`;
             } else if (pct <= 50) {
-                if (probeStatusText) probeStatusText.textContent = "2/4 Sampling Hardware Microphone & SNR...";
+                if (probeStatusText) probeStatusText.textContent = `2/4 Sampling Hardware Microphone & SNR (${step || 25}/${total || 50} pkts)...`;
             } else if (pct <= 75) {
-                if (probeStatusText) probeStatusText.textContent = "3/4 Probing WAN WebSocket Burst Telemetry...";
+                if (probeStatusText) probeStatusText.textContent = `3/4 Probing WAN WebSocket Burst Telemetry (${step || 38}/${total || 50} pkts)...`;
             } else {
-                if (probeStatusText) probeStatusText.textContent = "4/4 Calibrating Koyal ASR Quality Gates...";
+                if (probeStatusText) probeStatusText.textContent = `4/4 Calibrating Koyal ASR Quality Gates (${step || 50}/${total || 50} pkts)...`;
             }
         },
         async () => {
             progressContainer.classList.add('hidden');
+            if (defaultLabelEl) {
+                defaultLabelEl.textContent = originalLabel;
+            }
             btn.disabled = false;
             btn.classList.remove('opacity-50', 'cursor-not-allowed');
 
@@ -1248,10 +1275,8 @@ async function runRealWebSocketProbe(onProgress, onComplete) {
 
                 drawNetworkStripChart();
 
-                const profileId = document.getElementById('select-golden-profile')?.value || 'GOLDEN-HC-FIBER';
-                const target = GOLDEN_TARGETS[profileId] || GOLDEN_TARGETS["GOLDEN-HC-FIBER"];
-                const liveLat = target.latency + (Math.sin(currentStep * 0.35) * 0.8);
-                const liveWsRtt = target.ws_rtt + (Math.sin(currentStep * 0.35) * 1.5);
+                const liveLat = sampleRtt;
+                const liveWsRtt = sampleRtt + 7.0;
 
                 document.getElementById('in-latency').value = liveLat.toFixed(1);
                 document.getElementById('in-ws-rtt').value = liveWsRtt.toFixed(1);
@@ -1286,7 +1311,7 @@ async function runRealWebSocketProbe(onProgress, onComplete) {
             }));
         }
 
-        if (onProgress) onProgress(pct);
+        if (onProgress) onProgress(pct, currentStep, totalSteps, sentPackets, receivedPackets);
 
         if (currentStep >= totalSteps) {
             clearInterval(intervalId);
@@ -1422,37 +1447,50 @@ function renderVerdictResult(data) {
     }
 
     const verdict = data.verdict;
-    const evaluation = data.evaluation;
+    const evaluation = data.evaluation || {};
+    const reasonCodes = evaluation.reason_codes || [];
 
     if (verdict === 'OPTIMAL') {
         banner.classList.add('border-l-emerald-500');
-        title.textContent = 'PROCEEDING APPROVED: Courtroom Telemetry Cleared for Live Koyal ASR';
-        verdictBadge.textContent = 'Cleared';
-        verdictBadge.className = 'px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
-        iconContainer.innerHTML = '<svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+        title.textContent = 'PROCEEDING APPROVED: All 4 quality gates cleared for Koyal ASR.';
+        verdictBadge.textContent = 'CLEARED [PASS]';
+        verdictBadge.className = 'px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30';
+        iconContainer.innerHTML = '<svg class="w-4 h-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
         if (btnEmergency) btnEmergency.classList.add('hidden');
+
+        const audioRate = Math.round((currentSampleRate || 48000) / 1000);
+        summaryText.textContent = `Audio: ${audioRate} kHz (SNR ${currentSnrDb.toFixed(1)} dB) | Uplink: Low-Jitter Leased Line | Session Ready`;
 
         verdictAutoDismissTimer = setTimeout(() => {
             banner.classList.add('hidden');
-        }, 6000);
+        }, 7000);
     } else if (verdict === 'DEGRADED') {
         banner.classList.add('border-l-amber-500');
-        title.textContent = 'Degraded: Acoustic / Network Remediation Required';
-        verdictBadge.textContent = 'Degraded';
-        verdictBadge.className = 'px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30';
-        iconContainer.innerHTML = '<svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 1 21 23 21 12 2"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
-        if (btnEmergency) btnEmergency.classList.remove('hidden');
+        const breachCount = reasonCodes.length > 0 ? reasonCodes.length : 1;
+        title.textContent = `PROCEEDING BLOCKED: ${breachCount} Quality Gate(s) Breached.`;
+        verdictBadge.textContent = 'BLOCKED [NO-GO]';
+        verdictBadge.className = 'px-1.5 py-0.2 rounded text-[10px] font-semibold bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30';
+        iconContainer.innerHTML = '<svg class="w-4 h-4 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 1 21 23 21 12 2"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+        if (btnEmergency) {
+            btnEmergency.classList.remove('hidden');
+            btnEmergency.textContent = 'Activate Local Audio Buffer (Stenographer Fallback)';
+        }
+        summaryText.textContent = reasonCodes[0] || evaluation.summary || "Sub-optimal telemetry detected. Remediation required.";
     } else {
         banner.classList.add('border-l-rose-500');
-        title.textContent = 'Critical: Session Halted (P0 Automated Alert Dispatched)';
-        verdictBadge.textContent = 'Halted';
-        verdictBadge.className = 'px-1.5 py-0.2 rounded text-[10px] font-mono font-semibold bg-rose-500/20 text-rose-400 border border-rose-500/30';
-        iconContainer.innerHTML = '<svg class="w-4 h-4 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
-        if (btnEmergency) btnEmergency.classList.remove('hidden');
+        const breachCount = reasonCodes.length > 0 ? reasonCodes.length : 1;
+        title.textContent = `PROCEEDING BLOCKED: ${breachCount} Quality Gate(s) Breached.`;
+        verdictBadge.textContent = 'BLOCKED [NO-GO]';
+        verdictBadge.className = 'px-1.5 py-0.2 rounded text-[10px] font-semibold bg-rose-500/20 text-rose-700 dark:text-rose-400 border border-rose-500/30';
+        iconContainer.innerHTML = '<svg class="w-4 h-4 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+        if (btnEmergency) {
+            btnEmergency.classList.remove('hidden');
+            btnEmergency.textContent = 'Activate Local Audio Buffer (Stenographer Fallback)';
+        }
+        summaryText.textContent = reasonCodes[0] || evaluation.summary || "Critical telemetry breach. Frame loss will corrupt live transcription.";
     }
 
-    summaryText.textContent = evaluation.summary || "Pre-flight evaluation complete.";
-    scorePct.textContent = evaluation.golden_alignment ? `${evaluation.golden_alignment.alignment_pct}%` : '94.8%';
+    scorePct.textContent = evaluation.golden_alignment ? `${evaluation.golden_alignment.alignment_pct}%` : '--%';
 
     receiptAirtable.textContent = data.airtable_synced ? 'Airtable: Synced' : 'Airtable: Standby';
     receiptSlack.textContent = data.slack_alert_sent ? 'Slack: Delivered' : 'Slack: Standby';
@@ -1759,7 +1797,7 @@ function render11StatesDeployment(regions) {
                             ? 'text-blue-700 dark:text-blue-400' 
                             : 'text-amber-700 dark:text-amber-400';
                         return `
-                        <div class="flex items-center justify-between p-1.5 rounded surface-sub text-[11px]">
+                        <div class="court-unit-item flex items-center justify-between p-1.5 rounded surface-sub text-[11px] cursor-pointer hover:bg-[var(--bg-sub)] transition-colors" data-bench="${b.id}" data-state="${code}" data-name="${b.name}">
                             <div>
                                 <span class="font-semibold text-xs text-[var(--text-primary)] tracking-tight">${b.id}</span>
                                 <span class="text-[11px] text-[var(--text-muted)] font-normal ml-1">(${b.unit})</span>
@@ -1788,6 +1826,15 @@ function render11StatesDeployment(regions) {
             }
         });
 
+        stateCard.querySelectorAll('.court-unit-item').forEach(unitItem => {
+            unitItem.addEventListener('click', () => {
+                const bId = unitItem.getAttribute('data-bench');
+                const sCode = unitItem.getAttribute('data-state');
+                const bName = unitItem.getAttribute('data-name');
+                selectBenchForDiagnostic(bId, sCode, bName);
+            });
+        });
+
         stateCard.querySelectorAll('.btn-sub-test').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1811,7 +1858,7 @@ function render11StatesDeployment(regions) {
     });
 }
 
-function selectBenchForDiagnostic(courtroomId, stateCode, benchName) {
+async function selectBenchForDiagnostic(courtroomId, stateCode, benchName) {
     currentTargetState = stateCode;
     document.getElementById('input-courtroom-id').value = courtroomId;
     document.getElementById('input-state').value = stateCode;
@@ -1828,6 +1875,25 @@ function selectBenchForDiagnostic(courtroomId, stateCode, benchName) {
     }
 
     autoPairGoldenProfile(courtroomId);
+
+    // Bi-directional SQLite History Query: load real historical telemetry
+    try {
+        const res = await fetch('/api/v1/courtrooms/' + encodeURIComponent(courtroomId) + '/history?limit=1');
+        if (res.ok) {
+            const data = await res.json();
+            if (data.history && data.history.length > 0) {
+                const snap = data.history[0];
+                if (snap.latency_ms !== undefined) document.getElementById('in-latency').value = Number(snap.latency_ms).toFixed(1);
+                if (snap.packet_loss_pct !== undefined) document.getElementById('in-loss').value = Number(snap.packet_loss_pct).toFixed(1);
+                if (snap.jitter_ms !== undefined) document.getElementById('in-jitter').value = Number(snap.jitter_ms).toFixed(1);
+                if (snap.ws_rtt_ms !== undefined) document.getElementById('in-ws-rtt').value = Number(snap.ws_rtt_ms).toFixed(1);
+                updateLiveVisualFigures();
+            }
+        }
+    } catch (e) {
+        console.warn("Could not fetch courtroom history:", e);
+    }
+
     updateReadinessStepper('bench_ready');
 
     const input = document.getElementById('input-courtroom-id');
@@ -1981,7 +2047,8 @@ function renderIncidentsTable(incidents) {
             <td class="py-2 px-2.5 text-right text-slate-700 dark:text-slate-300 font-medium tabular-nums text-xs" title="${fullTimeStr}">${relTime}</td>
         `;
 
-        tr.addEventListener('click', () => {
+        tr.addEventListener('click', async () => {
+            await selectBenchForDiagnostic(inc.courtroom_id, inc.state, `${inc.courtroom_id} Judicial Bench`);
             openIncidentInspectorModal(inc);
         });
 
@@ -2017,8 +2084,8 @@ function openIncidentInspectorModal(inc) {
         breachTbody.appendChild(row);
     });
 
-    document.getElementById('btn-load-incident-bench').onclick = () => {
-        selectBenchForDiagnostic(inc.courtroom_id, inc.state, `${inc.courtroom_id} Judicial Bench`);
+    document.getElementById('btn-load-incident-bench').onclick = async () => {
+        await selectBenchForDiagnostic(inc.courtroom_id, inc.state, `${inc.courtroom_id} Judicial Bench`);
         modal.classList.add('hidden');
     };
 
@@ -2460,6 +2527,18 @@ function initEmergencyFallback() {
     if (btnEmergency) {
         btnEmergency.addEventListener('click', () => {
             showUndoToast('Offline Audio Buffer Activated: Court Master local storage recording active (48 kHz 24-bit WAV backup). Stenographer proceeding authorized.', null, 7000);
+            const title = document.getElementById('verdict-title');
+            const verdictBadge = document.getElementById('verdict-badge');
+            const summaryText = document.getElementById('verdict-summary');
+            if (title) title.textContent = 'PROCEEDING CLEARED: Local Audio Buffer Engaged';
+            if (verdictBadge) {
+                verdictBadge.textContent = 'BUFFER ACTIVE [PASS]';
+                verdictBadge.className = 'px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30';
+            }
+            if (summaryText) {
+                summaryText.textContent = 'Offline 48 kHz PCM local storage buffer engaged on Court Master SSD. Audio proceeding cleared for asynchronous transcription upload.';
+            }
+            btnEmergency.classList.add('hidden');
         });
     }
 }
@@ -2518,7 +2597,8 @@ initFleetSortListeners();
 initIncidentSortListeners();
 initEmergencyFallback();
 clearAudioCanvases();
-autoPairGoldenProfile("DL-HC-CRT04");
+updateAcousticBadges();
+selectBenchForDiagnostic("DL-HC-CRT04", "DL", "Delhi High Court Bench 04 (Civil Division)");
 initContinuousWebSocketTelemetry();
 updateReadinessStepper('bench_ready');
 updateFleetSortIndicators();

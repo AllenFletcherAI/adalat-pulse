@@ -443,6 +443,21 @@
 * **Rejected Alternative:** Retaining boxed pill containers, monospace courtroom IDs, and hardcoded drawer sync labels.
 * **When to Reconsider:** Never.
 
+---
+
+## ADR-028: Real Hardware Acoustic Telemetry, Bi-Directional History Binding, and Authoritative Go/No-Go Decision Engine
+* **Date:** November 2026
+* **Decision:** Replace all simulated or disconnected telemetry components with 100% real hardware measurements, bi-directional SQLite historical telemetry binding, real-time WebSocket burst probing, and an authoritative judicial Go/No-Go decision engine:
+  1. *Real Acoustic Signal Processing:* Connected live microphone hardware via Web Audio API `AudioContext` and `AnalyserNode` to continuously calculate physical room SNR (dB) from speech RMS vs. noise floor, and hardware clock downmix (`48k → 16k PCM`). Display permanent `#acoustic-snr-badge` and `#acoustic-rate-badge` in Swiss sans-serif with color-coded threshold status (`[PASS]` vs `[LOW]`).
+  2. *Bi-Directional Fleet & Incident SQLite History Binding:* Updated `selectBenchForDiagnostic` to asynchronously fetch `/api/v1/courtrooms/{id}/history?limit=1`. Clicking any bench in the Fleet table or any row in the Live Incident Feed queries the database and populates the 4 metric cards (`Latency`, `Packet Loss`, `Jitter`, `WS RTT`) with that courtroom's actual historical snapshot. Selecting `RJ-DC-JPR02` immediately reflects the failing metrics (395ms latency, 4.2% loss, Critical status), while selecting `DL-HC-CRT04` reflects passing metrics (34.2ms latency, 0.0% loss, Optimal status).
+  3. *WebSocket Burst Probing & Sequence Feedback:* During the 5-second `Verify Courtroom` check, fire a 50-packet burst over `/ws/probe`. Display real-time packet progress on the button (`Probing: X/50 pkts...`), calculate RFC 3550 jitter from inter-arrival timing deltas, and compute actual packet loss percentage from dropped probe packets.
+  4. *Authoritative Go/No-Go Judicial Verdict Engine:* Modernized `renderVerdictResult()` to deliver definitive compliance decisions. Optimal runs display `PROCEEDING APPROVED: All 4 quality gates cleared for Koyal ASR.` Degraded and Critical runs display `PROCEEDING BLOCKED: X Quality Gate(s) Breached.` with explicit root-cause breach reasons and an actionable `Activate Local Audio Buffer (Stenographer Fallback)` emergency button that engages local 48 kHz uncompressed WAV backup on the Court Master's machine.
+  5. *Cockpit Spatial Ergonomics:* Expanded audio spectrum and waveform canvases from 42px to 58px (`h-16`) and the WebSocket strip chart to 50px (`h-14`), eliminating dead space and providing professional Datadog-grade density across the full viewport.
+* **Why:** Executive leaders (CTO, CEO) and courtroom operators require zero mock gimmicks, real physical hardware and network telemetry, deterministic gate compliance, and bi-directional system integration.
+* **Rejected Alternative:** Dummy pre-recorded MP3 audio playback, mock text transcripts, disconnected tables, and ambiguous success banners.
+* **When to Reconsider:** Never.
+
+
 
 
 

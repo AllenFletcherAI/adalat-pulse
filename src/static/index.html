@@ -484,6 +484,8 @@
                             <svg class="w-3 h-3 text-emerald-500 flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                             <span>Hardware Specs</span>
                         </button>
+                        <span id="acoustic-snr-badge" class="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">SNR: 28.0 dB [PASS]</span>
+                        <span id="acoustic-rate-badge" class="text-[10px] text-[var(--text-muted)] font-medium">48k → 16k PCM</span>
                     </div>
 
                     <!-- Mic Controls -->
@@ -508,12 +510,12 @@
                 </div>
 
                 <!-- Dual Visualizers in Seamless Frame -->
-                <div class="grid grid-cols-12 gap-2 h-12 p-1 rounded-md bg-[var(--bg-canvas)] border border-[var(--border-alpha)]">
+                <div class="grid grid-cols-12 gap-2 h-16 p-1.5 rounded-md bg-[var(--bg-canvas)] border border-[var(--border-alpha)]">
                     <div class="col-span-5 h-full relative">
-                        <canvas id="audio-spectrum-canvas" width="250" height="42" class="w-full h-full block rounded"></canvas>
+                        <canvas id="audio-spectrum-canvas" width="280" height="58" class="w-full h-full block rounded"></canvas>
                     </div>
-                    <div class="col-span-7 h-full relative border-l border-[var(--border-alpha)] pl-1.5">
-                        <canvas id="audio-waveform-canvas" width="380" height="42" class="w-full h-full block rounded"></canvas>
+                    <div class="col-span-7 h-full relative border-l border-[var(--border-alpha)] pl-2">
+                        <canvas id="audio-waveform-canvas" width="420" height="58" class="w-full h-full block rounded"></canvas>
                     </div>
                 </div>
             </div>
@@ -526,8 +528,8 @@
                 </div>
 
                 <!-- Rolling Strip Chart Canvas -->
-                <div class="h-11 w-full p-1 rounded-md bg-[var(--bg-canvas)] border border-[var(--border-alpha)]">
-                    <canvas id="network-strip-chart" width="600" height="38" class="w-full h-full block rounded" title="Live WebSocket RTT in ms"></canvas>
+                <div class="h-14 w-full p-1.5 rounded-md bg-[var(--bg-canvas)] border border-[var(--border-alpha)]">
+                    <canvas id="network-strip-chart" width="600" height="50" class="w-full h-full block rounded" title="Live WebSocket RTT in ms"></canvas>
                 </div>
 
                 <!-- 4 High-Density Metric Health Cards -->
