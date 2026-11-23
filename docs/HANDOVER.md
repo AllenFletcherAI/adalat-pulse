@@ -8,6 +8,11 @@
 ---
 
 ## 1. What Is Done
+- **Eradication of Hardcoded Sync Stamps, Tier Pill Boxes, Monospace Artifacts & Severity Badges (ADR-027):**
+  - **Purged Hardcoded "Airtable Synced":** Removed the static `<span class="text-emerald-500 font-mono">Airtable Synced</span>` label from the state disclosure drawer header in `render11StatesDeployment()`.
+  - **Eradicated Courtroom Tier Pill Boxes:** Stripped background containers (`bg-*-500/10`), borders, padding, and monospace fonts from `HIGH COURT`, `DISTRICT COURT`, and `TALUKA COURT`. Replaced with borderless, color-coded text (`text-emerald-700 dark:text-emerald-400`, `text-blue-700 dark:text-blue-400`, `text-amber-700 dark:text-amber-400`) across state drawers, comboboxes, and search modals.
+  - **Universal Courtroom Typography Modernization:** Stripped `font-mono` from courtroom IDs, units, state codes, and combobox inputs, standardizing on institutional Swiss sans-serif (`Switzer`) with high-contrast weights (`font-semibold text-xs tracking-tight`).
+  - **Incident Severity Aligned to Slack Typography:** Replaced `badge-critical`, `badge-degraded`, and `badge-optimal` pill containers with clean bare color-coded text (`text-rose-700 dark:text-rose-400 font-semibold text-xs` for Critical, `text-amber-700 dark:text-amber-400` for Degraded, `text-emerald-700 dark:text-emerald-400` for Optimal), matching the adjacent Slack column.
 - **Pixel-Calibrated Shortcut Geometry & Persistent State Units Drawer (ADR-026):**
   - **Calibrated Search Pill Dimensions:** Adjusted `#btn-trigger-cmd` expanded width to `12.75rem` (204.0px) and `#search-pill-expanded` max-width to `10.6rem` (169.6px). Completely eliminated text clipping across `<kbd>Ctrl+K</kbd>` (`kbdClippedByPx: 0.0px`), providing 4px clearance for the letter `K` and maintaining balanced padding without dead margin.
   - **Persistent State Units Disclosure Drawer:** Implemented persistent state drawer tracking via `expandedStateDrawers = new Set()`. Background telemetry polling (`pollFleetOverview`, 5000ms) and table sorting re-renders now preserve all opened state drawers and restore their internal scroll offsets, allowing operators to keep courtroom units open indefinitely until explicitly clicked closed.

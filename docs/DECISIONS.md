@@ -430,6 +430,20 @@
 * **Rejected Alternative:** Truncated shortcut text and stateless DOM clearing that closes active courtroom units every 5 seconds.
 * **When to Reconsider:** Never.
 
+---
+
+## ADR-027: Eradication of Hardcoded Sync Stamps, Tier Pill Boxes, Monospace Artifacts, and Severity Badges
+* **Date:** November 2026
+* **Decision:** Purge hardcoded drawer sync indicators, eliminate tier pill boxes, modernize courtroom typography to sans-serif, and align incident severity to clean color-coded text:
+  1. *Purged Hardcoded "Airtable Synced":* Removed the static `<span class="text-emerald-500 font-mono">Airtable Synced</span>` label from the state disclosure drawer header. Drawer headers now display clean jurisdiction titles without hardcoded sync stamps.
+  2. *Eradicated Courtroom Tier Pill Boxes:* Removed container backgrounds (`bg-*-500/10`), borders, padding, and `font-mono` from `HIGH COURT`, `DISTRICT COURT`, and `TALUKA COURT` labels across state drawers, courtroom comboboxes, and command palette results. Rendered clean, borderless, color-coded text (`text-emerald-700 dark:text-emerald-400`, `text-blue-700 dark:text-blue-400`, `text-amber-700 dark:text-amber-400`).
+  3. *Universal Courtroom Typography Modernization:* Stripped `font-mono` from all courtroom identifiers, sub-units, state codes, and workstation combobox inputs (`#input-courtroom-id`), standardizing on Swiss sans-serif (`Switzer`) with high-contrast font weights (`font-semibold text-xs tracking-tight`).
+  4. *Incident Severity Aligned to Slack Typography:* Replaced `badge-critical`, `badge-degraded`, and `badge-optimal` pill containers in `renderIncidentsTable()` with clean bare color-coded text (`text-rose-700 dark:text-rose-400 font-semibold text-xs` for Critical, `text-amber-700 dark:text-amber-400` for Degraded, `text-emerald-700 dark:text-emerald-400` for Optimal), creating visual harmony with the adjacent Slack column.
+* **Why:** High-stakes judicial cockpits demand high-density typography and clear contrast without visual noise, boxy pill enclosures, or hardcoded status labels.
+* **Rejected Alternative:** Retaining boxed pill containers, monospace courtroom IDs, and hardcoded drawer sync labels.
+* **When to Reconsider:** Never.
+
+
 
 
 

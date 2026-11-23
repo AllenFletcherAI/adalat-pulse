@@ -1735,7 +1735,7 @@ function render11StatesDeployment(regions) {
             <div class="state-grid-row p-1.5 px-2 cursor-pointer select-none state-header text-xs">
                 <div class="flex items-center space-x-1.5 flex-none">
                     <span class="w-1.5 h-1.5 rounded-full ${dotClass}"></span>
-                    <span class="font-bold w-6 font-mono ${isCurrentTarget ? 'status-optimal-text' : 'text-[var(--text-primary)]'}">${code}</span>
+                    <span class="font-bold w-6 text-xs ${isCurrentTarget ? 'status-optimal-text' : 'text-[var(--text-primary)]'}">${code}</span>
                 </div>
                 <div class="flex items-center space-x-1.5 truncate">
                     <span class="text-label-contrast text-xs font-semibold truncate">${stateMeta.name}</span>
@@ -1750,24 +1750,29 @@ function render11StatesDeployment(regions) {
             <div class="units-drawer ${isDrawerOpen ? '' : 'hidden'} p-2 bg-[var(--bg-surface)] border-t border-[var(--border-alpha)] space-y-1" data-drawer-state="${code}">
                 <div class="flex items-center justify-between text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1">
                     <span class="font-semibold">${stateMeta.name} Courtroom Units (${stateMeta.seat.split('(')[0].trim()})</span>
-                    <span class="text-emerald-500 font-mono">Airtable Synced</span>
                 </div>
                 <div class="space-y-1 max-h-40 overflow-y-auto">
-                    ${stateMeta.benches.map(b => `
+                    ${stateMeta.benches.map(b => {
+                        const tierColor = b.tier === 'HIGH_COURT' 
+                            ? 'text-emerald-700 dark:text-emerald-400' 
+                            : b.tier === 'DISTRICT_COURT' 
+                            ? 'text-blue-700 dark:text-blue-400' 
+                            : 'text-amber-700 dark:text-amber-400';
+                        return `
                         <div class="flex items-center justify-between p-1.5 rounded surface-sub text-[11px]">
                             <div>
-                                <span class="font-bold font-mono text-[var(--text-primary)]">${b.id}</span>
-                                <span class="text-[var(--text-muted)] ml-1 font-mono">(${b.unit})</span>
+                                <span class="font-semibold text-xs text-[var(--text-primary)] tracking-tight">${b.id}</span>
+                                <span class="text-[11px] text-[var(--text-muted)] font-normal ml-1">(${b.unit})</span>
                                 <p class="text-[var(--text-secondary)] text-[11px] truncate max-w-[210px] mt-0.5">${b.name}</p>
                             </div>
-                            <div class="flex items-center space-x-2">
-                                <span class="px-1.5 py-0.5 rounded text-[9px] uppercase font-mono ${b.tier === 'HIGH_COURT' ? 'bg-emerald-500/10 text-emerald-400' : b.tier === 'DISTRICT_COURT' ? 'bg-blue-500/10 text-blue-400' : 'bg-amber-500/10 text-amber-400'} border border-[var(--border-alpha)]">${b.tier.replace('_', ' ')}</span>
-                                <button type="button" data-bench="${b.id}" data-state="${code}" data-name="${b.name}" class="btn-sub-test px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500 text-white pressable">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="text-[10px] font-semibold uppercase tracking-wider ${tierColor}">${b.tier.replace('_', ' ')}</span>
+                                <button type="button" data-bench="${b.id}" data-state="${code}" data-name="${b.name}" class="btn-sub-test px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-600 hover:bg-emerald-500 text-white pressable transition-colors">
                                     Test
                                 </button>
                             </div>
                         </div>
-                    `).join('')}
+                    `}).join('')}
                 </div>
             </div>
         `;
@@ -1943,11 +1948,16 @@ function renderIncidentsTable(incidents) {
         const dateObj = new Date(inc.created_at);
         const fullTimeStr = dateObj.toLocaleTimeString('en-IN', { hour12: false }) + ' IST';
 
-        const badgeHtml = inc.severity === 'CRITICAL'
-            ? `<span class="px-2 py-0.5 rounded text-[10px] font-semibold badge-critical">Critical</span>`
-            : inc.severity === 'DEGRADED'
-            ? `<span class="px-2 py-0.5 rounded text-[10px] font-semibold badge-degraded">Degraded</span>`
-            : `<span class="px-2 py-0.5 rounded text-[10px] font-medium badge-optimal">Optimal</span>`;
+        let severityTextClass = 'text-emerald-700 dark:text-emerald-400 font-semibold';
+        let severityText = 'Optimal';
+        if (inc.severity === 'CRITICAL') {
+            severityTextClass = 'text-rose-700 dark:text-rose-400 font-semibold';
+            severityText = 'Critical';
+        } else if (inc.severity === 'DEGRADED') {
+            severityTextClass = 'text-amber-700 dark:text-amber-400 font-semibold';
+            severityText = 'Degraded';
+        }
+        const severityHtml = `<span class="text-xs ${severityTextClass}">${severityText}</span>`;
 
         let slackTextClass = 'text-emerald-700 dark:text-emerald-400 font-semibold';
         let slackText = 'Delivered';
@@ -1961,7 +1971,7 @@ function renderIncidentsTable(incidents) {
 
         tr.innerHTML = `
             <td class="py-2 px-2.5 font-semibold text-xs text-[var(--text-primary)]">${inc.courtroom_id}</td>
-            <td class="py-2 px-2">${badgeHtml}</td>
+            <td class="py-2 px-2">${severityHtml}</td>
             <td class="py-2 px-2">
                 <span class="text-xs ${slackTextClass}">${slackText}</span>
             </td>
@@ -2104,15 +2114,20 @@ function renderCommandResults(query) {
         cmdResults.appendChild(header);
 
         matchingBenches.slice(0, 8).forEach(b => {
+            const tierColor = b.tier === 'HIGH_COURT' 
+                ? 'text-emerald-700 dark:text-emerald-400' 
+                : b.tier === 'DISTRICT_COURT' 
+                ? 'text-blue-700 dark:text-blue-400' 
+                : 'text-amber-700 dark:text-amber-400';
             const item = document.createElement('div');
             item.className = 'p-2 rounded hover:bg-[var(--bg-sub)] cursor-pointer transition-colors flex items-center justify-between text-xs';
             item.innerHTML = `
                 <div>
-                    <span class="font-bold text-[var(--text-primary)]">${b.id}</span>
+                    <span class="font-semibold text-xs text-[var(--text-primary)]">${b.id}</span>
                     <span class="text-[var(--text-muted)] text-[10px] ml-1">(${b.state})</span>
                     <p class="text-[var(--text-secondary)] font-sans text-[11px] truncate">${b.name}</p>
                 </div>
-                <span class="text-[9px] uppercase px-1 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">${b.tier.replace('_', ' ')}</span>
+                <span class="text-[10px] uppercase font-semibold tracking-wider ${tierColor}">${b.tier.replace('_', ' ')}</span>
             `;
             item.addEventListener('click', () => {
                 selectBenchForDiagnostic(b.id, b.state, b.name);
@@ -2222,15 +2237,20 @@ function populateCombobox(filterText = '') {
     }
 
     filtered.forEach(b => {
+        const tierColor = b.tier === 'HIGH_COURT' 
+            ? 'text-emerald-700 dark:text-emerald-400' 
+            : b.tier === 'DISTRICT_COURT' 
+            ? 'text-blue-700 dark:text-blue-400' 
+            : 'text-amber-700 dark:text-amber-400';
         const row = document.createElement('div');
         row.className = 'p-2 hover:bg-[var(--bg-sub)] cursor-pointer text-xs transition-colors flex items-center justify-between';
         row.innerHTML = `
             <div>
-                <span class="font-mono font-bold text-[var(--text-primary)]">${b.id}</span>
+                <span class="font-semibold text-xs text-[var(--text-primary)]">${b.id}</span>
                 <span class="text-[var(--text-muted)] text-[10px] ml-1">(${b.state})</span>
                 <p class="text-[var(--text-secondary)] text-[11px] truncate">${b.name}</p>
             </div>
-            <span class="text-[9px] font-mono text-[var(--text-muted)] uppercase">${b.tier.replace('_', ' ')}</span>
+            <span class="text-[10px] uppercase font-semibold tracking-wider ${tierColor}">${b.tier.replace('_', ' ')}</span>
         `;
         row.addEventListener('click', () => {
             selectBenchForDiagnostic(b.id, b.state, b.name);
