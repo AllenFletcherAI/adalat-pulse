@@ -421,10 +421,10 @@
     <main class="flex-1 w-full max-w-[1560px] mx-auto p-2.5 grid grid-cols-1 lg:grid-cols-12 gap-2.5 overflow-hidden">
 
         <!-- LEFT WORKSTATION: Diagnostic Instruments & Real-Time Test Engine (7 cols) -->
-        <div class="lg:col-span-7 surface-panel p-3 flex flex-col justify-between h-full overflow-hidden space-y-2">
+        <div class="lg:col-span-7 surface-panel p-3 flex flex-col h-full overflow-hidden space-y-2.5">
 
             <!-- Section 1: Bench & Configuration -->
-            <div class="space-y-1">
+            <div class="space-y-1 relative z-30">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <!-- Courtroom Bench Input -->
                     <div class="space-y-1 relative">
@@ -513,12 +513,12 @@
                 </div>
 
                 <!-- Dual Visualizers in Seamless Frame -->
-                <div class="grid grid-cols-12 gap-2 h-[72px] p-1.5 rounded-md bg-[var(--bg-canvas)] border border-[var(--border-alpha)]">
+                <div class="grid grid-cols-12 gap-2 h-[70px] p-1.5 rounded-md bg-[var(--bg-canvas)] border border-[var(--border-alpha)]">
                     <div class="col-span-5 h-full relative">
-                        <canvas id="audio-spectrum-canvas" width="280" height="72" class="w-full h-full block rounded"></canvas>
+                        <canvas id="audio-spectrum-canvas" width="280" height="70" class="w-full h-full block rounded"></canvas>
                     </div>
                     <div class="col-span-7 h-full relative border-l border-[var(--border-alpha)] pl-2">
-                        <canvas id="audio-waveform-canvas" width="420" height="72" class="w-full h-full block rounded"></canvas>
+                        <canvas id="audio-waveform-canvas" width="420" height="70" class="w-full h-full block rounded"></canvas>
                     </div>
                 </div>
             </div>
@@ -526,7 +526,14 @@
             <!-- Section 3: Live Network Telemetry & Quality Gates -->
             <div class="space-y-1.5">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-[var(--text-primary)] tracking-tight">Network & Gate Telemetry</span>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-xs font-semibold text-[var(--text-primary)] tracking-tight">Network & Gate Telemetry</span>
+                        <div class="flex items-center space-x-2 text-[10px] text-[var(--text-muted)] font-medium">
+                            <span class="flex items-center space-x-1"><span class="w-2 h-0.5 rounded bg-emerald-500 inline-block"></span><span>RTT</span></span>
+                            <span class="flex items-center space-x-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block"></span><span>Jitter</span></span>
+                            <span class="flex items-center space-x-1"><span class="w-2 h-0.5 rounded bg-rose-500 inline-block"></span><span>Limit (200ms)</span></span>
+                        </div>
+                    </div>
                     <button id="btn-toggle-override" type="button" class="text-xs px-2.5 py-0.5 rounded font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha-hover)] pressable transition-colors" title="Toggle manual metric simulation override">Override</button>
                 </div>
 
@@ -619,7 +626,119 @@
                 </div>
             </div>
 
-            <!-- Section 4: Action Toolbar & Executive Verdict -->
+            <!-- Section 4: Pre-Flight Acoustic & Telemetry Visual Analytics -->
+            <div class="grid grid-cols-12 gap-2 flex-1 min-h-[92px] max-h-[105px]">
+                <!-- Tile 1: Koyal Speech Quality Compliance Donut Gauge (4 cols) -->
+                <div class="col-span-4 surface-sub p-2 rounded-md border border-[var(--border-alpha)] flex items-center space-x-2.5">
+                    <div class="relative w-14 h-14 flex-none flex items-center justify-center">
+                        <svg class="w-14 h-14 transform -rotate-90" viewBox="0 0 64 64">
+                            <circle cx="32" cy="32" r="26" stroke="currentColor" stroke-width="5" fill="none" class="text-[var(--border-alpha)]" />
+                            <circle id="compliance-donut-fill" cx="32" cy="32" r="26" stroke="currentColor" stroke-width="5" fill="none"
+                                    stroke-dasharray="163.36" stroke-dashoffset="16.3" stroke-linecap="round"
+                                    class="text-emerald-500 transition-all duration-500 ease-out" />
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                            <span id="compliance-donut-score" class="text-xs font-bold font-mono text-[var(--text-primary)]">96%</span>
+                            <span id="compliance-donut-status" class="text-[8px] font-semibold text-emerald-500 uppercase tracking-tighter">PASS</span>
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0 space-y-0.5">
+                        <span class="text-[11px] font-semibold text-[var(--text-primary)] block leading-tight">ASR Compliance</span>
+                        <p class="text-[10px] text-[var(--text-muted)] leading-tight">4 Gate Composite Index</p>
+                        <div class="flex items-center space-x-1 pt-0.5">
+                            <span id="donut-gate-snr" class="w-1.5 h-1.5 rounded-full bg-emerald-500" title="SNR Gate"></span>
+                            <span id="donut-gate-latency" class="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Latency Gate"></span>
+                            <span id="donut-gate-loss" class="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Packet Loss Gate"></span>
+                            <span id="donut-gate-jitter" class="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Jitter Gate"></span>
+                            <span id="donut-sync-label" class="text-[9px] text-[var(--text-muted)] pl-0.5">All Synced</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tile 2: Spectral Voice vs. Room Noise Bar Profile (5 cols) -->
+                <div class="col-span-5 surface-sub p-2 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between">
+                    <div class="flex items-center justify-between pb-0.5">
+                        <span class="text-[11px] font-semibold text-[var(--text-primary)] tracking-tight">Spectral Energy Profile</span>
+                        <span id="spectral-energy-label" class="text-[10px] text-emerald-500 font-medium">Clear Voice Band</span>
+                    </div>
+                    <!-- 6-Band Frequency Energy Histogram -->
+                    <div class="h-9 w-full flex items-end justify-between gap-1.5 px-1 pt-0.5">
+                        <div class="flex-1 flex flex-col items-center h-full justify-end">
+                            <div class="w-full bg-[var(--bg-canvas)] rounded-t h-full flex items-end overflow-hidden">
+                                <div id="freq-bar-80" class="w-full bg-emerald-500/60 transition-all duration-300" style="height: 18%;"></div>
+                            </div>
+                            <span class="text-[8px] text-[var(--text-muted)] mt-0.5 font-medium">80Hz</span>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center h-full justify-end">
+                            <div class="w-full bg-[var(--bg-canvas)] rounded-t h-full flex items-end overflow-hidden">
+                                <div id="freq-bar-250" class="w-full bg-emerald-500/75 transition-all duration-300" style="height: 38%;"></div>
+                            </div>
+                            <span class="text-[8px] text-[var(--text-muted)] mt-0.5 font-medium">250Hz</span>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center h-full justify-end">
+                            <div class="w-full bg-[var(--bg-canvas)] rounded-t h-full flex items-end overflow-hidden">
+                                <div id="freq-bar-500" class="w-full bg-emerald-500 transition-all duration-300" style="height: 72%;"></div>
+                            </div>
+                            <span class="text-[8px] text-[var(--text-muted)] mt-0.5 font-medium">500Hz</span>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center h-full justify-end">
+                            <div class="w-full bg-[var(--bg-canvas)] rounded-t h-full flex items-end overflow-hidden">
+                                <div id="freq-bar-1200" class="w-full bg-emerald-500 transition-all duration-300" style="height: 85%;"></div>
+                            </div>
+                            <span class="text-[8px] text-[var(--text-muted)] mt-0.5 font-medium">1.2k</span>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center h-full justify-end">
+                            <div class="w-full bg-[var(--bg-canvas)] rounded-t h-full flex items-end overflow-hidden">
+                                <div id="freq-bar-2500" class="w-full bg-emerald-500/80 transition-all duration-300" style="height: 60%;"></div>
+                            </div>
+                            <span class="text-[8px] text-[var(--text-muted)] mt-0.5 font-medium">2.5k</span>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center h-full justify-end">
+                            <div class="w-full bg-[var(--bg-canvas)] rounded-t h-full flex items-end overflow-hidden">
+                                <div id="freq-bar-5000" class="w-full bg-emerald-500/50 transition-all duration-300" style="height: 22%;"></div>
+                            </div>
+                            <span class="text-[8px] text-[var(--text-muted)] mt-0.5 font-medium">5kHz</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between text-[9px] text-[var(--text-muted)] px-0.5">
+                        <span>Fan Noise (&lt;120Hz)</span>
+                        <span>Speech Core (500Hz-2.5kHz)</span>
+                    </div>
+                </div>
+
+                <!-- Tile 3: Uplink Packet Delivery Distribution (3 cols) -->
+                <div class="col-span-3 surface-sub p-2 rounded-md border border-[var(--border-alpha)] flex flex-col justify-between">
+                    <div class="flex items-center justify-between pb-0.5">
+                        <span class="text-[11px] font-semibold text-[var(--text-primary)] tracking-tight">Packet Delivery</span>
+                        <span id="packet-stability-rating" class="text-[10px] text-emerald-500 font-semibold">100% PASS</span>
+                    </div>
+                    <!-- 16-Segment Delivery Timeline -->
+                    <div id="packet-delivery-segments" class="grid grid-cols-8 gap-1 py-1">
+                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
+                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
+                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
+                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
+                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
+                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
+                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
+                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
+                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
+                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
+                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
+                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
+                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
+                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
+                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
+                        <div class="h-2.5 rounded-xs bg-emerald-500 transition-colors"></div>
+                    </div>
+                    <div class="flex items-center justify-between text-[9px] text-[var(--text-muted)]">
+                        <span id="packet-loss-stat">0.0% Loss</span>
+                        <span>Jitter: <strong id="packet-jitter-stat" class="text-[var(--text-secondary)] font-normal">0.8ms</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 5: Pre-Flight Action Dock -->
             <div class="space-y-1.5 flex-none">
                 <!-- Progress Indicator -->
                 <div id="progress-container" class="hidden space-y-1">
@@ -632,13 +751,9 @@
                     </div>
                 </div>
 
-                <!-- Docked Action Toolbar: Posture Summary on Left + Button on Right -->
-                <div class="flex items-center justify-between pt-2 border-t border-[var(--border-alpha)] gap-3">
-                    <div class="flex items-center space-x-2 text-[11px] text-[var(--text-secondary)] min-w-0 flex-1 truncate">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 flex-none animate-pulse"></span>
-                        <span id="action-dock-posture" class="truncate font-medium">Session Posture: <strong id="dock-courtroom-id" class="text-[var(--text-primary)]">DL-HC-CRT04</strong> • HC Leased Line (35ms) • Ready for Evaluation</span>
-                    </div>
-                    <button id="btn-run-diagnostic" class="btn-action-primary h-9 px-4 flex items-center justify-center space-x-2 text-xs flex-none pressable">
+                <!-- Docked Action Toolbar: Clean Action Button on Right -->
+                <div class="flex items-center justify-end pt-1.5 border-t border-[var(--border-alpha)]">
+                    <button id="btn-run-diagnostic" class="btn-action-primary h-9 px-5 flex items-center justify-center space-x-2 text-xs flex-none pressable">
                         <span class="label-default font-semibold">Verify Courtroom</span>
                         <span class="label-hover font-semibold">Authorize Proceeding</span>
                         <kbd class="text-[9px] font-mono text-emerald-950 dark:text-emerald-900 bg-emerald-100 dark:bg-emerald-200 px-1.5 py-0.2 rounded font-bold">↵ Enter</kbd>
@@ -806,29 +921,29 @@
             <!-- Metadata Grid -->
             <div class="grid grid-cols-2 gap-2 surface-sub p-2.5 text-xs">
                 <div>
-                    <span class="text-[var(--text-muted)] text-[10px] block uppercase">Target Bench</span>
-                    <span id="inc-modal-bench" class="font-bold text-[var(--text-primary)] font-mono">--</span>
+                    <span class="text-[var(--text-muted)] text-[10px] block font-medium">Target Bench</span>
+                    <span id="inc-modal-bench" class="font-semibold text-[var(--text-primary)]">--</span>
                 </div>
                 <div>
-                    <span class="text-[var(--text-muted)] text-[10px] block uppercase">Incident ID</span>
-                    <span id="inc-modal-id" class="text-[var(--text-secondary)] font-mono truncate block">--</span>
+                    <span class="text-[var(--text-muted)] text-[10px] block font-medium">Incident ID</span>
+                    <span id="inc-modal-id" class="text-[var(--text-secondary)] font-medium truncate block">--</span>
                 </div>
                 <div>
-                    <span class="text-[var(--text-muted)] text-[10px] block uppercase">Slack Dispatch</span>
+                    <span class="text-[var(--text-muted)] text-[10px] block font-medium">Slack Dispatch</span>
                     <span id="inc-modal-slack" class="text-emerald-500 font-medium">DELIVERED (#all-adalat-pulse-alerts)</span>
                 </div>
                 <div>
-                    <span class="text-[var(--text-muted)] text-[10px] block uppercase">Linear Issue</span>
-                    <span id="inc-modal-linear" class="text-purple-400 font-medium font-mono">CREATED ALL-7 (Team ALL)</span>
+                    <span class="text-[var(--text-muted)] text-[10px] block font-medium">Linear Issue</span>
+                    <span id="inc-modal-linear" class="text-purple-400 font-medium">CREATED ALL-7 (Team ALL)</span>
                 </div>
             </div>
 
             <!-- Structured Breaches Table -->
             <div>
-                <h4 class="text-[11px] font-semibold text-[var(--text-muted)] uppercase mb-1">Breached Quality Gates</h4>
+                <h4 class="text-[11px] font-semibold text-[var(--text-muted)] mb-1">Breached Quality Gates</h4>
                 <div class="border border-[var(--border-alpha)] rounded overflow-hidden">
                     <table class="w-full text-left text-xs">
-                        <thead class="bg-[var(--bg-canvas)] border-b border-[var(--border-alpha)] text-[var(--text-muted)] text-[10px] uppercase font-medium">
+                        <thead class="bg-[var(--bg-canvas)] border-b border-[var(--border-alpha)] text-[var(--text-muted)] text-[10px] font-medium">
                             <tr>
                                 <th class="py-1 px-2.5">Parameter</th>
                                 <th class="py-1 px-2">Measured</th>
@@ -836,7 +951,7 @@
                                 <th class="py-1 px-2.5">ASR Speech Impact</th>
                             </tr>
                         </thead>
-                        <tbody id="inc-modal-breach-tbody" class="divide-y divide-[var(--border-alpha)] font-mono text-[11px]"></tbody>
+                        <tbody id="inc-modal-breach-tbody" class="divide-y divide-[var(--border-alpha)] text-[11px]"></tbody>
                     </table>
                 </div>
             </div>
@@ -878,7 +993,7 @@
                             <th class="pb-1.5 font-medium text-right">Action</th>
                         </tr>
                     </thead>
-                    <tbody id="fleet-modal-tbody" class="divide-y divide-[var(--border-alpha)] font-mono text-[11px]"></tbody>
+                    <tbody id="fleet-modal-tbody" class="divide-y divide-[var(--border-alpha)] text-[11px]"></tbody>
                 </table>
             </div>
 
@@ -921,7 +1036,7 @@
         </div>
     </div>
 
-    <!-- MODAL 4: Acoustic Hardware Profile Pop-Up Modal -->
+    <!-- MODAL 4: Acoustic Hardware Profile Pop-Up Modal (Swiss Sans-Serif) -->
     <div id="hardware-info-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="surface-panel max-w-lg w-full p-4 space-y-3.5 shadow-2xl border border-[var(--border-alpha)]">
             <div class="flex items-center justify-between border-b border-[var(--border-alpha)] pb-2.5">
@@ -931,7 +1046,7 @@
                     </div>
                     <div>
                         <h3 class="text-xs font-bold text-[var(--text-primary)] tracking-tight">Acoustic Hardware Profile</h3>
-                        <p class="text-[10px] text-[var(--text-muted)]">Live hardware capabilities & DSP parameters</p>
+                        <p class="text-[10px] text-[var(--text-muted)] font-medium">Physical audio interface and active voice filters</p>
                     </div>
                 </div>
                 <button id="btn-close-hw-modal" type="button" class="h-6 w-6 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded hit-slot pressable" aria-label="Close">
@@ -939,49 +1054,49 @@
                 </button>
             </div>
 
-            <!-- Hardware Spec Grid -->
+            <!-- Hardware Spec Grid: Swiss Sans-Serif -->
             <div class="grid grid-cols-2 gap-2 surface-sub p-2.5 rounded text-xs">
                 <div>
-                    <span class="text-[10px] uppercase font-semibold text-[var(--text-muted)] block">Input Endpoint</span>
-                    <span id="hw-modal-device-name" class="font-bold text-[var(--text-primary)] text-[11px] truncate block mt-0.5">--</span>
+                    <span class="text-[10px] font-semibold text-[var(--text-muted)] block">Input Device</span>
+                    <span id="hw-modal-device-name" class="font-semibold text-[var(--text-primary)] text-[11px] truncate block mt-0.5">--</span>
                 </div>
                 <div>
-                    <span class="text-[10px] uppercase font-semibold text-[var(--text-muted)] block">Clock Sample Rate</span>
-                    <span id="hw-modal-sample-rate" class="font-bold font-mono text-[var(--text-primary)] text-[11px] block mt-0.5">48,000 Hz</span>
+                    <span class="text-[10px] font-semibold text-[var(--text-muted)] block">Clock Sample Rate</span>
+                    <span id="hw-modal-sample-rate" class="font-semibold tabular-nums text-[var(--text-primary)] text-[11px] block mt-0.5">48,000 Hz</span>
                 </div>
                 <div>
-                    <span class="text-[10px] uppercase font-semibold text-[var(--text-muted)] block">Koyal ASR Target</span>
-                    <span class="font-bold font-mono text-emerald-500 text-[11px] block mt-0.5">16,000 Hz 16-bit PCM</span>
+                    <span class="text-[10px] font-semibold text-[var(--text-muted)] block">ASR Audio Target</span>
+                    <span class="font-semibold text-emerald-600 dark:text-emerald-400 text-[11px] block mt-0.5">16,000 Hz 16-bit PCM</span>
                 </div>
                 <div>
-                    <span class="text-[10px] uppercase font-semibold text-[var(--text-muted)] block">Channel Topology</span>
-                    <span class="font-bold font-mono text-[var(--text-primary)] text-[11px] block mt-0.5">Mono (Downmixed)</span>
+                    <span class="text-[10px] font-semibold text-[var(--text-muted)] block">Channel Mode</span>
+                    <span class="font-semibold text-[var(--text-primary)] text-[11px] block mt-0.5">Mono Downmixed</span>
                 </div>
                 <div>
-                    <span class="text-[10px] uppercase font-semibold text-[var(--text-muted)] block">Acoustic SNR Floor</span>
-                    <span id="hw-modal-snr" class="font-bold font-mono text-[var(--text-primary)] text-[11px] block mt-0.5">-- dB</span>
+                    <span class="text-[10px] font-semibold text-[var(--text-muted)] block">Room Noise Floor</span>
+                    <span id="hw-modal-snr" class="font-semibold tabular-nums text-[var(--text-primary)] text-[11px] block mt-0.5">-- dB</span>
                 </div>
                 <div>
-                    <span class="text-[10px] uppercase font-semibold text-[var(--text-muted)] block">DSP Noise Filter</span>
-                    <span id="hw-modal-dsp-status" class="font-bold font-mono text-emerald-500 text-[11px] block mt-0.5">Active</span>
+                    <span class="text-[10px] font-semibold text-[var(--text-muted)] block">DSP Noise Suppression</span>
+                    <span id="hw-modal-dsp-status" class="font-semibold text-emerald-600 dark:text-emerald-400 text-[11px] block mt-0.5">Active</span>
                 </div>
             </div>
 
-            <!-- DSP Audio Processing Pipeline Details -->
+            <!-- Signal Processing Pipeline: Clean Swiss Typography -->
             <div class="space-y-1 text-xs">
-                <span class="text-[10px] uppercase font-semibold text-[var(--text-muted)]">Hardware Signal Processing Pipeline</span>
-                <div class="p-2 rounded surface-sub text-[11px] space-y-1 text-[var(--text-secondary)] font-mono">
-                    <div class="flex justify-between">
-                        <span>Acoustic Echo Cancellation (AEC):</span>
-                        <span class="text-emerald-500 font-semibold">Enabled</span>
+                <span class="text-[10px] font-semibold text-[var(--text-muted)]">Audio Processing Pipeline</span>
+                <div class="p-2 rounded surface-sub text-[11px] space-y-1.5 text-[var(--text-secondary)]">
+                    <div class="flex items-center justify-between">
+                        <span>Acoustic Echo Cancellation (AEC)</span>
+                        <span class="text-emerald-600 dark:text-emerald-400 font-semibold text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10">Enabled</span>
                     </div>
-                    <div class="flex justify-between">
-                        <span>Automatic Gain Control (AGC):</span>
-                        <span class="text-emerald-500 font-semibold">Active (Dynamic)</span>
+                    <div class="flex items-center justify-between">
+                        <span>Automatic Gain Control (AGC)</span>
+                        <span class="text-emerald-600 dark:text-emerald-400 font-semibold text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10">Active</span>
                     </div>
-                    <div class="flex justify-between">
-                        <span>High-Pass Courtroom Voice Filter:</span>
-                        <span class="text-emerald-500 font-semibold">120 Hz – 7,800 Hz Band</span>
+                    <div class="flex items-center justify-between">
+                        <span>High-Pass Courtroom Voice Filter</span>
+                        <span class="font-medium text-[var(--text-primary)] text-[10px]">120 Hz - 7,800 Hz Band</span>
                     </div>
                 </div>
             </div>

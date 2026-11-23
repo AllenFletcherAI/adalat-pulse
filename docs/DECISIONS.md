@@ -471,6 +471,23 @@
 * **Rejected Alternative:** Single-line crowded audio headers with truncated dropdowns, uncalibrated visualizers without dB/Hz/ms reference scales, and isolated action buttons.
 * **When to Reconsider:** Never.
 
+---
+
+## ADR-030: Viewport Compression, Pre-Flight Visual Analytics Suite, Canvas Cleanups, and Eradication of Monospace/Robotic AI Artifacts
+* **Date:** November 2026
+* **Decision:** Compress viewport spatial rhythm, eliminate vertical voids, install a 3-tile pre-flight telemetry visual analytics suite, and purge all robotic AI text and monospace formatting:
+  1. *Purged Redundant Bottom Session Posture:* Removed the static `#action-dock-posture` element and its pulsing green indicator. Anchored the primary `Verify Courtroom [↵ Enter]` trigger neatly in the bottom dock.
+  2. *Spatial Compression & Gap Elimination:* Removed `justify-between` from the left workstation container. Pulled `Acoustic Scope` directly below the top three configuration dropdowns with a tight `space-y-2` margin. Ensured the combobox listbox (`#courtroom-combo-list`, `z-40`) renders smoothly on top of Acoustic Scope (`z-30`) without clipping. Pulled `Network & Gate Telemetry` directly below Acoustic Scope.
+  3. *Installed 3-Tile Visual Analytics Suite:* Converted the recovered bottom space into a functional visual telemetry deck:
+     - *Tile 1: Koyal Speech Quality Compliance Donut Gauge:* Circular SVG meter with live composite compliance percentage (`96% PASS` vs `42% FAIL`), color-coded arc ring, and four physical quality gate status dots.
+     - *Tile 2: Spectral Voice vs. Room Noise Bar Profile:* 6-band calibrated frequency energy histogram (`80Hz`, `250Hz`, `500Hz`, `1.2k`, `2.5k`, `5kHz`) visually distinguishing speech formants from Indian courtroom HVAC/ceiling fan noise (`<120Hz`).
+     - *Tile 3: Uplink Stability & Packet Delivery Histogram:* 16-segment packet timeline showing live delivery rate (`100% PASS` vs dropped packet spikes), packet loss percentage, and RFC 3550 jitter.
+  4. *Cleaned Audio & Network Canvases:* Removed all raw `fillText` labels, uppercase headers (`FFT SPECTRUM`, `OSCILLOSCOPE`), dB numbers, and inline legend text from canvas pixels. Kept clean hairline reference grids and living waveform traces. Relocated the strip chart legend to clean HTML indicators in the card header.
+  5. *Eradicated Robotic AI Text and Monospace Formatting:* In `#hardware-info-modal`, replaced generic AI copy (`Live hardware capabilities & DSP parameters`) with human technical copy (`Physical audio interface and active voice filters`). Replaced all uppercase shouting headings with sentence-cased Swiss sans-serif (`Switzer`). Stripped `font-mono` from labels, descriptions, and the signal processing pipeline block, formatting values in clean Swiss sans-serif with `tabular-nums` for numeric measurements.
+* **Why:** High-stakes judicial cockpits demand high-density data visualizations, balanced spatial harmony, and institutional Swiss typography with zero robotic AI artifacts or monospace code dumps.
+* **Rejected Alternative:** Spreading cards across the screen with `justify-between`, stamping crude text tags onto canvas pixels, and retaining monospace terminal formatting in modals.
+* **When to Reconsider:** Never.
+
 
 
 
