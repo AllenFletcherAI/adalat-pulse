@@ -302,8 +302,10 @@ document.getElementById('btn-reset-audio').addEventListener('click', () => {
     stopMicrophoneTest();
     isAudioCertified = false;
     const certBadge = document.getElementById('acoustic-cert-badge');
-    certBadge.textContent = "UNCERTIFIED";
-    certBadge.className = "ml-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-slate-500/10 text-[var(--text-muted)] border border-[var(--border-alpha)]";
+    if (certBadge) {
+        certBadge.textContent = "UNCERTIFIED";
+        certBadge.className = "ml-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-slate-500/10 text-[var(--text-muted)] border border-[var(--border-alpha)]";
+    }
     clearAudioCanvases();
     updateReadinessStepper('bench_ready');
 });
@@ -1106,12 +1108,12 @@ document.getElementById('btn-toggle-override').addEventListener('click', () => {
 
     if (isOverrideMode) {
         btn.textContent = "Lock";
-        btn.className = "text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 pressable font-bold";
+        btn.className = "text-xs px-2.5 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 pressable font-bold transition-colors";
         readouts.forEach(id => document.getElementById(id).classList.add('hidden'));
         inputs.forEach(id => document.getElementById(id).classList.remove('hidden'));
     } else {
         btn.textContent = "Override";
-        btn.className = "text-[9px] px-1.5 py-0.2 rounded bg-[var(--bg-canvas)] border border-[var(--border-alpha)] text-[var(--text-muted)] hover:text-[var(--text-primary)] pressable";
+        btn.className = "text-xs px-2.5 py-0.5 rounded font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha-hover)] pressable transition-colors";
         readouts.forEach(id => document.getElementById(id).classList.remove('hidden'));
         inputs.forEach(id => document.getElementById(id).classList.add('hidden'));
     }
@@ -1640,7 +1642,7 @@ function render11StatesDeployment(regions) {
         } else {
             // Unmonitored state in standby
             healthText = "STANDBY";
-            healthClass = "text-[var(--text-muted)] text-xs tabular-nums";
+            healthClass = "text-slate-600 dark:text-slate-400 font-medium text-xs tabular-nums";
             dotClass = "bg-slate-500";
         }
 
@@ -1802,13 +1804,13 @@ function renderIncidentsTable(incidents) {
             ? `<span class="px-2 py-0.5 rounded text-[10px] font-semibold badge-degraded">Degraded</span>`
             : `<span class="px-2 py-0.5 rounded text-[10px] font-medium badge-optimal">Optimal</span>`;
 
-        let slackTextClass = 'text-emerald-500 font-medium';
+        let slackTextClass = 'text-emerald-700 dark:text-emerald-400 font-semibold';
         let slackText = 'Delivered';
         if (inc.slack_status === 'FAILED') {
-            slackTextClass = 'text-rose-500 font-medium';
+            slackTextClass = 'text-rose-700 dark:text-rose-400 font-semibold';
             slackText = 'Failed';
         } else if (inc.slack_status === 'PENDING' || inc.slack_status === 'QUEUED') {
-            slackTextClass = 'text-amber-500 font-medium';
+            slackTextClass = 'text-amber-700 dark:text-amber-400 font-semibold';
             slackText = 'Pending';
         }
 
@@ -1819,9 +1821,9 @@ function renderIncidentsTable(incidents) {
                 <span class="text-xs ${slackTextClass}">${slackText}</span>
             </td>
             <td class="py-2 px-2">
-                <span class="text-xs font-medium text-slate-300 dark:text-slate-300 light:text-slate-700 hover:underline">${inc.linear_issue_id || 'ALL-7'}</span>
+                <span class="text-xs font-semibold text-slate-800 dark:text-slate-300 hover:underline">${inc.linear_issue_id || 'ALL-7'}</span>
             </td>
-            <td class="py-2 px-2.5 text-right text-slate-300 dark:text-slate-300 light:text-slate-700 tabular-nums text-xs" title="${fullTimeStr}">${relTime}</td>
+            <td class="py-2 px-2.5 text-right text-slate-700 dark:text-slate-300 font-medium tabular-nums text-xs" title="${fullTimeStr}">${relTime}</td>
         `;
 
         tr.addEventListener('click', () => {
@@ -2290,12 +2292,56 @@ function initEmergencyFallback() {
     }
 }
 
+function openHardwareInfoModal() {
+    const modal = document.getElementById('hardware-info-modal');
+    if (!modal) return;
+
+    const hwSelect = document.getElementById('select-hardware-profile');
+    const selectedName = hwSelect?.options[hwSelect.selectedIndex]?.textContent || micDeviceLabel || 'Default Audio Input (Hardware)';
+
+    const devNameEl = document.getElementById('hw-modal-device-name');
+    if (devNameEl) devNameEl.textContent = selectedName;
+
+    const sampleRateEl = document.getElementById('hw-modal-sample-rate');
+    if (sampleRateEl) sampleRateEl.textContent = `${(currentSampleRate || 48000).toLocaleString()} Hz`;
+
+    const snrEl = document.getElementById('hw-modal-snr');
+    if (snrEl) snrEl.textContent = currentSnrDb > 0 ? `${currentSnrDb.toFixed(1)} dB` : 'Pending Calibration';
+
+    modal.classList.remove('hidden');
+}
+
+function initHardwareInfoModal() {
+    const btnOpen = document.getElementById('btn-hardware-info');
+    const modal = document.getElementById('hardware-info-modal');
+    const btnClose = document.getElementById('btn-close-hw-modal');
+    const btnDismiss = document.getElementById('btn-dismiss-hw-modal');
+
+    if (btnOpen) {
+        btnOpen.addEventListener('click', openHardwareInfoModal);
+    }
+    if (btnClose) {
+        btnClose.addEventListener('click', () => modal?.classList.add('hidden'));
+    }
+    if (btnDismiss) {
+        btnDismiss.addEventListener('click', () => modal?.classList.add('hidden'));
+    }
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target.id === 'hardware-info-modal') {
+                modal.classList.add('hidden');
+            }
+        });
+    }
+}
+
 // -------------------------------------------------------------
 // 17. Initial Boot Sequence with SWR
 // -------------------------------------------------------------
 detectAndApplyOsShortcut();
 initTheme();
 initHardwareProfileSelector();
+initHardwareInfoModal();
 initEmergencyFallback();
 clearAudioCanvases();
 autoPairGoldenProfile("DL-HC-CRT04");

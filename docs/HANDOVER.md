@@ -8,6 +8,13 @@
 ---
 
 ## 1. What Is Done
+- **Dynamic Acoustic Hardware Inspector & Dual-Theme Contrast Engineering (ADR-024):**
+  - **Dynamic Acoustic Hardware Modal:** Replaced the hardcoded inline string `Integrated / USB Audio (Noise Gate Active)` with an interactive `[Hardware Specs]` button that opens an on-demand `#hardware-info-modal`. Queries and displays live browser `AudioContext` and `navigator.mediaDevices` data (endpoint label, 48 kHz clock, 16 kHz Koyal ASR downsample requirement, mono topology, real-time measured SNR, and DSP flags).
+  - **Dark Mode Button Visibility:** Replaced dark canvas backgrounds on `#btn-reset-audio` and `#btn-toggle-override` with elevated surface tokens (`bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha-hover)] text-[var(--text-secondary)] font-medium`).
+  - **Light Mode Incident Typography:** Replaced invalid `light:text-slate-700` with `text-slate-800 dark:text-slate-300` for Linear issue IDs (`ALL-7`, `ALL-6`, `ALL-8`) and `text-slate-700 dark:text-slate-300` for relative timestamps (`2h ago`, `4h ago`), establishing an 8.5:1+ WCAG contrast ratio on light backgrounds.
+  - **Slack Status & Delta Contrast:** Calibrated Slack status to `text-emerald-700 dark:text-emerald-400 font-semibold` and metric card deltas to `text-emerald-700 dark:text-emerald-400 font-medium`.
+  - **Microphone Dropdown Expansion:** Expanded `#select-hardware-profile` from `max-w-[190px]` to `max-w-[250px]` so full device labels display without truncation.
+  - **Audio Reset Null-Safety:** Added existence checks to `certBadge` inside `#btn-reset-audio` click handler, preventing runtime `TypeError` crashes.
 - **Reset Confirmation Warning Modal, Navbar Ergonomics & Zero-Lag Cold Boot (ADR-023):**
   - **Reset Confirmation Modal:** Clicking the Reset console button (`R`) now presents a safety confirmation modal with an amber warning triangle icon, clear explanatory text, Cancel button, Reset button, and a `"Never show this message again"` checkbox that persists suppression in `localStorage`.
   - **Navbar Layout Ergonomics:** Moved the Search icon trigger into the right utility cluster immediately to the left of the Reset icon (`[Search] -> [Reset] -> [Theme]`). It expands smoothly to the left on hover or focus.

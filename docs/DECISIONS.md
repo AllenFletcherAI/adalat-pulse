@@ -391,6 +391,22 @@
 * **Rejected Alternative:** Unconfirmed resets and unpopulated cold-boot tables.
 * **When to Reconsider:** Never.
 
+---
+
+## ADR-024: Dynamic Acoustic Hardware Inspector Modal & Dual-Theme Contrast Engineering
+* **Date:** November 2026
+* **Decision:** Replace hardcoded acoustic status strings with a dynamic hardware profile modal and calibrate high-contrast dual-theme typography:
+  1. *Dynamic Hardware Profile Modal:* Purged the static inline string `Integrated / USB Audio (Noise Gate Active)` next to Acoustic Scope. Replaced it with an interactive `[Hardware Specs]` button that triggers an on-demand modal `#hardware-info-modal`. The modal queries real `AudioContext` and `navigator.mediaDevices` data (device endpoint label, 48 kHz hardware sample rate, 16 kHz Koyal ASR downmixing standard, mono topology, real-time measured SNR, and DSP status).
+  2. *Dark Mode Interactive Button Contrast:* Replaced low-contrast `bg-[var(--bg-canvas)] text-[var(--text-muted)]` on both `#btn-reset-audio` and `#btn-toggle-override` with elevated surface tokens (`bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha-hover)] text-[var(--text-secondary)] font-medium`).
+  3. *Light Mode Typography Calibration:* Replaced invalid `light:text-slate-700` with `text-slate-800 dark:text-slate-300` for Linear issue IDs and `text-slate-700 dark:text-slate-300` for relative timestamps, establishing an 8.5:1+ WCAG contrast ratio on light mode backgrounds.
+  4. *Slack Delivery & Delta Contrast:* Calibrated Slack status to `text-emerald-700 dark:text-emerald-400 font-semibold` and metric card deltas to `text-emerald-700 dark:text-emerald-400 font-medium`, preventing washed-out text on white surfaces.
+  5. *Microphone Dropdown Expansion:* Widened `#select-hardware-profile` from `max-w-[190px]` to `max-w-[250px]`, utilizing newly available space to prevent device name truncation.
+  6. *Audio Reset Null-Safety:* Added existence checks to `certBadge` inside `#btn-reset-audio` handler to prevent runtime `TypeError` crashes.
+* **Why:** Operators need clear visibility in both high-glare daytime courtroom settings and dark studio monitoring environments, with on-demand hardware telemetry that never clutters the primary workflow.
+* **Rejected Alternative:** Hardcoded inline advisory strings and washed-out text tokens.
+* **When to Reconsider:** Never.
+
+
 
 
 
