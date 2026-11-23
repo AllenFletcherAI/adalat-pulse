@@ -342,6 +342,56 @@
 * **Rejected Alternative:** Leaving mock data disconnected, pinging localhost at 1.5ms, and logging normal courtroom sessions as Linear engineering tickets.
 * **When to Reconsider:** Never. Integrity and operational realism are non-negotiable.
 
+---
+
+## ADR-020: Zero-Slop Minimalist Ergonomics & Complete Reactive Verification
+* **Date:** November 2026
+* **Decision:** Purge all non-functional visual scaffolding and enforce total interactive responsiveness:
+  1. *Eliminated Passive Scaffolding:* Purged non-reactive status banners, decorative headers, and static placeholders.
+  2. *Single-Row Executive Navigation:* Streamlined header into a compact 40px row with responsive micro-KPI chips and interactive sync drawers.
+  3. *Clean Reactive Instruments:* Replaced text clutter with active visualizers, high-density metric cards, and responsive calibration triggers.
+* **Why:** Operators in high-stakes courtroom environments need immediate clarity with zero non-functional distractions.
+* **Rejected Alternative:** Keeping decorative borders and static tutorial copy.
+* **When to Reconsider:** Never.
+
+---
+
+## ADR-021: Total Purge of Static Artifacts and Zero-Emoji Policy
+* **Date:** November 2026
+* **Decision:** Eliminate all static artifacts and strictly enforce a zero-emoji policy across the entire system:
+  1. *Purged Static Badges:* Removed static version stamps, decorative SVG icons, and non-reactive footer bars.
+  2. *Interactive Brand Reset:* Converted brand header into an active reset trigger with undo notification.
+  3. *Pure Oscilloscope Rendering:* Removed hardcoded canvas watermark strings; let high-frequency waveforms speak for themselves.
+* **Why:** Judicial software demands institutional craft, total reliability, and zero amateur ornamentation.
+* **Rejected Alternative:** Retaining static stamps or decorative emojis.
+* **When to Reconsider:** Never.
+
+---
+
+## ADR-022: Dynamic Quality Gate Threshold Warnings and Hardware Input Enumeration
+* **Date:** November 2026
+* **Decision:** Replace hardcoded metric limits and synthetic audio selectors with dynamic live hardware detection:
+  1. *Live Hardware Microphone Enumeration:* Replaced mock microphone lists with real `navigator.mediaDevices.enumerateDevices()` calls, dynamically labelling active microphones and alerting on consumer fallbacks.
+  2. *Dynamic Approach Warnings:* Replaced static `< 200ms` limit badges with contextual `Approaching limit` amber alerts triggered only when metrics near boundary thresholds.
+  3. *Sequential Verification Progress:* Added clear 4-step progressive feedback during courtroom diagnostic runs.
+* **Why:** Real hardware profiling and contextual alerts prevent operator error without cluttering normal operation.
+* **Rejected Alternative:** Hardcoded device names and permanent static threshold text.
+* **When to Reconsider:** Never.
+
+---
+
+## ADR-023: Reset Confirmation Warning Modal, Navbar Ergonomics, and Cold-Boot Hydration
+* **Date:** November 2026
+* **Decision:** Implement safety confirmation on console reset, optimize navigation layout, and eradicate cold-boot render lag:
+  1. *Reset Confirmation Modal:* Added an amber warning modal when clicking Reset (`R`), asking for confirmation before clearing live state, with a persistent `"Never show this message again"` preference stored in `localStorage`.
+  2. *Repositioned Search Action:* Moved the search icon trigger from the navbar center into the right utility cluster immediately next to the Reset and Theme toggles (`[Search] -> [Reset] -> [Theme]`), preserving natural header balance.
+  3. *Purged Action Dock Status:* Removed `#dock-status-container` (`Ready for courtroom verification` and gray dot) from the bottom-left action bar, giving the primary CTA clean right alignment.
+  4. *Zero-Lag Synchronous Boot:* Seeded `render11StatesDeployment([])` and `renderIncidentsTable(incidentsCache)` synchronously on load so tables and canvases populate on frame zero.
+* **Why:** Accidental resets during live courtroom monitoring can disrupt ongoing proceedings. Clean layout ergonomics and zero-lag rendering prevent jarring layout shifts.
+* **Rejected Alternative:** Unconfirmed resets and unpopulated cold-boot tables.
+* **When to Reconsider:** Never.
+
+
 
 
 

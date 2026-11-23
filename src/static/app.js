@@ -1164,8 +1164,6 @@ async function executePreFlightCheck() {
     const progressBar = document.getElementById('progress-bar');
     const progressPct = document.getElementById('progress-pct');
     const probeStatusText = document.getElementById('probe-status-text');
-    const dockIndicator = document.getElementById('dock-status-indicator');
-    const dockMessage = document.getElementById('dock-status-message');
 
     btn.disabled = true;
     btn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -1178,17 +1176,12 @@ async function executePreFlightCheck() {
 
             if (pct <= 25) {
                 if (probeStatusText) probeStatusText.textContent = "1/4 Validating Courtroom Bench Pairing...";
-                if (dockIndicator) dockIndicator.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
-                if (dockMessage) dockMessage.textContent = "1/4 Validating Courtroom Bench Pairing...";
             } else if (pct <= 50) {
                 if (probeStatusText) probeStatusText.textContent = "2/4 Sampling Hardware Microphone & SNR...";
-                if (dockMessage) dockMessage.textContent = "2/4 Sampling Hardware Microphone & SNR...";
             } else if (pct <= 75) {
                 if (probeStatusText) probeStatusText.textContent = "3/4 Probing WAN WebSocket Burst Telemetry...";
-                if (dockMessage) dockMessage.textContent = "3/4 Probing WAN WebSocket Burst Telemetry...";
             } else {
                 if (probeStatusText) probeStatusText.textContent = "4/4 Calibrating Koyal ASR Quality Gates...";
-                if (dockMessage) dockMessage.textContent = "4/4 Calibrating Koyal ASR Quality Gates...";
             }
         },
         async () => {
@@ -1358,31 +1351,15 @@ async function submitDiagnosticReport() {
         }
 
         const data = await res.json();
-        const dockIndicator = document.getElementById('dock-status-indicator');
-        const dockMessage = document.getElementById('dock-status-message');
 
         if (data.verdict === 'OPTIMAL') {
-            if (dockIndicator) dockIndicator.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
-            if (dockMessage) {
-                dockMessage.textContent = 'All 4 Quality Gates Cleared • Koyal Hardware Ready';
-                dockMessage.className = 'text-xs text-emerald-400 font-semibold';
-            }
             updateReadinessStepper('check_passed');
 
-            // Sustain verified clearance message for 2.8s before rendering full verdict
+            // Sustain verified clearance message before rendering full verdict
             setTimeout(() => {
                 renderVerdictResult(data);
-                if (dockMessage) {
-                    dockMessage.className = 'text-xs text-[var(--text-secondary)] font-medium';
-                    dockMessage.textContent = 'Courtroom Bench Certified & Ready';
-                }
-            }, 2800);
+            }, 2000);
         } else {
-            if (dockIndicator) dockIndicator.className = 'w-2 h-2 rounded-full bg-rose-500 animate-pulse';
-            if (dockMessage) {
-                dockMessage.textContent = `${data.verdict} Alert: Quality gate breached`;
-                dockMessage.className = 'text-xs text-rose-400 font-semibold';
-            }
             renderVerdictResult(data);
             recordLiveIncidentFromCheck(data);
         }
@@ -1489,13 +1466,9 @@ document.getElementById('btn-dismiss-verdict').addEventListener('click', () => {
 });
 
 // -------------------------------------------------------------
-// 8. Reset Console with Undo Toast
+// 8. Reset Console with Warning Modal & Undo Toast
 // -------------------------------------------------------------
-document.getElementById('brand-home')?.addEventListener('click', () => {
-    document.getElementById('btn-reset-console')?.click();
-});
-
-document.getElementById('btn-reset-console').addEventListener('click', () => {
+function performResetConsole() {
     const prevState = {
         courtroom: document.getElementById('input-courtroom-id').value,
         lat: document.getElementById('in-latency').value,
@@ -1504,7 +1477,7 @@ document.getElementById('btn-reset-console').addEventListener('click', () => {
         rtt: document.getElementById('in-ws-rtt').value
     };
 
-    document.getElementById('verdict-banner').classList.add('hidden');
+    document.getElementById('verdict-banner')?.classList.add('hidden');
     stopMicrophoneTest();
     autoPairGoldenProfile("DL-HC-CRT04");
     updateReadinessStepper('bench_ready');
@@ -1517,6 +1490,43 @@ document.getElementById('btn-reset-console').addEventListener('click', () => {
         document.getElementById('in-ws-rtt').value = prevState.rtt;
         autoPairGoldenProfile(prevState.courtroom);
     });
+}
+
+function triggerResetConsole() {
+    const isSuppressed = localStorage.getItem('adalat_suppress_reset_warning') === 'true';
+    if (isSuppressed) {
+        performResetConsole();
+    } else {
+        const modal = document.getElementById('reset-confirm-modal');
+        const cb = document.getElementById('cb-never-show-reset');
+        if (cb) cb.checked = false;
+        if (modal) modal.classList.remove('hidden');
+    }
+}
+
+document.getElementById('brand-home')?.addEventListener('click', () => {
+    triggerResetConsole();
+});
+
+document.getElementById('btn-reset-console')?.addEventListener('click', triggerResetConsole);
+
+document.getElementById('btn-cancel-reset')?.addEventListener('click', () => {
+    document.getElementById('reset-confirm-modal')?.classList.add('hidden');
+});
+
+document.getElementById('btn-confirm-reset')?.addEventListener('click', () => {
+    const cb = document.getElementById('cb-never-show-reset');
+    if (cb && cb.checked) {
+        localStorage.setItem('adalat_suppress_reset_warning', 'true');
+    }
+    document.getElementById('reset-confirm-modal')?.classList.add('hidden');
+    performResetConsole();
+});
+
+document.getElementById('reset-confirm-modal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'reset-confirm-modal') {
+        e.target.classList.add('hidden');
+    }
 });
 
 function showUndoToast(message, onUndoAction = null, durationMs = 5000) {
@@ -2293,13 +2303,16 @@ initContinuousWebSocketTelemetry();
 updateReadinessStepper('bench_ready');
 renderIncidentsTable(incidentsCache);
 
+// Immediately render all 11 states synchronously so the matrix is never blank on 0ms cold boot
+render11StatesDeployment([]);
+
 try {
     const cachedFleet = localStorage.getItem('adalat_fleet_cache');
     if (cachedFleet) {
         const data = JSON.parse(cachedFleet);
         render11StatesDeployment(data.regions || []);
         const totalCourtroomsEl = document.getElementById('stat-total-courtrooms');
-        if (totalCourtroomsEl) totalCourtroomsEl.textContent = '43 Reg (11 States)';
+        if (totalCourtroomsEl) totalCourtroomsEl.textContent = '43 Benches';
         const fleetHealthEl = document.getElementById('stat-fleet-health');
         if (fleetHealthEl) fleetHealthEl.textContent = `${(data.fleet_health_pct !== undefined ? data.fleet_health_pct : 75.0).toFixed(1)}%`;
     }

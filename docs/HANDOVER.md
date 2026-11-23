@@ -8,7 +8,16 @@
 ---
 
 ## 1. What Is Done
-- **High-Craft 2026 SaaS Modernization & Anti-Slop Visual Overhaul (ADR-022):**
+- **Reset Confirmation Warning Modal, Navbar Ergonomics & Zero-Lag Cold Boot (ADR-023):**
+  - **Reset Confirmation Modal:** Clicking the Reset console button (`R`) now presents a safety confirmation modal with an amber warning triangle icon, clear explanatory text, Cancel button, Reset button, and a `"Never show this message again"` checkbox that persists suppression in `localStorage`.
+  - **Navbar Layout Ergonomics:** Moved the Search icon trigger into the right utility cluster immediately to the left of the Reset icon (`[Search] -> [Reset] -> [Theme]`). It expands smoothly to the left on hover or focus.
+  - **Purged Action Dock Placeholder:** Removed `#dock-status-container` (the gray dot and `• Ready for courtroom verification` string) from the bottom-left action bar, aligning the contained `Verify Courtroom [↵ Enter]` button cleanly to the right.
+  - **Zero-Lag Synchronous Boot:** Fixed cold-boot blank rendering by calling `render11StatesDeployment([])` synchronously on boot so all 11 state cards and 43 courtroom benches render on frame zero. The microphone dropdown defaults to `Default Audio Input (Hardware)` without any "Querying hardware..." mock lag.
+- **Dynamic Quality Gate Warnings & Real Hardware Microphone Enumeration (ADR-022):**
+  - Real hardware microphone querying via `navigator.mediaDevices.enumerateDevices()` with fallback warning for consumer webcams.
+  - Dynamic approach warnings on metric cards (`Approaching limit`) that only trigger when metrics near boundary thresholds.
+  - Clean 4-step progressive feedback during courtroom diagnostic runs.
+- **High-Craft 2026 SaaS Modernization & Anti-Slop Visual Overhaul (ADR-021 & ADR-020):**
   - **Typography Transformation:** Stripped universal `font-mono` from headers, tables, form labels, and buttons. Restored clean Swiss sans-serif (`Switzer`) as the primary UI typography with strict 3-tier weight hierarchy. Reserved `font-mono` strictly for numeric metrics, hardware IDs, and timestamps.
   - **Eradicated the Border Prison:** Eliminated nested 1px bordered boxes on the left workstation; created a single, seamless, tonally layered cockpit card with hairline dividers (`border-white/[0.07]` in dark mode, `#E2E8F0` with subtle elevation in light mode).
   - **Living Studio Audio Scope:** Eliminated dead empty black/grey voids with an ambient resting noise floor (`-52 dB`) and gentle carrier sine breath wave running continuously in idle.
