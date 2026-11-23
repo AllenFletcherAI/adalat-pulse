@@ -457,6 +457,21 @@
 * **Rejected Alternative:** Dummy pre-recorded MP3 audio playback, mock text transcripts, disconnected tables, and ambiguous success banners.
 * **When to Reconsider:** Never.
 
+---
+
+## ADR-029: Cockpit Density Optimization, Multi-Tier Hardware Ergonomics, and Precision Telemetry Instrumentation
+* **Date:** November 2026
+* **Decision:** Elevate cockpit spatial density, resolve audio hardware device name truncation, and implement precision engineering telemetry instrumentation:
+  1. *Multi-Tier Acoustic Scope Ergonomics:* Re-architected Acoustic Scope header from a congested single flex line into a structured 2-tier control panel. Tier 1 hosts the section title, Hardware Specs trigger, and live physical badges (`#acoustic-snr-badge`, `#acoustic-rate-badge`). Tier 2 provides a dedicated, full-width device selector row (`flex-1 min-w-0`), completely eliminating device name truncation (`(0...`) and flanking it with `Calibrate` and `Reset` actions.
+  2. *Precision Studio Audio Oscilloscope & Spectrum Instrumentation:* Expanded audio visualizer canvases to 72px height (`h-[72px]`). Rendered a calibrated dBFS vertical reference scale (`-12dB`, `-24dB`, `-36dB`, `-48dB`), 5 bottom frequency reference markers (`125Hz`, `500Hz`, `1kHz`, `4kHz`, `16kHz`), `FFT SPECTRUM (32 BANDS)` header tag, elevated resting ambient floor bars (10–24px height with emerald gradient fills), and a living carrier sine breath wave with active envelope and center baseline.
+  3. *Calibrated Network Telemetry Strip Chart:* Sized canvas to 64px height (`h-16`). Implemented an explicit left Y-axis numeric scale (`0ms` to `100ms` or `400ms` based on latency headroom, with `200ms Limit` marker), bottom X-axis time markers (`-30s`, `-15s`, `Live (0s)`), and an inline top-right legend (`RTT`, `Jitter`, `200ms Limit`).
+  4. *Pre-Flight Compliance Action Dock:* Replaced the isolated floating button with a unified pre-flight action dock. Left side features a live pulsing emerald session posture indicator displaying the active courtroom, uplink baseline, and evaluation readiness (`#action-dock-posture`). Right side anchors the primary `Verify Courtroom [↵ Enter]` trigger.
+  5. *Viewport Spatial Balance & Density:* Re-proportioned right column surface panels (Fleet Deployment `flex-[3_3_0%]`, Live Incident Feed `flex-[2_2_0%]`) to eliminate vertical dead space while maintaining clean visual hierarchy. Encapsulated top navbar micro-metrics into elevated Datadog-grade pill badges.
+* **Why:** Executive stakeholders (CTO, CEO) and courtroom operators require a production-grade cockpit with zero visual truncation, clear instrumentation scales, balanced viewport rhythm, and cohesive compliance docks.
+* **Rejected Alternative:** Single-line crowded audio headers with truncated dropdowns, uncalibrated visualizers without dB/Hz/ms reference scales, and isolated action buttons.
+* **When to Reconsider:** Never.
+
+
 
 
 

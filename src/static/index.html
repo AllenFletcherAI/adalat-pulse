@@ -362,18 +362,18 @@
             </button>
 
             <!-- Reconciled Micro-KPI Segmented Chips -->
-            <div class="flex items-center space-x-0.5 text-xs bg-[var(--bg-surface)] p-0.5 rounded-md border border-[var(--border-alpha)] ml-1">
-                <button id="chip-active" type="button" class="px-2 py-0.5 rounded hover:bg-[var(--bg-sub)] transition-colors pressable" title="Total registered courtroom units">
-                    <span id="stat-total-courtrooms" class="font-medium text-[var(--text-primary)] text-[11px] font-mono">43 Benches</span>
+            <div class="flex items-center space-x-1.5 text-xs ml-1">
+                <button id="chip-active" type="button" class="surface-sub px-2.5 py-0.5 rounded border border-[var(--border-alpha)] hover:bg-[var(--bg-sub)] transition-colors pressable" title="Total registered courtroom units">
+                    <span id="stat-total-courtrooms" class="font-semibold text-[var(--text-primary)] text-[11px]">43 Benches</span>
                 </button>
-                <button id="chip-monitored" type="button" class="px-2 py-0.5 rounded hover:bg-[var(--bg-sub)] transition-colors pressable" title="Live monitored courtroom sessions">
-                    <span id="stat-monitored-count" class="font-medium text-[var(--text-primary)] text-[11px] font-mono">4 Live</span>
+                <button id="chip-monitored" type="button" class="surface-sub px-2.5 py-0.5 rounded border border-[var(--border-alpha)] hover:bg-[var(--bg-sub)] transition-colors pressable" title="Live monitored courtroom sessions">
+                    <span id="stat-monitored-count" class="font-medium text-[var(--text-secondary)] text-[11px]">4 Monitored</span>
                 </button>
-                <button id="chip-fleet" type="button" class="px-2 py-0.5 rounded hover:bg-[var(--bg-sub)] transition-colors pressable" title="Fleet health percentage reconciled with incidents">
-                    <span id="stat-fleet-health" class="font-medium status-degraded-text text-[11px] font-mono">75.0%</span>
+                <button id="chip-fleet" type="button" class="surface-sub px-2.5 py-0.5 rounded border border-[var(--border-alpha)] hover:bg-[var(--bg-sub)] transition-colors pressable" title="Fleet health percentage reconciled with incidents">
+                    <span id="stat-fleet-health" class="font-bold status-degraded-text text-[11px]">75.0%</span>
                 </button>
-                <button id="chip-incidents" type="button" class="px-2 py-0.5 rounded hover:bg-[var(--bg-sub)] transition-colors pressable" title="Active P0 incidents">
-                    <span id="stat-incidents-count" class="font-semibold status-critical-text text-[11px] font-mono">1 P0</span>
+                <button id="chip-incidents" type="button" class="surface-sub px-2.5 py-0.5 rounded border border-[var(--border-alpha)] hover:bg-[var(--bg-sub)] transition-colors pressable" title="Active P0 incidents">
+                    <span id="stat-incidents-count" class="font-bold status-critical-text text-[11px]">1 P0</span>
                 </button>
             </div>
 
@@ -476,46 +476,49 @@
             </div>
 
             <!-- Section 2: Acoustic Telemetry Scope -->
-            <div class="space-y-1">
-                <div class="flex items-center justify-between">
+            <div class="space-y-1.5">
+                <!-- Acoustic Header: Title & Specs on Left, Live Badges on Right -->
+                <div class="flex items-center justify-between pb-0.5">
                     <div class="flex items-center space-x-2">
                         <span class="text-xs font-semibold text-[var(--text-primary)] tracking-tight">Acoustic Scope</span>
                         <button id="btn-hardware-info" type="button" class="text-[11px] px-2 py-0.5 rounded font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha)] hover:border-[var(--border-alpha-hover)] flex items-center space-x-1.5 pressable transition-colors" title="Inspect detected audio hardware specifications">
                             <svg class="w-3 h-3 text-emerald-500 flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                             <span>Hardware Specs</span>
                         </button>
+                    </div>
+                    <div class="flex items-center space-x-2">
                         <span id="acoustic-snr-badge" class="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">SNR: 28.0 dB [PASS]</span>
                         <span id="acoustic-rate-badge" class="text-[10px] text-[var(--text-muted)] font-medium">48k → 16k PCM</span>
                     </div>
+                </div>
 
-                    <!-- Mic Controls -->
-                    <div class="flex items-center space-x-1.5">
-                        <div class="custom-select-wrapper relative">
-                            <select id="select-hardware-profile" class="clean-input h-6 px-2 pr-6 text-xs text-[var(--text-primary)] font-medium bg-transparent cursor-pointer max-w-[250px] truncate" title="Detected Audio Input Hardware">
-                                <option value="default" selected>Default Audio Input (Hardware)</option>
-                            </select>
-                            <div class="pointer-events-none absolute right-1.5 top-1.5 flex items-center text-[var(--text-muted)]">
-                                <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                            </div>
+                <!-- Dedicated Audio Controls Bar: Full-Width Mic Dropdown + Actions -->
+                <div class="flex items-center space-x-1.5">
+                    <div class="custom-select-wrapper relative flex-1 min-w-0 flex items-center">
+                        <select id="select-hardware-profile" class="clean-input w-full h-[28px] px-2.5 pr-7 text-xs text-[var(--text-primary)] font-medium cursor-pointer truncate" title="Detected Audio Input Hardware">
+                            <option value="default" selected>Default Audio Input (Hardware)</option>
+                        </select>
+                        <div class="pointer-events-none absolute right-2 flex items-center text-[var(--text-muted)]">
+                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                         </div>
-
-                        <button id="btn-toggle-mic" type="button" class="h-6 px-2.5 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/30 hover:bg-emerald-500/20 transition-colors flex items-center pressable" title="Run live microphone calibration (Space)">
-                            <span id="mic-btn-label">Calibrate</span>
-                            <kbd class="text-[9px] font-mono px-1 py-0.2 rounded ml-1.5 border border-emerald-500/30 text-emerald-500 bg-[var(--bg-canvas)]">Space</kbd>
-                        </button>
-                        <button id="btn-reset-audio" type="button" class="h-6 px-2.5 rounded text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha-hover)] pressable transition-colors" title="Reset audio calibration">
-                            Reset
-                        </button>
                     </div>
+
+                    <button id="btn-toggle-mic" type="button" class="h-[28px] px-3 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/30 hover:bg-emerald-500/20 transition-colors flex items-center space-x-1.5 flex-none pressable" title="Run live microphone calibration (Space)">
+                        <span id="mic-btn-label">Calibrate</span>
+                        <kbd class="text-[9px] font-mono px-1 py-0.2 rounded border border-emerald-500/30 text-emerald-500 bg-[var(--bg-canvas)]">Space</kbd>
+                    </button>
+                    <button id="btn-reset-audio" type="button" class="h-[28px] px-2.5 rounded text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-sub)] border border-[var(--border-alpha-hover)] flex-none pressable transition-colors" title="Reset audio calibration">
+                        Reset
+                    </button>
                 </div>
 
                 <!-- Dual Visualizers in Seamless Frame -->
-                <div class="grid grid-cols-12 gap-2 h-16 p-1.5 rounded-md bg-[var(--bg-canvas)] border border-[var(--border-alpha)]">
+                <div class="grid grid-cols-12 gap-2 h-[72px] p-1.5 rounded-md bg-[var(--bg-canvas)] border border-[var(--border-alpha)]">
                     <div class="col-span-5 h-full relative">
-                        <canvas id="audio-spectrum-canvas" width="280" height="58" class="w-full h-full block rounded"></canvas>
+                        <canvas id="audio-spectrum-canvas" width="280" height="72" class="w-full h-full block rounded"></canvas>
                     </div>
                     <div class="col-span-7 h-full relative border-l border-[var(--border-alpha)] pl-2">
-                        <canvas id="audio-waveform-canvas" width="420" height="58" class="w-full h-full block rounded"></canvas>
+                        <canvas id="audio-waveform-canvas" width="420" height="72" class="w-full h-full block rounded"></canvas>
                     </div>
                 </div>
             </div>
@@ -528,8 +531,8 @@
                 </div>
 
                 <!-- Rolling Strip Chart Canvas -->
-                <div class="h-14 w-full p-1.5 rounded-md bg-[var(--bg-canvas)] border border-[var(--border-alpha)]">
-                    <canvas id="network-strip-chart" width="600" height="50" class="w-full h-full block rounded" title="Live WebSocket RTT in ms"></canvas>
+                <div class="h-16 w-full p-1.5 rounded-md bg-[var(--bg-canvas)] border border-[var(--border-alpha)]">
+                    <canvas id="network-strip-chart" width="600" height="64" class="w-full h-full block rounded" title="Live WebSocket RTT in ms"></canvas>
                 </div>
 
                 <!-- 4 High-Density Metric Health Cards -->
@@ -629,9 +632,13 @@
                     </div>
                 </div>
 
-                <!-- Docked Action Toolbar: Contained Button on Right -->
-                <div class="flex items-center justify-end pt-1 border-t border-[var(--border-alpha)]">
-                    <button id="btn-run-diagnostic" class="btn-action-primary h-9 px-4 flex items-center justify-center space-x-2 text-xs pressable">
+                <!-- Docked Action Toolbar: Posture Summary on Left + Button on Right -->
+                <div class="flex items-center justify-between pt-2 border-t border-[var(--border-alpha)] gap-3">
+                    <div class="flex items-center space-x-2 text-[11px] text-[var(--text-secondary)] min-w-0 flex-1 truncate">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 flex-none animate-pulse"></span>
+                        <span id="action-dock-posture" class="truncate font-medium">Session Posture: <strong id="dock-courtroom-id" class="text-[var(--text-primary)]">DL-HC-CRT04</strong> • HC Leased Line (35ms) • Ready for Evaluation</span>
+                    </div>
+                    <button id="btn-run-diagnostic" class="btn-action-primary h-9 px-4 flex items-center justify-center space-x-2 text-xs flex-none pressable">
                         <span class="label-default font-semibold">Verify Courtroom</span>
                         <span class="label-hover font-semibold">Authorize Proceeding</span>
                         <kbd class="text-[9px] font-mono text-emerald-950 dark:text-emerald-900 bg-emerald-100 dark:bg-emerald-200 px-1.5 py-0.2 rounded font-bold">↵ Enter</kbd>
@@ -672,7 +679,7 @@
         <div class="lg:col-span-5 flex flex-col space-y-2.5 h-full overflow-hidden">
 
             <!-- 1. Regional Fleet Deployment Matrix (11 States) -->
-            <div class="surface-panel p-3 flex-1 flex flex-col min-h-0 overflow-hidden space-y-1.5">
+            <div class="surface-panel p-3 flex-[3_3_0%] flex flex-col min-h-0 overflow-hidden space-y-1.5">
                 <div class="flex items-center justify-between flex-none pb-0.5 group relative">
                     <h3 class="text-xs font-semibold text-[var(--text-primary)] tracking-tight cursor-default">Fleet Deployment</h3>
                     <span id="fleet-hover-pill" class="text-[10px] text-[var(--text-muted)] font-mono opacity-0 group-hover:opacity-100 transition-opacity duration-200 px-1.5 py-0.5 rounded bg-[var(--bg-sub)] border border-[var(--border-alpha)]">11 Partner States • 43 Units</span>
@@ -705,7 +712,7 @@
             </div>
 
             <!-- 2. Incident Routing Feed -->
-            <div class="surface-panel p-3 flex-1 flex flex-col min-h-0 overflow-hidden justify-between space-y-1.5">
+            <div class="surface-panel p-3 flex-[2_2_0%] flex flex-col min-h-0 overflow-hidden space-y-1.5">
                 <div class="flex items-center justify-between flex-none pb-0.5">
                     <h3 class="text-xs font-semibold text-[var(--text-primary)] tracking-tight">Live Incident Feed</h3>
                 </div>

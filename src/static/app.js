@@ -565,52 +565,116 @@ function startIdleAudioVisualizer() {
 
         const isLight = document.documentElement.classList.contains('light');
         const bg = isLight ? '#F8FAFC' : '#0A0D14';
+        const labelMuted = isLight ? 'rgba(0,0,0,0.38)' : 'rgba(255,255,255,0.32)';
 
-        // 1. Spectrum Canvas: Living ambient floor (-52 dB) across 28 bands
+        // 1. Spectrum Canvas: Living ambient floor (-52 dB) across 28 bands with calibrated dB & Hz scale
         specCtx.fillStyle = bg;
         specCtx.fillRect(0, 0, specCanvas.width, specCanvas.height);
 
+        // dBFS Horizontal Reference Grid
         specCtx.strokeStyle = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
         specCtx.lineWidth = 1;
+        specCtx.font = '8px Switzer, -apple-system, sans-serif';
+        specCtx.fillStyle = labelMuted;
+
         [-12, -24, -36, -48].forEach(db => {
             const y = specCanvas.height * ((0 - db) / 60.0);
             specCtx.beginPath();
-            specCtx.moveTo(0, y);
+            specCtx.moveTo(24, y);
             specCtx.lineTo(specCanvas.width, y);
             specCtx.stroke();
+            specCtx.fillText(`${db}dB`, 2, y + 2.5);
         });
 
+        // Top Header Tag
+        specCtx.fillText('FFT SPECTRUM (32 BANDS)', 32, 10);
+
+        // 28 Calibrated Frequency Bars with Ambient Energy
         const barCount = 28;
         const totalGap = (barCount - 1) * 2;
-        const barWidth = Math.max(2, (specCanvas.width - totalGap) / barCount);
-        specCtx.fillStyle = isLight ? 'rgba(5, 150, 105, 0.35)' : 'rgba(16, 185, 129, 0.30)';
+        const barWidth = Math.max(2, (specCanvas.width - totalGap - 28) / barCount);
+        const barOffsetLeft = 26;
+
         for (let i = 0; i < barCount; i++) {
-            const flutter = Math.sin(tick * 1.6 + i * 0.4) * 2.0 + 3.5;
-            const x = i * (barWidth + 2);
-            specCtx.fillRect(x, specCanvas.height - flutter, barWidth, flutter);
+            const flutter = Math.sin(tick * 1.6 + i * 0.4) * 4.0 + (i < 14 ? 14.0 : 9.0);
+            const x = barOffsetLeft + i * (barWidth + 2);
+            const y = specCanvas.height - 12 - flutter;
+
+            const grad = specCtx.createLinearGradient(0, y, 0, specCanvas.height - 12);
+            if (isLight) {
+                grad.addColorStop(0, 'rgba(5, 150, 105, 0.60)');
+                grad.addColorStop(1, 'rgba(5, 150, 105, 0.20)');
+            } else {
+                grad.addColorStop(0, 'rgba(16, 185, 129, 0.65)');
+                grad.addColorStop(1, 'rgba(16, 185, 129, 0.20)');
+            }
+            specCtx.fillStyle = grad;
+            specCtx.fillRect(x, y, barWidth, flutter);
         }
 
-        // 2. Waveform Canvas: Gentle carrier sine breath wave
+        // Bottom Frequency Ticks (125Hz, 500Hz, 1kHz, 4kHz, 16kHz)
+        specCtx.fillStyle = labelMuted;
+        const freqTicks = [
+            { hz: '125Hz', x: barOffsetLeft + (barCount * 0.12) * (barWidth + 2) },
+            { hz: '500Hz', x: barOffsetLeft + (barCount * 0.32) * (barWidth + 2) },
+            { hz: '1kHz', x: barOffsetLeft + (barCount * 0.52) * (barWidth + 2) },
+            { hz: '4kHz', x: barOffsetLeft + (barCount * 0.72) * (barWidth + 2) },
+            { hz: '16kHz', x: barOffsetLeft + (barCount * 0.90) * (barWidth + 2) }
+        ];
+        freqTicks.forEach(t => {
+            specCtx.fillText(t.hz, t.x - 10, specCanvas.height - 2);
+        });
+
+        // 2. Waveform Canvas: Living carrier sine breath wave with active envelope
         waveCtx.fillStyle = bg;
         waveCtx.fillRect(0, 0, waveCanvas.width, waveCanvas.height);
 
-        waveCtx.strokeStyle = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.04)';
+        // Center Baseline & Top Tag
+        const midY = waveCanvas.height / 2;
+        waveCtx.strokeStyle = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
         waveCtx.lineWidth = 1;
         waveCtx.beginPath();
-        waveCtx.moveTo(0, waveCanvas.height / 2);
-        waveCtx.lineTo(waveCanvas.width, waveCanvas.height / 2);
+        waveCtx.moveTo(0, midY);
+        waveCtx.lineTo(waveCanvas.width, midY);
         waveCtx.stroke();
 
-        waveCtx.lineWidth = 1.25;
-        waveCtx.strokeStyle = isLight ? 'rgba(5, 150, 105, 0.55)' : 'rgba(16, 185, 129, 0.50)';
-        waveCtx.beginPath();
-        const midY = waveCanvas.height / 2;
+        waveCtx.fillStyle = labelMuted;
+        waveCtx.font = '8px Switzer, -apple-system, sans-serif';
+        waveCtx.fillText('OSCILLOSCOPE (48 kHz PCM)', 6, 10);
+
+        // Waveform Curve & Area Fill
+        const wavePoints = [];
         for (let x = 0; x < waveCanvas.width; x += 2) {
             const envelope = Math.sin((x / waveCanvas.width) * Math.PI);
-            const waveY = midY + Math.sin(tick * 2.2 + x * 0.045) * 3.0 * envelope;
-            if (x === 0) waveCtx.moveTo(x, waveY);
-            else waveCtx.lineTo(x, waveY);
+            const waveY = midY + Math.sin(tick * 2.2 + x * 0.045) * 13.0 * envelope;
+            wavePoints.push({ x, y: waveY });
         }
+
+        // Area fill
+        const waveGrad = waveCtx.createLinearGradient(0, midY - 14, 0, midY + 14);
+        if (isLight) {
+            waveGrad.addColorStop(0, 'rgba(5, 150, 105, 0.12)');
+            waveGrad.addColorStop(1, 'rgba(5, 150, 105, 0.0)');
+        } else {
+            waveGrad.addColorStop(0, 'rgba(16, 185, 129, 0.15)');
+            waveGrad.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+        }
+        waveCtx.fillStyle = waveGrad;
+        waveCtx.beginPath();
+        waveCtx.moveTo(0, midY);
+        wavePoints.forEach(p => waveCtx.lineTo(p.x, p.y));
+        waveCtx.lineTo(waveCanvas.width, midY);
+        waveCtx.closePath();
+        waveCtx.fill();
+
+        // Stroke
+        waveCtx.lineWidth = 1.5;
+        waveCtx.strokeStyle = isLight ? '#059669' : '#10B981';
+        waveCtx.beginPath();
+        wavePoints.forEach((p, idx) => {
+            if (idx === 0) waveCtx.moveTo(p.x, p.y);
+            else waveCtx.lineTo(p.x, p.y);
+        });
         waveCtx.stroke();
     }
 
@@ -836,30 +900,69 @@ function drawNetworkStripChart() {
     const maxObservedRtt = Math.max(...networkHistory.map(s => s.rtt || 0), 10.0);
     const isHighLatency = maxObservedRtt > 60.0;
     const chartScaleMax = isHighLatency ? 400.0 : 100.0;
+    const labelMuted = isLight ? 'rgba(0,0,0,0.38)' : 'rgba(255,255,255,0.32)';
 
     // Gridline Y calculations based on adaptive scale
     const gridYMid = canvas.height * 0.5;
     const gridYQuarter = canvas.height * 0.75;
+    const gridY200 = canvas.height * (1.0 - (200.0 / 400.0));
 
     // Faint gridlines
     ctx.strokeStyle = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.06)';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(0, gridYMid); ctx.lineTo(canvas.width, gridYMid);
-    ctx.moveTo(0, gridYQuarter); ctx.lineTo(canvas.width, gridYQuarter);
+    ctx.moveTo(32, gridYMid); ctx.lineTo(canvas.width, gridYMid);
+    ctx.moveTo(32, gridYQuarter); ctx.lineTo(canvas.width, gridYQuarter);
     ctx.stroke();
 
-    // If on 400ms scale, draw 200ms Koyal limit red dashed line
+    // 200ms Koyal Limit Line
     if (isHighLatency) {
-        const gridY200 = canvas.height * (1.0 - (200.0 / 400.0));
         ctx.strokeStyle = '#DC2626';
         ctx.setLineDash([4, 4]);
         ctx.beginPath();
-        ctx.moveTo(0, gridY200);
+        ctx.moveTo(32, gridY200);
         ctx.lineTo(canvas.width, gridY200);
         ctx.stroke();
         ctx.setLineDash([]);
     }
+
+    // Y-Axis Numeric Scale Labels
+    ctx.font = '8px Switzer, -apple-system, sans-serif';
+    ctx.fillStyle = labelMuted;
+    if (isHighLatency) {
+        ctx.fillText('400ms', 4, 10);
+        ctx.fillStyle = '#DC2626';
+        ctx.fillText('200ms Limit', 4, gridY200 - 3);
+        ctx.fillStyle = labelMuted;
+        ctx.fillText('100ms', 4, gridYQuarter - 2);
+    } else {
+        ctx.fillText('100ms', 4, 10);
+        ctx.fillText('50ms', 4, gridYMid - 2);
+        ctx.fillText('25ms', 4, gridYQuarter - 2);
+    }
+    ctx.fillText('0ms', 4, canvas.height - 3);
+
+    // X-Axis Time Window Labels
+    ctx.fillStyle = labelMuted;
+    ctx.fillText('-30s', 60, canvas.height - 3);
+    ctx.fillText('-15s', canvas.width * 0.5 - 8, canvas.height - 3);
+    ctx.fillText('Live (0s)', canvas.width - 45, canvas.height - 3);
+
+    // Compact Top-Right Legend
+    ctx.fillStyle = isLight ? '#059669' : '#10B981';
+    ctx.fillRect(canvas.width - 165, 7, 8, 2);
+    ctx.fillStyle = labelMuted;
+    ctx.fillText('RTT', canvas.width - 153, 10);
+
+    ctx.fillStyle = isLight ? '#D97706' : '#F59E0B';
+    ctx.fillRect(canvas.width - 125, 6, 4, 4);
+    ctx.fillStyle = labelMuted;
+    ctx.fillText('Jitter', canvas.width - 117, 10);
+
+    ctx.fillStyle = '#DC2626';
+    ctx.fillRect(canvas.width - 80, 7, 8, 2);
+    ctx.fillStyle = labelMuted;
+    ctx.fillText('200ms Limit', canvas.width - 68, 10);
 
     if (networkHistory.length < 2) return;
 
@@ -1159,7 +1262,16 @@ if (btnToggleAccordion) {
 ['in-latency', 'in-loss', 'in-jitter', 'in-ws-rtt'].forEach(id => {
     document.getElementById(id).addEventListener('input', updateLiveVisualFigures);
 });
-document.getElementById('select-golden-profile').addEventListener('change', updateLiveVisualFigures);
+document.getElementById('select-golden-profile').addEventListener('change', () => {
+    updateLiveVisualFigures();
+    const rawCourtroomId = document.getElementById('input-courtroom-id').value;
+    const postureEl = document.getElementById('action-dock-posture');
+    const goldenSelect = document.getElementById('select-golden-profile');
+    const goldenLabel = goldenSelect?.options[goldenSelect.selectedIndex]?.textContent || 'HC Leased Line (35ms)';
+    if (postureEl) {
+        postureEl.innerHTML = `Session Posture: <strong class="text-[var(--text-primary)]">${rawCourtroomId}</strong> • ${goldenLabel} • Ready for Evaluation`;
+    }
+});
 
 // -------------------------------------------------------------
 // 6. Pre-Flight Diagnostic Execution with Idempotency Key & Burst Probe
@@ -1875,6 +1987,13 @@ async function selectBenchForDiagnostic(courtroomId, stateCode, benchName) {
     }
 
     autoPairGoldenProfile(courtroomId);
+
+    const postureEl = document.getElementById('action-dock-posture');
+    const goldenSelect = document.getElementById('select-golden-profile');
+    const goldenLabel = goldenSelect?.options[goldenSelect.selectedIndex]?.textContent || 'HC Leased Line (35ms)';
+    if (postureEl) {
+        postureEl.innerHTML = `Session Posture: <strong class="text-[var(--text-primary)]">${courtroomId}</strong> • ${goldenLabel} • Ready for Evaluation`;
+    }
 
     // Bi-directional SQLite History Query: load real historical telemetry
     try {
